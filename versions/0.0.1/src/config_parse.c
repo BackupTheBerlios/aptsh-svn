@@ -27,7 +27,7 @@ char *defaults[] = {
 	"/tmp/aptsh_hm_installed", /* pkg_count_installed */
 	(void*) 0, /* refresh_indexes */
 	(void*) 1, /* refresh_indexes_all */
-	"/var/lib/dpkg/available" /* update_file_installed */
+	"/var/lib/dpkg/status" /* update_file_installed */
 };
 
 struct config_option options[] = {
