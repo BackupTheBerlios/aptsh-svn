@@ -20,6 +20,7 @@
 #include <regex.h>
 #include <fnmatch.h>
 #include <string.h>
+#include <signal.h>
 
 #include "apt_cmds.h"
 #include "config_parse.h"
@@ -60,6 +61,25 @@ int apt_help()
 	system("man aptsh");
 }
 
+
+/* We should ignore SIGPIPE.
+ * If we don't, aptsh is going to terminate when user creates a bad pipe. 
+ * Example:
+ * rls | less
+ * and user escapes from less before it reaches end of list.
+ */
+void i_setsig()
+{
+	static char set = 0;
+	if (! set) {
+		struct sigaction act;
+		act.sa_handler = SIG_IGN;
+		act.sa_flags = 0;
+		sigaction(SIGPIPE, &act, NULL);
+		set = 1;
+	}
+}
+
 int apt_regex()
 {
 /*	char * regexp = trimleft(aptcmd);
@@ -78,6 +98,8 @@ int apt_regex()
 			printf("%s\n", pkgs[i]);
 		}
 	}*/
+	i_setsig();	
+		
 	FILE * pipe;
 	int i;
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
@@ -103,6 +125,8 @@ int apt_ls()
 			printf("%s\n", pkgs[i]);
 		}
 	}*/
+	i_setsig();
+		
 	FILE * pipe;
 	int i;
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
@@ -126,6 +150,14 @@ int apt_whichpkg()
 	aptcmd = trimleft(aptcmd)+strlen("whichpkg");
 	newcmd("dpkg -S");
 	aptcmd = cmdtmp;
+}
+
+int apt_listfiles()
+{
+    char * cmdtmp = aptcmd;
+    aptcmd = trimleft(aptcmd)+strlen("listfiles");
+    newcmd("dpkg -L");
+    aptcmd = cmdtmp;
 }
 
 /* apt-get */

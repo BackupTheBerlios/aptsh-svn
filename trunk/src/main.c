@@ -26,7 +26,7 @@
 #include "string.h"
 #include "config_parse.h"
 
-#define CMD_NUM 34
+#define CMD_NUM 35
 
 struct command
 {
@@ -66,6 +66,7 @@ struct command
 	/* aptsh */
 	{ "dpkg", apt_dpkg, FS },
 	{ "whichpkg", apt_whichpkg, FS },
+	{ "listfiles", apt_listfiles, INSTALLED },
 	{ "dump-cfg", apt_dump_cfg, FS },
 	{ "rls", apt_regex, AVAILABLE },
 	{ "ls", apt_ls, AVAILABLE },

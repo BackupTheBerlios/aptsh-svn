@@ -19,6 +19,7 @@ int apt_regex();
 int apt_ls();
 int apt_help();
 int apt_whichpkg();
+int apt_listfiles();
 
 /* apt-get functions */
 int apt_install();
