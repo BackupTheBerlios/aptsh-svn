@@ -110,6 +110,13 @@ int apt_dpkg()
 	newcmd("");
 }
 
+int apt_whichpkg()
+{	
+	aptcmd = aptcmd+strlen("whichpkg");
+	newcmd("dpkg -S");
+	aptcmd = aptcmd-strlen("whichpkg");
+}
+
 /* apt-get */
 
 int apt_install()
