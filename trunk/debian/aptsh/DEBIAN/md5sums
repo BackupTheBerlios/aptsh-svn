@@ -1,0 +1,6 @@
+fef97fb884673fd93d74a0788a5761bf  usr/bin/aptsh
+7cf50df28affb94d36c88049058b5f53  usr/man/man1/aptsh.1.gz
+4a4653bc63ae6db53e69cc7d99768cb0  usr/share/doc/aptsh/README.Debian
+6d6eb6082a6dd6de1b8741285801c073  usr/share/doc/aptsh/copyright
+2d1ecde0eab5ffc1bd077ed04efdda01  usr/share/doc/aptsh/changelog.Debian.gz
+19135e57de11a6c45d0ac6e402002480  etc/aptsh.conf

@@ -1,0 +1,9 @@
+Package: aptsh
+Version: 0.0.1-1
+Section: unknown
+Priority: optional
+Architecture: i386
+Depends: libc6 (>= 2.3.2.ds1-4), libreadline5
+Installed-Size: 84
+Maintainer: Marcin Wrochniak <vrok@intersec.pl>
+Description: aptsh gives you an interactive shell with all those sweet features like tab-completion (which you can use to complete name of a package), simpler access toapt commands and easier package searching (ls, rls). Although it's not necessary, it just tries tomake life easier.
