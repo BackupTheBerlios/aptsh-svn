@@ -1,4 +1,12 @@
 
+all: ls rls aptsh
+
+ls: ls.c
+	gcc -Wall ls.c -o ls
+
+rls: rls.c
+	gcc -Wall rls.c -o rls
+
 aptsh: main.o readindex.o apt_cmds.o string.o config_parse.o aptsh.1.gz
 	g++ -g -O2 -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o 
 
@@ -26,4 +34,6 @@ aptsh.1.gz: aptsh.1
 clean:
 	rm *.o
 	rm aptsh
+	rm ls
+	rm rls
 	rm aptsh.1.gz

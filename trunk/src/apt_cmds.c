@@ -10,6 +10,8 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,7 +19,6 @@
 #include <sys/stat.h>
 #include <regex.h>
 #include <fnmatch.h>
-
 
 #include "apt_cmds.h"
 #include "config_parse.h"
@@ -60,7 +61,7 @@ int apt_help()
 
 int apt_regex()
 {
-	char * regexp = trimleft(aptcmd);
+/*	char * regexp = trimleft(aptcmd);
 	regex_t compiled;
 	int result = 0;
 	int i;
@@ -75,12 +76,22 @@ int apt_regex()
 		if (! (result = regexec(&compiled, pkgs[i], 0, NULL, 0))) {
 			printf("%s\n", pkgs[i]);
 		}
+	}*/
+	FILE * pipe;
+	int i;
+	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
+	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd);
+	pipe = popen(tmp, "w");
+	for (i =0; i < hm; i++) {
+		fprintf(pipe, "%s\n", pkgs[i]);
 	}
+	fprintf(pipe, "-\n");
+	pclose(pipe);
 }
 
 int apt_ls()
 {
-	char * wildcard = trimleft(aptcmd);
+/*	char * wildcard = trimleft(aptcmd);
 	regex_t compiled;
 	int result = 0;
 	int i;
@@ -90,7 +101,17 @@ int apt_ls()
 		if (! fnmatch(wildcard, pkgs[i], 0)) {
 			printf("%s\n", pkgs[i]);
 		}
+	}*/
+	FILE * pipe;
+	int i;
+	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
+	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd);
+	pipe = popen(tmp, "w");
+	for (i =0; i < hm; i++) {
+		fprintf(pipe, "%s\n", pkgs[i]);
 	}
+	fprintf(pipe, "-\n");
+	pclose(pipe);
 }
 
 int apt_dpkg()
