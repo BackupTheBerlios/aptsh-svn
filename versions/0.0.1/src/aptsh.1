@@ -1,0 +1,101 @@
+.TH aptsh 1 "25 Feb 2005" "version 0.1"
+.SH NAME
+aptsh \- interactive APT shell
+.SH SYNOPSIS
+aptsh [-c 
+.I configuration_file
+]
+.SH DESCRIPTION
+.B aptsh
+is a tool which makes using APT much easier. It gives you an interactive shell with all those sweet features like tab-completion (which you can use to complete name of a package), simpler access to apt commands and easier package searching (ls, rls). Although it's not necessary, it just tries to make life easier.
+.SH USAGE
+We'll try to do some ordinary administration tasks - install/remove/search few packages.
+As a root, type 'aptsh' and press return. Then type 'ins', and press Tab - 'ins' should change into 'install' followed by a whitespace. Now write down 'kde', and press Tab twice - if you're using Debian or other large distro, it should ask you whether you want to see all packages which begin with 'kde'. As you should have noticed - it works exactly like a good shell. You can also play with 'remove' - then aptsh will prompt only installed packages. And remember, that you can pipe results of commands (ie. dump | grep ^Package | cut -d\  -f 2 | grep ^kde ), except 'ls' and 'rls'.
+.SH COMMANDS
+.PP
+aptsh commands:
+.RS
+.TP
+.B dump-cfg
+Dump all aptsh options.
+.TP
+.B dpkg
+Query dpkg.
+.TP
+.B generate-index
+Regenerate aptsh indexes.
+.TP
+.B ls
+Search packages by matching names to a wildcard.
+.TP
+.B rls
+Search packages by matching names to a regular expression.
+.TP
+.B help
+Executes 'man aptsh'.
+.TP
+.B quit
+Erm... quit? :)
+.RE
+.PP
+apt-get querying commands (see man apt-get):
+.RS
+.TP
+.B install
+.TP
+.B update
+.TP
+.B upgrade
+.TP
+.B dselect-upgrade
+.TP
+.B dist-upgrade
+.TP
+.B remove
+.TP
+.B source
+.TP
+.B build-dep
+.TP
+.B check
+.TP
+.B clean
+.TP
+.B autoclean
+.RE
+.PP
+apt-cache querying commands (see man apt-cache):
+.RS
+.TP
+.B show
+.TP
+.B dump
+.TP
+.B add
+.TP
+.B showpkg
+.TP
+.B stats
+.TP
+.B showsrc
+.TP
+.B dumpavail
+.TP
+.B unmet
+.TP
+.B search
+.TP
+.B depends
+.TP
+.B redepends
+.TP
+.B pkgnames
+.TP
+.B dotty
+.TP
+.B policy
+.TP
+.B madison
+.RE
+.SH AUTHOR
+Marcin Wrochniak (vrok@intersec.pl)
