@@ -178,10 +178,16 @@ struct option arg_opts[] =
 
 int main(int argc, char ** argv)
 {
-	config_file = NULL;
 	int c;
 	int option_index = 0;
+	int whattodo = 0;
+	char * execmd = NULL;
+	int i;
+	char help = 0;
+	char * line;
+	
 	cfg_defaults();
+	config_file = NULL;
 	while ((c = getopt_long(argc, argv, "c:", arg_opts, &option_index)) != -1) {
 		switch (c) {
 			case 'c':
@@ -217,15 +223,10 @@ int main(int argc, char ** argv)
 	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
 	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
 	printf("Ready.\n");
-	int whattodo = 0;
-	char * execmd = NULL;
-	int i;
-	char help = 0;
-
 	
 	for (;;) {
 		help = 0;
-		char * line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
+		line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
 		if (CFG_USE_HISTORY)
 			if (strcmp("", line))
