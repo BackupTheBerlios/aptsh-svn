@@ -11,6 +11,7 @@
 */
 #include "config.h"
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -49,6 +50,7 @@ int read_indexes()
 	pkgCache * c = 0;
 	MMap *m =0;
 	int count = 0;
+
 
 	m = new MMap(*new FileFd(CFG_UPDATE_FILE, FileFd::ReadOnly), MMap::Public | MMap::ReadOnly);
 	pkgCache Cache(m);

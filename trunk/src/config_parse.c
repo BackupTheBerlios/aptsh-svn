@@ -21,14 +21,9 @@
 char *defaults[] = {
 	"apt> ", /* ps1 */
 	(void*) 1, /* use_history */
-	"/tmp/aptsh_list", /*pkg_list */
-	"/tmp/aptsh_hm", /* pkg_count */
 	"/var/cache/apt/pkgcache.bin", /* update_file */
-	"/tmp/aptsh_list_installed", /* pkg_list_installed */
-	"/tmp/aptsh_hm_installed", /* pkg_count_installed */
 	(void*) 0, /* refresh_indexes */
 	(void*) 1, /* refresh_indexes_all */
-	"/var/lib/dpkg/status" /* update_file_installed */
 };
 
 struct config_option {
@@ -40,14 +35,9 @@ struct config_option {
 #define STR 0
         { "ps1", NULL, STR },
         { "use_history", NULL, INT },
-        { "pkg_list", NULL, STR },
-        { "pkg_count", NULL, STR },
         { "update_file", NULL, STR },
-        { "pkg_list_installed", NULL, STR },
-        { "pkg_count_installed", NULL, STR },
         { "refresh_indexes", NULL, INT },
         { "refresh_indexes_all", NULL, INT },
-        { "update_file_installed", NULL, STR }
 };
 
 void * get_cfg_opt(int index) {

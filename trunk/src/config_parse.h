@@ -18,18 +18,13 @@
 extern "C" {
 #endif
 	
-#define OPTIONS_COUNT 10
+#define OPTIONS_COUNT 5
 
 #define CFG_PS1 (char*)get_cfg_opt(0)
 #define CFG_USE_HISTORY (int)get_cfg_opt(1)
-#define CFG_PKG_LIST (char*)get_cfg_opt(2)
-#define CFG_PKG_COUNT (char*)get_cfg_opt(3)
-#define CFG_UPDATE_FILE (char*)get_cfg_opt(4)
-#define CFG_PKG_LIST_INSTALLED (char*)get_cfg_opt(5)
-#define CFG_PKG_COUNT_INSTALLED (char*)get_cfg_opt(6)
-#define CFG_REFRESH_INDEXES (char*)get_cfg_opt(7)
-#define CFG_REFRESH_INDEXES_ALL (char*)get_cfg_opt(8)
-#define CFG_UPDATE_FILE_INSTALLED (char*)get_cfg_opt(9)
+#define CFG_UPDATE_FILE (char*)get_cfg_opt(2)
+#define CFG_REFRESH_INDEXES (int)get_cfg_opt(3)
+#define CFG_REFRESH_INDEXES_ALL (int)get_cfg_opt(4)
 
 
 char * config_file;

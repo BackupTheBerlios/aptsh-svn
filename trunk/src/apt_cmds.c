@@ -32,28 +32,14 @@ free(tmp);
 
 #define R_MSG "Reading package database...\n"
 
+long tmpdate;
+
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
 		return;
-
-	if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1)) {
-		free_indexes();
-        printf(R_MSG);
-		read_indexes();
-	} else
-	if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
-		free_indexes();
-		printf(R_MSG);
-		read_indexes();
-	}
-
-	if ((access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
-		free_indexes();
-		printf(R_MSG);
-		read_indexes();
-	} else
-	if (update_date(CFG_UPDATE_FILE_INSTALLED) > update_date(CFG_PKG_LIST_INSTALLED)) {
+	
+	if (update_date(CFG_UPDATE_FILE) > tmpdate) {
 		free_indexes();
 		printf(R_MSG);
 		read_indexes();
@@ -124,63 +110,77 @@ int apt_whichpkg()
 
 int apt_install()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_update()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	if (! CFG_REFRESH_INDEXES_ALL)
 		return 0;
-	free_indexes();
-	printf(R_MSG);
-	read_indexes();
+	if (update_date(CFG_UPDATE_FILE) > tmpdate)
+	{
+		free_indexes();
+		printf(R_MSG);
+		read_indexes();
+	}
 }
 
 int apt_upgrade()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_dselect_upgrade()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_dist_upgrade()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);	
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_remove()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_source()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_build_dep()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
 
 int apt_check()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
+	check_a();
 }
 
 int apt_clean()
 {
+	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
 }
