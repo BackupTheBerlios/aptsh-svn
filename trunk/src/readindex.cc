@@ -63,7 +63,7 @@ int read_indexes()
 		if (ppk->CurrentState == 6) {
 			prev = p;
 			p = (struct package*)malloc(sizeof(package));
-			p->name = (char*)malloc(strlen(e.Name()));
+			p->name = (char*)malloc(strlen(e.Name())+1);
 			p->next = NULL;
 			strcpy(p->name, e.Name());
 			if (inst_count != 0) {

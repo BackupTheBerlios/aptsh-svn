@@ -30,6 +30,8 @@ sprintf(tmp, "%s %s", WW, aptcmd);\
 system(tmp);\
 free(tmp);
 
+#define R_MSG "Reading package database...\n"
+
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
@@ -37,23 +39,23 @@ void check_a()
 
 	if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1)) {
 		free_indexes();
-        printf("Reading package database [1]...\n");
+        printf(R_MSG);
 		read_indexes();
 	} else
 	if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
 		free_indexes();
-		printf("Reading package database [1]...\n");
+		printf(R_MSG);
 		read_indexes();
 	}
 
 	if ((access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
 		free_indexes();
-		printf("Reading package database [2]...\n");
+		printf(R_MSG);
 		read_indexes();
 	} else
 	if (update_date(CFG_UPDATE_FILE_INSTALLED) > update_date(CFG_PKG_LIST_INSTALLED)) {
 		free_indexes();
-		printf("Reading package database [2]...\n");
+		printf(R_MSG);
 		read_indexes();
 	}
 }
@@ -112,9 +114,10 @@ int apt_dpkg()
 
 int apt_whichpkg()
 {	
-	aptcmd = aptcmd+strlen("whichpkg");
+	char * cmdtmp = aptcmd;
+	aptcmd = trimleft(aptcmd)+strlen("whichpkg");
 	newcmd("dpkg -S");
-	aptcmd = aptcmd-strlen("whichpkg");
+	aptcmd = cmdtmp;
 }
 
 /* apt-get */
@@ -131,7 +134,7 @@ int apt_update()
 	if (! CFG_REFRESH_INDEXES_ALL)
 		return 0;
 	free_indexes();
-	printf("Reading package database [1]...\n");
+	printf(R_MSG);
 	read_indexes();
 }
 
