@@ -27,7 +27,15 @@
 #include "string.h"
 #include "config_parse.h"
 
-#define CMD_NUM 35
+#define CMD_NUM 37
+
+// These variables are used to store commit log.
+//int cl_size; // Number of logged commands
+//char ** commitlog; // Logged commands
+
+struct commit_item * commitlog;
+struct commit_item * first;
+
 
 struct command
 {
@@ -71,6 +79,8 @@ struct command
 	{ "dump-cfg", apt_dump_cfg, FS },
 	{ "rls", apt_regex, AVAILABLE },
 	{ "ls", apt_ls, AVAILABLE },
+	{ "commit", apt_commit, NONE },
+	{ "commit-status", apt_commit_status, NONE },
 	{ "help", apt_help, NONE },
 	{ "quit", NULL, NONE } 
 };
@@ -146,10 +156,18 @@ char * cpl_pkg_i(const char * text, int state)
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* commands completion */
-char * cpl_main(const char * text, int state)
+char * cpl_main(const char * text_orig, int state)
 {
 	static int index, len;
 	char * name, * tmp;
+	
+	char * text;
+	if (text_orig[0] == ';') {
+		text = (char*)text_orig+1;
+	} else {
+		text = (char*)text_orig;
+	}
+	
 
 	if (!state) {
 		index = 0;
@@ -169,7 +187,10 @@ char * cpl_main(const char * text, int state)
 
 enum completion check_command()
 {
-	char * to_check = trimleft(first_word(rl_line_buffer));
+	char * line = rl_line_buffer;
+	if (line[0] == ';')
+		line++;
+	char * to_check = trimleft(first_word(line));
 	int i = 0;
 	for (; i < CMD_NUM; i++) {
 		if (! strcmp(to_check, cmds[i].name)) {
@@ -187,7 +208,24 @@ char ** completion(const char * text, int start, int end)
 	if (rl_line_buffer[0] == '.') {
 		return m;
 	}
+	if (rl_line_buffer[0] == ';') {
+		char toobad = 0;
+		for (int i = 1; i < start; i++) {
+			if (rl_line_buffer[i] != ' ') {
+				if (rl_line_buffer[i] != '\0') {
+					//printf("%d\n", start);
+					toobad = 1;
+					break;
+				}
+			}
+		}
+		if (! toobad) {
+			m = rl_completion_matches(text, cpl_main);
+			return m;
+		}
+	}
 	if (start == 0) {
+	//if ((start == 0) || ( (rl_line_buffer[0]==';')&& ((start==1)||(start==2) ) )) {
 		m = rl_completion_matches(text, cpl_main);
 	}else {
 		switch (check_command()) {
@@ -211,6 +249,28 @@ struct option arg_opts[] =
 	{"config-file", required_argument, 0, 'c' }
 };
 
+int validate(char * cmd)
+{
+	cmd = trimleft(cmd);
+	char * tmp = first_word(cmd);
+	char ok = 0;
+	for (int i = 0; i < CMD_NUM; i++) {
+		if (! strcmp(tmp, cmds[i].name)) {
+			ok = 1;
+			break;
+		}
+	}
+	if (! ok) {
+		fprintf(stderr, "Warning: Unknown command, %s!\n", tmp);
+		free(tmp);
+		return 1;
+	}
+	ok = 0;
+
+	free(tmp);
+	return 0;
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -219,7 +279,11 @@ int main(int argc, char ** argv)
 	int i;
 	char help = 0;
 	char * line;
-	
+
+	commitlog = NULL;
+	first = NULL;
+	//cl_size = 0;
+
 	cfg_defaults();
 	config_file = NULL;
 	while ((c = getopt_long(argc, argv, "c:", arg_opts, &option_index)) != -1) {
@@ -262,6 +326,24 @@ int main(int argc, char ** argv)
 						append_history(1, CFG_HISTORY_FILE);
 			}
 		
+		if (line[0] == ';') {
+			if (first == NULL) {
+				commitlog = (struct commit_item*)malloc(sizeof(struct commit_item));
+				first = commitlog;
+			}else {
+				commit_item * tmp = commitlog;
+				commitlog = (struct commit_item*)malloc(sizeof(struct commit_item));
+				tmp->next = commitlog;
+			}
+			commitlog->next = NULL;
+
+			validate(line+1);
+			//                     line contains ' sign, so we don't need to allocate +1 bytes.
+			commitlog->text = (char*)malloc(strlen(line));
+			strcpy(commitlog->text, line+1);
+			continue;
+		}
+
 		if (line[0] == '.') {
 			system((char*)(line+1));
 			continue;

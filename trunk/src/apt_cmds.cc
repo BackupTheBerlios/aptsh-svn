@@ -172,6 +172,35 @@ int apt_listfiles()
 	aptcmd = cmdtmp;
 }
 
+int apt_commit()
+{
+	if (first == NULL)
+		return 0;
+	struct commit_item * iterator = first;
+	struct commit_item * n;
+	while (1) {
+		n = iterator->next;
+		free(iterator);
+		if (n->next == NULL) {
+			free(n);
+			first = NULL;
+			break;
+		}
+		iterator = n;
+	}
+}
+
+int apt_commit_status()
+{
+	if (first == NULL)
+		return 0;
+	struct commit_item * iterator = first;
+	for (; iterator->next != NULL; iterator = iterator->next) {
+		printf(" %s\n", iterator->text);
+	}
+	printf(" %s\n", iterator->text);
+}
+
 /* apt-get */
 
 int apt_install()

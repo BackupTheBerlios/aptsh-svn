@@ -20,6 +20,8 @@ int apt_ls();
 int apt_help();
 int apt_whichpkg();
 int apt_listfiles();
+int apt_commit();
+int apt_commit_status();
 
 /* apt-get functions */
 int apt_install();
