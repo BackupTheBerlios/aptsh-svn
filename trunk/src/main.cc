@@ -236,6 +236,12 @@ int main(int argc, char ** argv)
 	}
 	initialize_rl();
 
+	if (CFG_HISTORY_COUNT  && CFG_USE_HISTORY) {
+		printf("Reading commands history...\n");
+		history_truncate_file(CFG_HISTORY_FILE, CFG_HISTORY_COUNT);
+		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
+	}
+
 	printf("Reading package database...\n");
 	//read_index1();
 	//read_index2();
@@ -247,8 +253,14 @@ int main(int argc, char ** argv)
 		line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
 		if (CFG_USE_HISTORY)
-			if (line && strcmp("", line))
+			if (line && strcmp("", line)) {
 				add_history(line);
+				if (CFG_HISTORY_COUNT)
+					if ((access(CFG_HISTORY_FILE, F_OK) == -1))
+						write_history(CFG_HISTORY_FILE);
+					else
+						append_history(1, CFG_HISTORY_FILE);
+			}
 		
 		if (line[0] == '.') {
 			system((char*)(line+1));
