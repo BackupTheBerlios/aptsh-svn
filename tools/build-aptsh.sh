@@ -12,7 +12,7 @@ if [ $1 = 'svn' ]; then
 	mv trunk/* .
 	rm -rf trunk
 	f=aptsh-`date +%Y.%m.%d`
-elif [$1 = 'release' ]
+elif [ $1 = 'release' ]
 	svn checkout svn://svn.berlios.de/aptsh/trunk/
 	mv trunk/* .
 	rm -rf trunk
