@@ -10,13 +10,44 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-int read_index1(char * filename, char * hm_file);
-int read_index2(char * filename, char * hm_file);
+#ifndef READINDEX_H
+#define READINDEX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+int read_index1();
+int read_index2();
+
+struct package
+{
+	char * name;
+	struct package * next;
+};
+
+struct package * pkg_start;
+struct package * pkg_iterator;
+
+void free_index1();
+void free_index2();
+
+void pkg_next(struct package * pkg);
 
 int hm;
 int hm_i;
 
 char ** pkgs; /* all packages */
 char ** pkgs_i; /* installed packages */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
+/* vim: ts=4
+*/
 

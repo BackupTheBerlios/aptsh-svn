@@ -10,30 +10,43 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+
+#ifndef CONFIGPARSE_H
+#define CONFIGPARSE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #define OPTIONS_COUNT 10
 
-#define CFG_PS1 (char*)options[0].value
-#define CFG_USE_HISTORY (int)options[1].value
-#define CFG_PKG_LIST (char*)options[2].value
-#define CFG_PKG_COUNT (char*)options[3].value
-#define CFG_UPDATE_FILE (char*)options[4].value
-#define CFG_PKG_LIST_INSTALLED (char*)options[5].value
-#define CFG_PKG_COUNT_INSTALLED (char*)options[6].value
-#define CFG_REFRESH_INDEXES (char*)options[7].value
-#define CFG_REFRESH_INDEXES_ALL (char*)options[8].value
-#define CFG_UPDATE_FILE_INSTALLED (char*)options[9].value
+#define CFG_PS1 (char*)get_cfg_opt(0)
+#define CFG_USE_HISTORY (int)get_cfg_opt(1)
+#define CFG_PKG_LIST (char*)get_cfg_opt(2)
+#define CFG_PKG_COUNT (char*)get_cfg_opt(3)
+#define CFG_UPDATE_FILE (char*)get_cfg_opt(4)
+#define CFG_PKG_LIST_INSTALLED (char*)get_cfg_opt(5)
+#define CFG_PKG_COUNT_INSTALLED (char*)get_cfg_opt(6)
+#define CFG_REFRESH_INDEXES (char*)get_cfg_opt(7)
+#define CFG_REFRESH_INDEXES_ALL (char*)get_cfg_opt(8)
+#define CFG_UPDATE_FILE_INSTALLED (char*)get_cfg_opt(9)
+
 
 char * config_file;
 
-struct config_option {
-	char * name; /* name of option */
-	void * value;
-	char is_int; /* is this option an integer? if so, use value as a area for integer. else, use as char* */ 
-};
-
-struct config_option options[OPTIONS_COUNT];
+void * get_cfg_opt(int index);
 
 void cfg_defaults();
 void cfg_dump();
 int cfg_parse();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
+/* vim: ts=4
+*/
 

@@ -19,8 +19,8 @@
 #include <sys/stat.h>
 
 #include <readline/readline.h>
+#include <readline/history.h>
 
-#include "genindex.h"
 #include "readindex.h"
 #include "apt_cmds.h"
 #include "string.h"
@@ -62,10 +62,10 @@ struct command
 	{ "dotty", apt_dotty, AVAILABLE },
 	{ "policy", apt_policy, AVAILABLE },
 	{ "madison", apt_madison, AVAILABLE },
+	{ "whatis", apt_whatis, AVAILABLE },
 	/* aptsh */
 	{ "dpkg", apt_dpkg, FS },
 	{ "dump-cfg", apt_dump_cfg, FS },
-	{ "generate-index", apt_generate_index, NONE },
 	{ "rls", apt_regex, AVAILABLE },
 	{ "ls", apt_ls, AVAILABLE },
 	{ "help", apt_help, NONE },
@@ -100,7 +100,36 @@ char * cpl_pkg(const char * text, int state)
 
 char * cpl_pkg_i(const char * text, int state)
 {
-	COMPLETION(pkgs_i, hm_i);
+//	COMPLETION(pkgs_i, hm_i);
+	static struct package * pp;
+	static int len;
+	char * tmp, * name;
+
+	if (!state) {
+		pp = pkg_start;
+		len = strlen(text);
+	}
+
+	while (pp->next != NULL) {
+		if (! strncmp(text, pp->name, len)) {
+			tmp = (char*)malloc(strlen(pp->name)+1);
+			strcpy(tmp, pp->name);
+			pp = pp->next;
+			return tmp;
+		}
+		pp = pp->next;
+	}
+//	for (; pp->next != NULL; pp = pp->next) {
+	/*	name = pp->name;
+		if (! strncmp(text, name, len)) {
+			name = pp->name;
+			tmp = (char*)malloc(strlen(name)+1);
+			strcpy(tmp, name);
+			return tmp;
+		}*/
+//		printf("%s\n", pp->name);
+//	}
+	return (char)NULL;
 }
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
@@ -152,6 +181,7 @@ char ** completion(const char * text, int start, int end)
 		switch (check_command()) {
 			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
 			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
+			default: break;
 		}
 	}
 	return m;
@@ -180,7 +210,6 @@ int main(int argc, char ** argv)
 {
 	int c;
 	int option_index = 0;
-	int whattodo = 0;
 	char * execmd = NULL;
 	int i;
 	char help = 0;
@@ -202,26 +231,9 @@ int main(int argc, char ** argv)
 	}
 	initialize_rl();
 
-	if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1)) {
-		generate_index1();
-	} else
-	if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
-		printf("Update file %s is newer than indexes, so...\n", CFG_UPDATE_FILE);
-		generate_index1();
-	}
-
-	if ((access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
-		generate_index2();
-	} else
-	if (update_date(CFG_UPDATE_FILE_INSTALLED) > update_date(CFG_PKG_LIST_INSTALLED)) {
-		printf("Update file %s is newer than indexes, so...\n", CFG_UPDATE_FILE);
-		generate_index2();
-	}
-
-	
 	printf("Reading package database...\n");
-	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
-	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
+	read_index1();
+	read_index2();
 	printf("Ready.\n");
 	
 	for (;;) {
@@ -229,7 +241,7 @@ int main(int argc, char ** argv)
 		line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
 		if (CFG_USE_HISTORY)
-			if (strcmp("", line))
+			if (line && strcmp("", line))
 				add_history(line);
 		
 		if (line[0] == '.') {
@@ -260,4 +272,9 @@ int main(int argc, char ** argv)
 		free(line);
 		free(execmd);
 	}
+	return 0;
 }
+
+/* vim: ts=4
+*/
+

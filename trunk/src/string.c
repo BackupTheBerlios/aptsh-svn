@@ -59,3 +59,7 @@ char * trim(char * src)
 	strncpy(tmp, src+trimleft, len-trimleft-(len-trimright)+1);
 	return tmp;
 }
+
+
+/* vim: ts=4
+*/

@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "config_parse.h"
@@ -27,23 +28,33 @@ char *defaults[] = {
 	"/tmp/aptsh_hm_installed", /* pkg_count_installed */
 	(void*) 0, /* refresh_indexes */
 	(void*) 1, /* refresh_indexes_all */
-	"/var/lib/dpkg/available" /* update_file_installed */
+	"/var/lib/dpkg/status" /* update_file_installed */
 };
 
-struct config_option options[] = {
+struct config_option {
+        char * name; /* name of option */
+        void * value;
+        char is_int; /* is this option an integer? if so, use value as a area for integer. else, use as char* */
+} options[] = {
 #define INT 1
 #define STR 0
-	{ "ps1", NULL, STR },
-	{ "use_history", NULL, INT },
-	{ "pkg_list", NULL, STR },
-	{ "pkg_count", NULL, STR },
-	{ "update_file", NULL, STR },
-	{ "pkg_list_installed", NULL, STR },
-	{ "pkg_count_installed", NULL, STR },
-	{ "refresh_indexes", NULL, INT },
-	{ "refresh_indexes_all", NULL, INT },
-	{ "update_file_installed", NULL, STR }
+        { "ps1", NULL, STR },
+        { "use_history", NULL, INT },
+        { "pkg_list", NULL, STR },
+        { "pkg_count", NULL, STR },
+        { "update_file", NULL, STR },
+        { "pkg_list_installed", NULL, STR },
+        { "pkg_count_installed", NULL, STR },
+        { "refresh_indexes", NULL, INT },
+        { "refresh_indexes_all", NULL, INT },
+        { "update_file_installed", NULL, STR }
 };
+
+void * get_cfg_opt(int index) {
+	if (index < OPTIONS_COUNT)
+		return options[index].value;
+	return NULL;
+}
 
 void cfg_dump()
 {
@@ -101,6 +112,10 @@ int cfg_parse()
 	int x = 0;
 	char typing = 0;
 	int i = 0;
+	if (access(config_file, F_OK) == -1) {
+		fprintf(stderr, "Configuration file doesn't exist!\n");
+		return 1;
+	}
 	if (! (fp = fopen(config_file, "r"))) {
 		fprintf(stderr, "Can't open configuration file!\n");
 		return 1;
@@ -146,6 +161,10 @@ int cfg_parse()
 	}
 
 	
-	close(fp);
+	fclose(fp);
 	return 0;
 }
+
+/* vim: ts=4
+*/
+

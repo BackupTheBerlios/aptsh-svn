@@ -21,7 +21,6 @@
 
 #include "apt_cmds.h"
 #include "config_parse.h"
-#include "genindex.h"
 #include "readindex.h"
 #include "string.h"
 
@@ -35,73 +34,35 @@ void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
 		return;
-       /* if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1) ||
-            (access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
-                generate_index(CFG_PKG_LIST, CFG_PKG_COUNT, CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
-        	free(pkgs);
-        	free(pkgs_i);
-        	printf("Reading package database...\n");
-        	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
-        	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);		
-        } else
-        if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
-                generate_index(CFG_PKG_LIST, CFG_PKG_COUNT, CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
-        	free(pkgs);
-        	free(pkgs_i);
-        	printf("Reading package database...\n");
-        	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
-        	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
-        }*/
 
 	if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1)) {
-		generate_index1();
-		free(pkgs);
-        	printf("Reading package database [1]...\n");
-		read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
+		free_index1();
+        printf("Reading package database [1]...\n");
+		read_index1();
 	} else
 	if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
-		generate_index1();
-		free(pkgs);
-        	printf("Reading package database [1]...\n");
-		read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
+		free_index1();
+		printf("Reading package database [1]...\n");
+		read_index1();
 	}
 
 	if ((access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
-		generate_index2();
-        	free(pkgs_i);
-        	printf("Reading package database [2]...\n");
-        	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
+		free_index2();
+		printf("Reading package database [2]...\n");
+		read_index2();
 	} else
 	if (update_date(CFG_UPDATE_FILE_INSTALLED) > update_date(CFG_PKG_LIST_INSTALLED)) {
-		generate_index2();
-        	free(pkgs_i);
-        	printf("Reading package database [2]...\n");
-        	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);
+		free_index2();
+		printf("Reading package database [2]...\n");
+		read_index2();
 	}
 }
-
-/*#define check_a();\
-	if (CFG_REFRESH_INDEXES || CFG_REFRESH_INDEXES_ALL) {\
-        	generate_index(CFG_PKG_LIST, CFG_PKG_COUNT, CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);\
-        	free(pkgs);\
-        	free(pkgs_i);\
-        	printf("Reading package database...\n");\
-        	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);\
-        	read_index2(CFG_PKG_LIST_INSTALLED, CFG_PKG_COUNT_INSTALLED);\
-	}
-*/		
 
 /* aptsh */
 
 int apt_dump_cfg()
 {
 	cfg_dump();
-}
-
-int apt_generate_index()
-{
-	generate_index1();
-	generate_index2();
 }
 
 int apt_help()
@@ -131,12 +92,12 @@ int apt_regex()
 
 int apt_ls()
 {
-        char * wildcard = trimleft(aptcmd);
-        regex_t compiled;
-        int result = 0;
-        int i;
-        while (((*wildcard) != ' ') && ((*wildcard) != '\0')) wildcard++;
-        wildcard = trimleft(wildcard);
+	char * wildcard = trimleft(aptcmd);
+	regex_t compiled;
+	int result = 0;
+	int i;
+	while (((*wildcard) != ' ') && ((*wildcard) != '\0')) wildcard++;
+	wildcard = trimleft(wildcard);
 	for (i = 0; i < hm; i++) {
 		if (! fnmatch(wildcard, pkgs[i], 0)) {
 			printf("%s\n", pkgs[i]);
@@ -162,10 +123,9 @@ int apt_update()
 	newcmd("apt-get");
 	if (! CFG_REFRESH_INDEXES_ALL)
 		return 0;
-	generate_index1();
-	free(pkgs);
+	free_index1();
 	printf("Reading package database [1]...\n");
-	read_index1(CFG_PKG_LIST, CFG_PKG_COUNT);
+	read_index1();
 }
 
 int apt_upgrade()
@@ -296,4 +256,18 @@ int apt_madison()
 {
 	newcmd("apt-cache");
 }
+
+int apt_whatis()
+{
+	#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed -s 's/Description://'"
+	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
+	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
+	system(tmp);
+	free(tmp);
+
+	//newcmd("apt-cache show iptables | grep ^Description | head -n 1 | sed -s 's/Description://'"
+}
+
+/* vim: ts=4
+*/
 

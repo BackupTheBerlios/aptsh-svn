@@ -18,3 +18,7 @@ enum completion {
 	FS,
 	NONE
 };
+
+/* vim: ts=4
+*/
+

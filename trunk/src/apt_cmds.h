@@ -14,7 +14,6 @@ char * aptcmd;
 
 /* aptsh */
 int apt_dump_cfg();
-int apt_generate_index();
 int apt_dpkg();
 int apt_regex();
 int apt_ls();
@@ -49,5 +48,9 @@ int apt_pkgnames();
 int apt_dotty();
 int apt_policy();
 int apt_madison();
+int apt_whatis();
 
+
+/* vim: ts=4
+*/
 

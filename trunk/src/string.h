@@ -15,3 +15,7 @@ char * first_word(const char * cmd);
 char * trimleft(char * cmd);
 
 char * trim(char * src);
+
+/* vim: ts=4
+*/
+
