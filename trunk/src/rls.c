@@ -20,18 +20,18 @@ int main(int argc, char ** argv)
 		regexp = argv[1];
 	}
 
-    if (regcomp(&compiled, regexp, REG_ICASE)) {
-        fprintf(stderr, "Someting went wrong while processing the regular expresion!\n");
-        return 1;
-    }
+	if (regcomp(&compiled, regexp, REG_ICASE)) {
+		fprintf(stderr, "Someting went wrong while processing the regular expresion!\n");
+		return 1;
+	}
 
 	scanf("%s\n", in);
 	while (strcmp(in, "-") != 0) {
-        if (! (result = regexec(&compiled, in, 0, NULL, 0))) {
-            printf("%s\n", in);
-        }
+		if (! (result = regexec(&compiled, in, 0, NULL, 0))) {
+			printf("%s\n", in);
+		}
 		scanf("%s\n", in);
-    }
+	}
 
 	return 0;
 }
