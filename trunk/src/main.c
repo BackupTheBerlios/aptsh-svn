@@ -253,7 +253,7 @@ int main(int argc, char ** argv)
 	
 		execmd = first_word(trimleft(line));
 		
-		if (! strcmp(execmd, "quit"))
+		if ((! strcmp(execmd, "quit")) || (!strcmp(execmd, "exit")) || (!strcmp(execmd, "bye")))
 			break;
 		
 		aptcmd = line;
