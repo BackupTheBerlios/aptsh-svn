@@ -32,8 +32,18 @@ aptsh.1.gz: aptsh.1
 	touch aptsh.1.gz
 
 clean:
-	rm *.o
-	rm aptsh
-	rm ls
-	rm rls
-	rm aptsh.1.gz
+	if test `find . -iname '*.o' | head -n 1` ; then  \
+		rm *.o ; \
+	fi
+	if [ -x aptsh ] ; then \
+		rm aptsh;\
+	fi
+	if [ -x ls ]; then\
+		rm ls;\
+	fi
+	if [ -x rls ]; then\
+		rm rls;\
+	fi
+	if [ -e aptsh.1.gz ]; then\
+		rm aptsh.1.gz;\
+	fi
