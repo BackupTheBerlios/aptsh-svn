@@ -27,8 +27,9 @@
 #include "readindex.h"
 #include "string.h"
 
+char * tmp;
 #define newcmd(WW) \
-char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
+tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
 sprintf(tmp, "%s %s", WW, aptcmd);\
 system(tmp);\
 free(tmp);
@@ -71,8 +72,8 @@ int apt_help()
 void i_setsig()
 {
 	static char set = 0;
+	struct sigaction act;
 	if (! set) {
-		struct sigaction act;
 		act.sa_handler = SIG_IGN;
 		act.sa_flags = 0;
 		sigaction(SIGPIPE, &act, NULL);
@@ -98,11 +99,13 @@ int apt_regex()
 			printf("%s\n", pkgs[i]);
 		}
 	}*/
-	i_setsig();	
-		
 	FILE * pipe;
 	int i;
-	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
+	char * tmp;
+
+	i_setsig();
+
+	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
 	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd);
 	pipe = popen(tmp, "w");
 	for (i =0; i < hm; i++) {
@@ -125,11 +128,13 @@ int apt_ls()
 			printf("%s\n", pkgs[i]);
 		}
 	}*/
-	i_setsig();
-		
 	FILE * pipe;
 	int i;
-	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
+	char * tmp;
+
+	i_setsig();
+
+	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
 	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd);
 	pipe = popen(tmp, "w");
 	for (i =0; i < hm; i++) {
@@ -323,7 +328,7 @@ int apt_madison()
 
 int apt_whatis()
 {
-	#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed -s 's/Description://'"
+	#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'"
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
 	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
 	system(tmp);
