@@ -25,18 +25,18 @@ struct package
 	struct package * next;
 };
 
-struct package * pkg_start;
-struct package * pkg_iterator;
+extern struct package * pkg_start;
+extern struct package * pkg_iterator;
 
 void free_indexes();
 
 void pkg_next(struct package * pkg);
 
-int hm;
-int hm_i;
+extern int hm;
+extern int hm_i;
 
-char ** pkgs; /* all packages */
-char ** pkgs_i; /* installed packages */
+extern char ** pkgs; /* all packages */
+extern char ** pkgs_i; /* installed packages */
 
 #ifdef __cplusplus
 }

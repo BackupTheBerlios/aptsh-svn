@@ -26,6 +26,15 @@ using namespace std;
 #include "config_parse.h"
 #include "readindex.h"
 
+struct package * pkg_start;
+struct package * pkg_iterator;
+
+int hm;
+int hm_i;
+
+char ** pkgs; /* all packages */
+char ** pkgs_i; /* installed packages */
+
 void free_indexes()
 {
 	/* 1 */
