@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <regex.h>
 #include <fnmatch.h>
+#include <string.h>
 
 #include "apt_cmds.h"
 #include "config_parse.h"

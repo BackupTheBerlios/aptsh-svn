@@ -10,7 +10,7 @@ aptsh [-c
 is a tool which makes using APT much easier. It gives you an interactive shell with all those sweet features like tab-completion (which you can use to complete name of a package), simpler access to apt commands and easier package searching (ls, rls). Although it's not necessary, it just tries to make life easier.
 .SH USAGE
 We'll try to do some ordinary administration tasks - install/remove/search few packages.
-As a root, type 'aptsh' and press return. Then type 'ins', and press Tab - 'ins' should change into 'install' followed by a whitespace. Now write down 'kde', and press Tab twice - if you're using Debian or other large distro, it should ask you whether you want to see all packages which begin with 'kde'. As you should have noticed - it works exactly like a good shell. You can also play with 'remove' - then aptsh will prompt only installed packages. And remember, that you can pipe results of commands (ie. dump | grep ^Package | cut -d\  -f 2 | grep ^kde ), except 'ls' and 'rls'.
+As a root, type 'aptsh' and press return. Then type 'ins', and press Tab - 'ins' should change into 'install' followed by a whitespace. Now write down 'kde', and press Tab twice - if you're using Debian or other large distro, it should ask you whether you want to see all packages which begin with 'kde'. As you should have noticed - it works exactly like a good shell. You can also play with 'remove' - then aptsh will prompt only installed packages. And remember, that you can pipe results of commands (ie. dump | grep ^Package | cut -d\  -f 2 | grep ^kde ), except 'ls' and 'rls'. And you can execute a normal shell command by preceding it with ".".
 .SH COMMANDS
 .PP
 aptsh commands:
