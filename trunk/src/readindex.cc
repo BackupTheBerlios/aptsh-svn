@@ -25,32 +25,11 @@ using namespace std;
 #include "config_parse.h"
 #include "readindex.h"
 
-void free_index1()
+void free_indexes()
 {
+	/* 1 */
 	free(pkgs);
-}
-
-int read_index1()
-{
-	pkgCache * c = 0;
-	MMap *m =0;
-	int count = 0;
-	m = new MMap(*new FileFd(CFG_UPDATE_FILE, FileFd::ReadOnly), MMap::Public | MMap::ReadOnly);
-	pkgCache Cache(m);
-	c = &Cache;
-	pkgCache &si = *c;
-	hm = si.Head().PackageCount;
-	pkgs = (char**)malloc(hm*sizeof(char*));
-	for (pkgCache::PkgIterator e = si.PkgBegin(); e.end() == false; e++) {
-		pkgs[count] = (char*)malloc(strlen(e.Name())+1);
-		strcpy(pkgs[count], e.Name());
-		count++;
-	}
-	delete m;
-}
-
-void free_index2()
-{
+	/* 2 */
 	struct package * pp = pkg_start;
 	struct package * tmp;
 	while (pp->next != NULL) {
@@ -61,55 +40,46 @@ void free_index2()
 	}
 }
 
-int read_index2()
+int read_indexes()
 {
-	char tmp[1023];
-	int i = 0;
-	int x = 0;
-	char c;
-	bool ignore = false;
-	FILE * fp;
 	struct package * p;
 	struct package * prev;
-	if (! (fp = fopen(CFG_UPDATE_FILE_INSTALLED, "r"))) {
-		fprintf(stderr, "Can't open %s file!\n", CFG_UPDATE_FILE_INSTALLED);
-		return 1;
-	}
-	while ((c = fgetc(fp)) != EOF) {
-		if (c != '\n') {
-			if (ignore)
-				continue;
-			if (i == 1023) {
-				ignore = true;
-				continue;
-			}
-			tmp[i++] = c;
-		}else {
-			if (ignore) {
-				ignore = false;
-				i = 0;
-				continue;
-			}
-			tmp[i] = '\0';
-			if (strstr(tmp, "Package:") == tmp) {
-				prev = p;
-				p = (struct package*)malloc(sizeof(package));
-				p->name = (char*)malloc(strlen(tmp)-8);
-				p->next = NULL;
-				strcpy(p->name, tmp+9);
-				if (x != 0) {
-					prev->next = p;
-				}else {
-					pkg_start = p;			
-				}
-				x++;
-			}
-			i = 0;
-		}
-	}
-	fclose(fp);
+	int inst_count = 0;
+	int len = 0;
+	pkgCache * c = 0;
+	MMap *m =0;
+	int count = 0;
 
-/* Below is the method of iterating through names of packages.
+	m = new MMap(*new FileFd(CFG_UPDATE_FILE, FileFd::ReadOnly), MMap::Public | MMap::ReadOnly);
+	pkgCache Cache(m);
+	c = &Cache;
+	pkgCache &si = *c;
+	hm = si.Head().PackageCount;
+	pkgs = (char**)malloc(hm*sizeof(char*));
+	for (pkgCache::PkgIterator e = si.PkgBegin(); e.end() == false; e++) {
+		pkgs[count] = (char*)malloc(strlen(e.Name())+1);
+		pkgCache::Package * ppk = (pkgCache::Package *)e;
+		/* if package is installed, then add it to installed list also */
+		if (ppk->CurrentState == 6) {
+			prev = p;
+			p = (struct package*)malloc(sizeof(package));
+			p->name = (char*)malloc(strlen(e.Name()));
+			p->next = NULL;
+			strcpy(p->name, e.Name());
+			if (inst_count != 0) {
+				prev->next = p;
+			}else {
+				pkg_start = p;			
+			}
+			inst_count++;
+		}
+		strcpy(pkgs[count], e.Name());
+		count++;
+	}
+	delete m;
+}
+
+/* Below is the method of iterating through names of installed packages.
  *
  * package * pp;
  *	for (pp = pkg_start; pp->next != NULL; pp = pp->next) {
@@ -117,7 +87,6 @@ int read_index2()
  *	}
  *	printf("%s\n", pp->name);
  */
-}
 
 /* vim: ts=4
 */

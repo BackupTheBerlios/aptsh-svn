@@ -36,25 +36,25 @@ void check_a()
 		return;
 
 	if ((access(CFG_PKG_LIST, F_OK) == -1) || (access(CFG_PKG_COUNT, F_OK) == -1)) {
-		free_index1();
+		free_indexes();
         printf("Reading package database [1]...\n");
-		read_index1();
+		read_indexes();
 	} else
 	if (update_date(CFG_UPDATE_FILE) > update_date(CFG_PKG_LIST)) {
-		free_index1();
+		free_indexes();
 		printf("Reading package database [1]...\n");
-		read_index1();
+		read_indexes();
 	}
 
 	if ((access(CFG_PKG_LIST_INSTALLED, F_OK) == -1) || (access(CFG_PKG_COUNT_INSTALLED, F_OK) == -1)) {
-		free_index2();
+		free_indexes();
 		printf("Reading package database [2]...\n");
-		read_index2();
+		read_indexes();
 	} else
 	if (update_date(CFG_UPDATE_FILE_INSTALLED) > update_date(CFG_PKG_LIST_INSTALLED)) {
-		free_index2();
+		free_indexes();
 		printf("Reading package database [2]...\n");
-		read_index2();
+		read_indexes();
 	}
 }
 
@@ -123,9 +123,9 @@ int apt_update()
 	newcmd("apt-get");
 	if (! CFG_REFRESH_INDEXES_ALL)
 		return 0;
-	free_index1();
+	free_indexes();
 	printf("Reading package database [1]...\n");
-	read_index1();
+	read_indexes();
 }
 
 int apt_upgrade()
@@ -264,8 +264,6 @@ int apt_whatis()
 	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
 	system(tmp);
 	free(tmp);
-
-	//newcmd("apt-cache show iptables | grep ^Description | head -n 1 | sed -s 's/Description://'"
 }
 
 /* vim: ts=4

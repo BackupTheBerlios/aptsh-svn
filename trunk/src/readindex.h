@@ -17,9 +17,7 @@
 extern "C" {
 #endif
 
-
-int read_index1();
-int read_index2();
+int read_indexes();
 
 struct package
 {
@@ -30,8 +28,7 @@ struct package
 struct package * pkg_start;
 struct package * pkg_iterator;
 
-void free_index1();
-void free_index2();
+void free_indexes();
 
 void pkg_next(struct package * pkg);
 

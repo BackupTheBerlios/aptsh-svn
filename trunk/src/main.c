@@ -232,8 +232,9 @@ int main(int argc, char ** argv)
 	initialize_rl();
 
 	printf("Reading package database...\n");
-	read_index1();
-	read_index2();
+	//read_index1();
+	//read_index2();
+	read_indexes();
 	printf("Ready.\n");
 	
 	for (;;) {
