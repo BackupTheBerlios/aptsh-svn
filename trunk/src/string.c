@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "string.h"
 
@@ -60,6 +61,10 @@ char * trim(char * src)
 	return tmp;
 }
 
+long update_date(char * fn)
+{
+	struct stat st;
+	stat(fn, &st);
+	return st.st_mtime;
+}
 
-/* vim: ts=4
-*/

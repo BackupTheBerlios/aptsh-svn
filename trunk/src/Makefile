@@ -10,14 +10,14 @@ rls: rls.c
 aptsh: main.o readindex.o apt_cmds.o string.o config_parse.o aptsh.1.gz
 	g++ -g -O2 -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o 
 
-main.o: main.c readindex.h apt_cmds.h config_parse.h 
-	gcc -g -O2 -c main.c -o main.o 
+main.o: main.cc readindex.h apt_cmds.h config_parse.h 
+	g++ -g -O2 -c main.cc -o main.o 
 
 readindex.o: readindex.cc readindex.h 
 	g++ -g -O2 -c readindex.cc -o readindex.o 
 
-apt_cmds.o: apt_cmds.c apt_cmds.h config_parse.h readindex.h
-	gcc -g -O2 -c apt_cmds.c -o apt_cmds.o 
+apt_cmds.o: apt_cmds.cc apt_cmds.h config_parse.h readindex.h
+	g++ -g -O2 -c apt_cmds.cc -o apt_cmds.o 
 
 string.o: string.c string.h 
 	gcc -g -O2 -c string.c -o string.o 

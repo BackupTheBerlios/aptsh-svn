@@ -22,6 +22,8 @@
 #include <string.h>
 #include <signal.h>
 
+#include <apt-pkg/pkgcachegen.h>
+
 #include "apt_cmds.h"
 #include "config_parse.h"
 #include "readindex.h"
@@ -35,6 +37,8 @@ system(tmp);\
 free(tmp);
 
 #define R_MSG "Reading package database...\n"
+
+char * aptcmd;
 
 long tmpdate;
 
@@ -59,6 +63,24 @@ int apt_dump_cfg()
 
 int apt_help()
 {
+// Who knows whether code beneath works...
+/*	pkgCache * Cache;
+	pkgCache::PkgIterator e;
+	
+	Cache = new pkgCache(m);
+	e = Cache->PkgBegin();
+
+	while (e.end() == false) {
+		pkgCache::Package * ppk = (pkgCache::Package *)e;
+		// (1 << 1) is pkgFLAG_New
+		if (ppk->Flags & (1 << 1)) {
+			printf("%s\n", e.Name());
+		}
+		e++;
+	}	
+*/
+// Who knows whether code beyond works...
+
 	system("man aptsh");
 }
 
@@ -83,63 +105,48 @@ void i_setsig()
 
 int apt_regex()
 {
-/*	char * regexp = trimleft(aptcmd);
-	regex_t compiled;
-	int result = 0;
-	int i;
-	while (((*regexp) != ' ') && ((*regexp) != '\0')) regexp++;
-	regexp = trimleft(regexp);
-	if (regcomp(&compiled, regexp, REG_ICASE)) {
-		fprintf(stderr, "Someting went wrong while processing the regular expresion!\n");
-		return 1;
-	}
-
-	for (i = 0; i < hm; i++) {
-		if (! (result = regexec(&compiled, pkgs[i], 0, NULL, 0))) {
-			printf("%s\n", pkgs[i]);
-		}
-	}*/
 	FILE * pipe;
-	int i;
 	char * tmp;
+
+	pkgCache Cache(m);
+	pkgCache::PkgIterator e = Cache.PkgBegin();
 
 	i_setsig();
 
 	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
 	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd);
 	pipe = popen(tmp, "w");
-	for (i =0; i < hm; i++) {
-		fprintf(pipe, "%s\n", pkgs[i]);
-	}
+	
+	//while (i < hm) {
+	while (e.end() == false) {
+		//i++;
+		fprintf(pipe, "%s\n", e.Name());
+		e++;
+	}	
+
 	fprintf(pipe, "-\n");
 	pclose(pipe);
 }
 
 int apt_ls()
 {
-/*	char * wildcard = trimleft(aptcmd);
-	regex_t compiled;
-	int result = 0;
-	int i;
-	while (((*wildcard) != ' ') && ((*wildcard) != '\0')) wildcard++;
-	wildcard = trimleft(wildcard);
-	for (i = 0; i < hm; i++) {
-		if (! fnmatch(wildcard, pkgs[i], 0)) {
-			printf("%s\n", pkgs[i]);
-		}
-	}*/
 	FILE * pipe;
-	int i;
 	char * tmp;
+
+	pkgCache Cache(m);
+	pkgCache::PkgIterator e = Cache.PkgBegin();
 
 	i_setsig();
 
 	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
 	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd);
 	pipe = popen(tmp, "w");
-	for (i =0; i < hm; i++) {
-		fprintf(pipe, "%s\n", pkgs[i]);
+
+	while (e.end() == false) {
+		fprintf(pipe, "%s\n", e.Name());
+		e++;
 	}
+
 	fprintf(pipe, "-\n");
 	pclose(pipe);
 }
@@ -159,10 +166,10 @@ int apt_whichpkg()
 
 int apt_listfiles()
 {
-    char * cmdtmp = aptcmd;
-    aptcmd = trimleft(aptcmd)+strlen("listfiles");
-    newcmd("dpkg -L");
-    aptcmd = cmdtmp;
+	char * cmdtmp = aptcmd;
+	aptcmd = trimleft(aptcmd)+strlen("listfiles");
+	newcmd("dpkg -L");
+	aptcmd = cmdtmp;
 }
 
 /* apt-get */
@@ -328,13 +335,11 @@ int apt_madison()
 
 int apt_whatis()
 {
-	#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'"
+#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'"
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
 	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
 	system(tmp);
 	free(tmp);
 }
 
-/* vim: ts=4
-*/
 

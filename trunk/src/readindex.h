@@ -10,6 +10,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+
 #ifndef READINDEX_H
 #define READINDEX_H
 
@@ -17,6 +18,9 @@
 extern "C" {
 #endif
 
+
+extern class MMap *m;
+		
 int read_indexes();
 
 struct package
@@ -45,6 +49,4 @@ extern char ** pkgs_i; /* installed packages */
 #endif
 
 
-/* vim: ts=4
-*/
 

@@ -10,12 +10,25 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifndef STRING_H
+#define STRING_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 char * first_word(const char * cmd);
 
 char * trimleft(char * cmd);
 
 char * trim(char * src);
 
-/* vim: ts=4
-*/
+long update_date(char * fn);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
 

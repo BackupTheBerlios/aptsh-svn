@@ -16,10 +16,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <sys/stat.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
+
+#include <apt-pkg/pkgcachegen.h>
 
 #include "readindex.h"
 #include "apt_cmds.h"
@@ -76,62 +77,71 @@ struct command
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* packages completion */
+
+
+//pkgCache * Cache;
+//pkgCache::PkgIterator e;
+
+
 char * cpl_pkg(const char * text, int state)
 {
-#define COMPLETION(X1, X2)\
-	static int index, len;\
-	char * name, * tmp;\
-\
-	if (!state) {\
-		index = 0;\
-		len = strlen(text);\
-	}\
-	while (index < X2) {\
-		name = X1[index];\
-		index++;\
-		if (! strncmp(text, name, len)) {\
-			tmp = (char*)malloc(strlen(name)+1);\
-			strcpy(tmp, name);\
-			return tmp;\
-		}\
-	}\
-	return (char)NULL;
+	static int len;
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+	static int i;
+	
+	if (! state) {
+		Cache = new pkgCache(m);
+		e = Cache->PkgBegin();
+		len = strlen(text);
+		i = 0;
+	}
 
-	COMPLETION(pkgs, hm);
+	//while (i < hm) {
+	while (e.end() == false) {
+		//i++;
+		if (! strncmp(e.Name(), text, len)) {
+			char * tmp = (char*)malloc(strlen(e.Name())+1);
+			strcpy(tmp, e.Name());
+			e++;
+			return tmp;
+		}
+		e++;
+	}	
+	return (char*)NULL;
 }
 
 char * cpl_pkg_i(const char * text, int state)
 {
-//	COMPLETION(pkgs_i, hm_i);
-	static struct package * pp;
 	static int len;
-	char * tmp, * name;
-
-	if (!state) {
-		pp = pkg_start;
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+	static int i;
+	
+	if (! state) {
+		Cache = new pkgCache(m);
+		e = Cache->PkgBegin();
 		len = strlen(text);
+		i = 0;
 	}
 
-	while (pp->next != NULL) {
-		if (! strncmp(text, pp->name, len)) {
-			tmp = (char*)malloc(strlen(pp->name)+1);
-			strcpy(tmp, pp->name);
-			pp = pp->next;
+	//while (i < hm) {
+	while (e.end() == false) {
+		//i++;
+		pkgCache::Package * ppk = (pkgCache::Package *)e;
+		if (ppk->CurrentState != 6) {
+			e++;
+			continue;
+		}
+		if (! strncmp(e.Name(), text, len)) {
+			char * tmp = (char*)malloc(strlen(e.Name())+1);
+			strcpy(tmp, e.Name());
+			e++;
 			return tmp;
 		}
-		pp = pp->next;
-	}
-//	for (; pp->next != NULL; pp = pp->next) {
-	/*	name = pp->name;
-		if (! strncmp(text, name, len)) {
-			name = pp->name;
-			tmp = (char*)malloc(strlen(name)+1);
-			strcpy(tmp, name);
-			return tmp;
-		}*/
-//		printf("%s\n", pp->name);
-//	}
-	return (char)NULL;
+		e++;
+	}	
+	return (char*)NULL;
 }
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
@@ -194,13 +204,6 @@ void initialize_rl()
 {
 	rl_readline_name = "aptsh";
 	rl_attempted_completion_function = completion;
-}
-
-long update_date(char * fn)
-{
-	struct stat st;
-	stat(fn, &st);
-	return st.st_mtime;
 }
 
 struct option arg_opts[] =
@@ -278,6 +281,4 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-/* vim: ts=4
-*/
 

@@ -10,7 +10,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-char * aptcmd;
+extern char * aptcmd;
 
 /* aptsh */
 int apt_dump_cfg();
@@ -53,6 +53,4 @@ int apt_madison();
 int apt_whatis();
 
 
-/* vim: ts=4
-*/
 

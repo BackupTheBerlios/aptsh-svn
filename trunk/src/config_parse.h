@@ -18,16 +18,17 @@
 extern "C" {
 #endif
 	
-#define OPTIONS_COUNT 5
+#define OPTIONS_COUNT 7
 
 #define CFG_PS1 (char*)get_cfg_opt(0)
 #define CFG_USE_HISTORY (int)get_cfg_opt(1)
 #define CFG_UPDATE_FILE (char*)get_cfg_opt(2)
 #define CFG_REFRESH_INDEXES (int)get_cfg_opt(3)
 #define CFG_REFRESH_INDEXES_ALL (int)get_cfg_opt(4)
+#define CFG_HISTORY_FILE (char*)get_cfg_opt(5)
+#define CFG_HISTORY_COUNT (int)get_cfg_opt(6)
 
-
-char * config_file;
+extern char * config_file;
 
 void * get_cfg_opt(int index);
 
@@ -42,6 +43,4 @@ int cfg_parse();
 #endif
 
 
-/* vim: ts=4
-*/
 
