@@ -315,6 +315,12 @@ int validate(char * cmd)
 				break;
 			//printf("P: %s -\n", tmp);
 
+			// it may be a parameter for apt, not a pkg's name
+			if (tmp[0] == '-') {
+				cmd2 = cmd2+strlen(tmp);
+				continue;
+			}
+
 			if (! package_exists(tmp)) {
 				fprintf(stderr, "Warning: Package doesn't exist: %s\n", tmp);
 			}
@@ -329,6 +335,12 @@ int validate(char * cmd)
 			tmp = first_word(cmd2);
 			if (! strcmp(tmp, ""))
 				break;
+			
+			// it may be a parameter for apt, not a pkg's name
+			if (tmp[0] == '-') {
+				cmd2 = cmd2+strlen(tmp);
+				continue;
+			}
 
 			if (! package_exists(tmp, INSTALLED)) {
 				fprintf(stderr, "Warning: Package is not installed: %s\n", tmp);
