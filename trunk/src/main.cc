@@ -187,9 +187,11 @@ char * cpl_main(const char * text_orig, int state)
 
 enum completion check_command()
 {
-	char * line = rl_line_buffer;
-	if (line[0] == ';')
+	char * line = trimleft(rl_line_buffer);
+	if (line[0] == ';') {
 		line++;
+		line = trimleft(line);
+	}
 	char * to_check = trimleft(first_word(line));
 	int i = 0;
 	for (; i < CMD_NUM; i++) {
@@ -208,15 +210,15 @@ char ** completion(const char * text, int start, int end)
 	if (rl_line_buffer[0] == '.') {
 		return m;
 	}
-	if (rl_line_buffer[0] == ';') {
+	char * tmp = trimleft(rl_line_buffer);
+	int diff = tmp - rl_line_buffer;
+	//rl_delete_text(0, (tmp-rl_line_buffer));
+	if (tmp[0] == ';') {
 		char toobad = 0;
-		for (int i = 1; i < start; i++) {
-			if (rl_line_buffer[i] != ' ') {
-				if (rl_line_buffer[i] != '\0') {
-					//printf("%d\n", start);
-					toobad = 1;
-					break;
-				}
+		for (int i = 1; i < (start-diff); i++) {
+			if ((tmp[i] != ' ')&&(tmp[i] != '\0')) {
+				toobad = 1;
+				break;
 			}
 		}
 		if (! toobad) {
@@ -224,7 +226,9 @@ char ** completion(const char * text, int start, int end)
 			return m;
 		}
 	}
-	if (start == 0) {
+
+	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
+	//if (start == 0) {
 	//if ((start == 0) || ( (rl_line_buffer[0]==';')&& ((start==1)||(start==2) ) )) {
 		m = rl_completion_matches(text, cpl_main);
 	}else {
@@ -252,6 +256,8 @@ struct option arg_opts[] =
 int validate(char * cmd)
 {
 	cmd = trimleft(cmd);
+	if (cmd[0] == '.')
+		return 0;
 	char * tmp = first_word(cmd);
 	char ok = 0;
 	for (int i = 0; i < CMD_NUM; i++) {
