@@ -253,6 +253,35 @@ struct option arg_opts[] =
 	{"config-file", required_argument, 0, 'c' }
 };
 
+bool package_exists(char * name, enum completion ex = AVAILABLE)
+{
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+
+	Cache = new pkgCache(m);
+	e = Cache->PkgBegin();
+
+	while (e.end() == false) {
+		if (ex == INSTALLED) {
+			pkgCache::Package * ppk = (pkgCache::Package *)e;
+			if (ppk->CurrentState == 6) {
+				if (! strcmp(e.Name(), name)) {
+					return true;
+				}
+			}else {
+				e++;
+				continue;
+			}
+		}
+		if (! strcmp(e.Name(), name)) {
+			//e++;
+			return true;
+		}
+		e++;
+	}
+	return false;
+}
+
 int validate(char * cmd)
 {
 	cmd = trimleft(cmd);
@@ -260,18 +289,53 @@ int validate(char * cmd)
 		return 0;
 	char * tmp = first_word(cmd);
 	char ok = 0;
+	enum completion sort;
 	for (int i = 0; i < CMD_NUM; i++) {
 		if (! strcmp(tmp, cmds[i].name)) {
 			ok = 1;
+			sort = cmds[i].cpl;
 			break;
 		}
 	}
 	if (! ok) {
-		fprintf(stderr, "Warning: Unknown command, %s!\n", tmp);
+		fprintf(stderr, "Warning: Unknown command: %s\n", tmp);
 		free(tmp);
 		return 1;
 	}
 	ok = 0;
+
+	char *cmd2 = cmd+strlen(tmp);
+
+	if (sort == AVAILABLE) {
+		while (1) {
+			free(tmp);
+			cmd2 = trimleft(cmd2);
+			tmp = first_word(cmd2);
+			if (! strcmp(tmp, ""))
+				break;
+			//printf("P: %s -\n", tmp);
+
+			if (! package_exists(tmp)) {
+				fprintf(stderr, "Warning: Package doesn't exist: %s\n", tmp);
+			}
+			cmd2 = cmd2+strlen(tmp);
+		}
+	}
+
+	if (sort == INSTALLED) {
+		while (1) {
+			free(tmp);
+			cmd2 = trimleft(cmd2);
+			tmp = first_word(cmd2);
+			if (! strcmp(tmp, ""))
+				break;
+
+			if (! package_exists(tmp, INSTALLED)) {
+				fprintf(stderr, "Warning: Package is not installed: %s\n", tmp);
+			}
+			cmd2 = cmd2+strlen(tmp);
+		}
+	}
 
 	free(tmp);
 	return 0;
