@@ -9,7 +9,7 @@ enum completion {
 
 struct commit_item {
 	char * text;
-	commit_item * next;
+	struct commit_item * next;
 };
 
 extern struct commit_item * commitlog;

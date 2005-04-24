@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 	
-#define OPTIONS_COUNT 7
+#define OPTIONS_COUNT 8
 
 #define CFG_PS1 (char*)get_cfg_opt(0)
 #define CFG_USE_HISTORY (int)get_cfg_opt(1)
@@ -27,6 +27,7 @@ extern "C" {
 #define CFG_REFRESH_INDEXES_ALL (int)get_cfg_opt(4)
 #define CFG_HISTORY_FILE (char*)get_cfg_opt(5)
 #define CFG_HISTORY_COUNT (int)get_cfg_opt(6)
+#define CFG_PS1_STORING (char*)get_cfg_opt(7)
 
 extern char * config_file;
 

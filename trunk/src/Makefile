@@ -25,6 +25,29 @@ string.o: string.c string.h
 config_parse.o: config_parse.c config_parse.h 
 	gcc -g -O2 -c config_parse.c -o config_parse.o 
 
+# <debug>
+debug: aptsh-debug
+
+aptsh-debug: main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o
+	g++ -g -ggdb -L/usr/lib/debug -lreadline -lapt-pkg -o aptsh-debug main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o
+
+main-debug.o: main.cc readindex.h apt_cmds.h config_parse.h
+	g++ -g -ggdb -c main.cc -o main-debug.o
+
+readindex-debug.o: readindex.cc readindex.h
+	g++ -g -ggdb -c readindex.cc -o readindex-debug.o
+
+apt_cmds-debug.o: apt_cmds.cc apt_cmds.h config_parse.h readindex.h
+	g++ -g -ggdb -c apt_cmds.cc -o apt_cmds-debug.o
+
+string-debug.o: string.c string.h
+	gcc -g -ggdb -c string.c -o string-debug.o
+
+config_parse-debug.o: config_parse.c config_parse.h
+	gcc -g -ggdb -c config_parse.c -o config_parse-debug.o
+
+# </debug>
+
 aptsh.1.gz: aptsh.1
 	cp aptsh.1 man-bak
 	gzip aptsh.1

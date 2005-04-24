@@ -28,6 +28,7 @@ char *defaults[] = {
 	(void*) 1, /* refresh_indexes_all */
 	"/tmp/.aptsh_history", /* history_file */     /* <- Default could be dangerous! */
 	(void*) 0, /* history_count */
+	"* apt> ", /* ps1_storing */
 };
 
 struct config_option {
@@ -44,6 +45,7 @@ struct config_option {
         { "refresh_indexes_all", NULL, INT },
 	{ "history_file", NULL, STR },
 	{ "history_count", NULL, INT },
+	{ "ps1_s", NULL, STR },
 };
 
 void * get_cfg_opt(int index) {

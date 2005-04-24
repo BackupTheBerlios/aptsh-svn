@@ -27,72 +27,15 @@
 #include "string.h"
 #include "config_parse.h"
 
-#define CMD_NUM 37
 
 // These variables are used to store commit log.
-//int cl_size; // Number of logged commands
-//char ** commitlog; // Logged commands
-
-struct commit_item * commitlog;
-struct commit_item * first;
+struct commit_item * commitlog; // last item in list
+struct commit_item * first; // first item in list
 
 
-struct command
-{
-	char * name;
-	int (*funct)();
-	enum completion cpl;
-} cmds[] = {
-	/* apt-get */
-	{ "install", apt_install, AVAILABLE },
-	{ "update", apt_update, AVAILABLE },
-	{ "upgrade", apt_upgrade, AVAILABLE },
-	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE },
-	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE },
-	{ "remove", apt_remove, INSTALLED },
-	{ "source", apt_source, AVAILABLE },
-	{ "build-dep", apt_build_dep, AVAILABLE },
-	{ "check", apt_check, AVAILABLE },
-	{ "clean", apt_clean, AVAILABLE },
-	{ "autoclean", apt_autoclean, AVAILABLE },
-	/* apt-cache */
-	{ "show", apt_show, AVAILABLE },
-	{ "dump", apt_dump, AVAILABLE },
-	{ "add", apt_add, FS },
-	{ "showpkg", apt_showpkg, AVAILABLE },
-	{ "stats", apt_stats, NONE },
-	{ "showsrc", apt_showsrc, AVAILABLE },
-	{ "dumpavail", apt_dumpavail, NONE },
-	{ "unmet", apt_unmet, AVAILABLE },
-	{ "search", apt_search, AVAILABLE },
-	{ "depends", apt_depends, AVAILABLE },
-	{ "redepends", apt_redepends, AVAILABLE },
-	{ "pkgnames", apt_pkgnames, NONE },
-	{ "dotty", apt_dotty, AVAILABLE },
-	{ "policy", apt_policy, AVAILABLE },
-	{ "madison", apt_madison, AVAILABLE },
-	{ "whatis", apt_whatis, AVAILABLE },
-	/* aptsh */
-	{ "dpkg", apt_dpkg, FS },
-	{ "whichpkg", apt_whichpkg, FS },
-	{ "listfiles", apt_listfiles, INSTALLED },
-	{ "dump-cfg", apt_dump_cfg, FS },
-	{ "rls", apt_regex, AVAILABLE },
-	{ "ls", apt_ls, AVAILABLE },
-	{ "commit", apt_commit, NONE },
-	{ "commit-status", apt_commit_status, NONE },
-	{ "help", apt_help, NONE },
-	{ "quit", NULL, NONE } 
-};
-
+// Completion of names of all packages
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* packages completion */
-
-
-//pkgCache * Cache;
-//pkgCache::PkgIterator e;
-
-
 char * cpl_pkg(const char * text, int state)
 {
 	static int len;
@@ -121,6 +64,7 @@ char * cpl_pkg(const char * text, int state)
 	return (char*)NULL;
 }
 
+// Completion of names of the installed packages
 char * cpl_pkg_i(const char * text, int state)
 {
 	static int len;
@@ -144,6 +88,7 @@ char * cpl_pkg_i(const char * text, int state)
 			continue;
 		}
 		if (! strncmp(e.Name(), text, len)) {
+			// TODO: convert to strdup()
 			char * tmp = (char*)malloc(strlen(e.Name())+1);
 			strcpy(tmp, e.Name());
 			e++;
@@ -153,6 +98,14 @@ char * cpl_pkg_i(const char * text, int state)
 	}	
 	return (char*)NULL;
 }
+
+struct command
+{
+	char * name;
+	int (*funct)();
+	enum completion cpl;
+	char do_validation;
+} extern cmds[];
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* commands completion */
@@ -177,9 +130,10 @@ char * cpl_main(const char * text_orig, int state)
 		name = cmds[index].name;
 		index++;
 		if (! strncmp(text, name, len)) {
-			tmp = (char*)malloc(strlen(name)+1);
-			strcpy(tmp, name);
-			return tmp;
+			//tmp = (char*)malloc(strlen(name)+1);
+			//strcpy(tmp, name);
+			//return tmp;
+			return strdup(name);
 		}
 	}
 	return (char*)NULL;
@@ -227,6 +181,7 @@ char ** completion(const char * text, int start, int end)
 		}
 	}
 
+	// check if we're completing first word
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
 	//if (start == 0) {
 	//if ((start == 0) || ( (rl_line_buffer[0]==';')&& ((start==1)||(start==2) ) )) {
@@ -253,105 +208,10 @@ struct option arg_opts[] =
 	{"config-file", required_argument, 0, 'c' }
 };
 
-bool package_exists(char * name, enum completion ex = AVAILABLE)
-{
-	static pkgCache * Cache;
-	static pkgCache::PkgIterator e;
-
-	Cache = new pkgCache(m);
-	e = Cache->PkgBegin();
-
-	while (e.end() == false) {
-		if (ex == INSTALLED) {
-			pkgCache::Package * ppk = (pkgCache::Package *)e;
-			if (ppk->CurrentState == 6) {
-				if (! strcmp(e.Name(), name)) {
-					return true;
-				}
-			}else {
-				e++;
-				continue;
-			}
-		}
-		if (! strcmp(e.Name(), name)) {
-			//e++;
-			return true;
-		}
-		e++;
-	}
-	return false;
-}
-
-int validate(char * cmd)
-{
-	cmd = trimleft(cmd);
-	if (cmd[0] == '.')
-		return 0;
-	char * tmp = first_word(cmd);
-	char ok = 0;
-	enum completion sort;
-	for (int i = 0; i < CMD_NUM; i++) {
-		if (! strcmp(tmp, cmds[i].name)) {
-			ok = 1;
-			sort = cmds[i].cpl;
-			break;
-		}
-	}
-	if (! ok) {
-		fprintf(stderr, "Warning: Unknown command: %s\n", tmp);
-		free(tmp);
-		return 1;
-	}
-	ok = 0;
-
-	char *cmd2 = cmd+strlen(tmp);
-
-	if (sort == AVAILABLE) {
-		while (1) {
-			free(tmp);
-			cmd2 = trimleft(cmd2);
-			tmp = first_word(cmd2);
-			if (! strcmp(tmp, ""))
-				break;
-			//printf("P: %s -\n", tmp);
-
-			// it may be a parameter for apt, not a pkg's name
-			if (tmp[0] == '-') {
-				cmd2 = cmd2+strlen(tmp);
-				continue;
-			}
-
-			if (! package_exists(tmp)) {
-				fprintf(stderr, "Warning: Package doesn't exist: %s\n", tmp);
-			}
-			cmd2 = cmd2+strlen(tmp);
-		}
-	}
-
-	if (sort == INSTALLED) {
-		while (1) {
-			free(tmp);
-			cmd2 = trimleft(cmd2);
-			tmp = first_word(cmd2);
-			if (! strcmp(tmp, ""))
-				break;
-			
-			// it may be a parameter for apt, not a pkg's name
-			if (tmp[0] == '-') {
-				cmd2 = cmd2+strlen(tmp);
-				continue;
-			}
-
-			if (! package_exists(tmp, INSTALLED)) {
-				fprintf(stderr, "Warning: Package is not installed: %s\n", tmp);
-			}
-			cmd2 = cmd2+strlen(tmp);
-		}
-	}
-
-	free(tmp);
-	return 0;
-}
+// Number of steps
+extern int commit_count;
+extern char ** commitz;
+extern char storing;
 
 int main(int argc, char ** argv)
 {
@@ -359,11 +219,16 @@ int main(int argc, char ** argv)
 	int option_index = 0;
 	char * execmd = NULL;
 	int i;
-	char help = 0;
+	//char help = 0;
 	char * line;
 
 	commitlog = NULL;
 	first = NULL;
+	
+	commit_count = 0;
+	commitz = NULL;
+	storing = 0;
+	use_realcmd = 0;
 	//cl_size = 0;
 
 	cfg_defaults();
@@ -395,64 +260,22 @@ int main(int argc, char ** argv)
 	printf("Ready.\n");
 	
 	for (;;) {
-		help = 0;
-		line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
+		//help = 0;
+		if (storing)
+			line = readline(CFG_PS1_STORING);
+		else
+			line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
-		if (CFG_USE_HISTORY)
-			if (line && strcmp("", line)) {
-				add_history(line);
-				if (CFG_HISTORY_COUNT)
-					if ((access(CFG_HISTORY_FILE, F_OK) == -1))
-						write_history(CFG_HISTORY_FILE);
-					else
-						append_history(1, CFG_HISTORY_FILE);
-			}
-		
-		if (line[0] == ';') {
-			if (first == NULL) {
-				commitlog = (struct commit_item*)malloc(sizeof(struct commit_item));
-				first = commitlog;
-			}else {
-				commit_item * tmp = commitlog;
-				commitlog = (struct commit_item*)malloc(sizeof(struct commit_item));
-				tmp->next = commitlog;
-			}
-			commitlog->next = NULL;
-
-			validate(line+1);
-			//                     line contains ' sign, so we don't need to allocate +1 bytes.
-			commitlog->text = (char*)malloc(strlen(line));
-			strcpy(commitlog->text, line+1);
+		if (! strcmp(trimleft(line), "")) {
+			free(line);
 			continue;
 		}
 
-		if (line[0] == '.') {
-			system((char*)(line+1));
-			continue;
-		}
-	
-		execmd = first_word(trimleft(line));
-		
-		if ((! strcmp(execmd, "quit")) || (!strcmp(execmd, "exit")) || (!strcmp(execmd, "bye")))
+		if (execute(line))
 			break;
-		
-		aptcmd = line;
-
-		for (i = 0; i < CMD_NUM; i++) {
-			if (! strcmp(execmd, cmds[i].name)) {
-				if (cmds[i].funct != NULL)
-					(*(cmds[i].funct))();
-				help = 1;
-				break;
-			}
-		}
-
-		if (!help) {
-			printf("No such command! See 'help'.\n");
-		}
 
 		free(line);
-		free(execmd);
+
 	}
 	return 0;
 }

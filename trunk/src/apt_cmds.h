@@ -10,7 +10,14 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#define CMD_NUM 40
+
 extern char * aptcmd;
+
+extern char use_realcmd;
+extern char * realcmd;
+
+int execute(char * line, char addhistory = 1);
 
 /* aptsh */
 int apt_dump_cfg();
@@ -21,6 +28,9 @@ int apt_help();
 int apt_whichpkg();
 int apt_listfiles();
 int apt_commit();
+int apt_commit_say();
+int apt_commit_clear();
+int apt_commit_remove();
 int apt_commit_status();
 
 /* apt-get functions */

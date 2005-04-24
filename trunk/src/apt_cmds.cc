@@ -22,6 +22,9 @@
 #include <string.h>
 #include <signal.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include <apt-pkg/pkgcachegen.h>
 
 #include "apt_cmds.h"
@@ -29,19 +32,52 @@
 #include "readindex.h"
 #include "string.h"
 
-char * tmp;
-#define newcmd(WW) \
-tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
-sprintf(tmp, "%s %s", WW, aptcmd);\
-system(tmp);\
-free(tmp);
-
-#define R_MSG "Reading package database...\n"
+char storing;
 
 char * aptcmd;
 
+char use_realcmd;
+//char * realcmd;
+/*#define realizecmd(STH)\
+if (use_realcmd) {\
+	realcmd = (char*)malloc(strlen(STH)+1);\
+	strcpy(realcmd, STH);\
+}else {\
+	system(STH);\
+}*/
+char * yes;
+
+// Number of steps in commitlog
+int commit_count;
+char ** commitz;
+
+extern void i_setsig();
+
+void realizecmd(char * sth) {
+	if (use_realcmd) {
+		//char * tmp = (char*)malloc(strlen(STH)+1);
+		//strcpy
+		i_setsig();
+
+		FILE * fp = popen(sth, "w");
+		int len = strlen(yes);
+		char * tmp = (char*)malloc(len+2);
+		strcpy(tmp, yes);
+		tmp[len] = '\n';
+		tmp[len+1] = '\0';
+		while ((fputs(tmp, fp)!=EOF)) {
+		}
+		pclose(fp);
+	}else {
+		system(sth);
+	}
+}
+
 long tmpdate;
 
+#define R_MSG "Reading package database...\n"
+
+// Checks whether cache file has been changed since last reading (stored in tmpdate)
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
@@ -53,6 +89,252 @@ void check_a()
 		read_indexes();
 	}
 }
+
+struct command
+{
+	char * name;
+	int (*funct)();
+	enum completion cpl;
+	// decides whether words after command sould be validated,
+	// example: "install apt dpkg kde qwertyqqw" is going to warn on "qwertyqqw",
+	// because such a package doesn't exist (do_validation for "install" is YES)
+	// and it checks for existence in all packages, because cpl of "install" is AVAILABLE
+	char do_validation;
+} cmds[] = {
+#define YES 1
+#define NO 0
+	/* apt-get */
+	{ "install", apt_install, AVAILABLE, YES },
+	{ "update", apt_update, AVAILABLE, NO },
+	{ "upgrade", apt_upgrade, AVAILABLE, YES },
+	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO },
+	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO },
+	{ "remove", apt_remove, INSTALLED, YES },
+	{ "source", apt_source, AVAILABLE, YES },
+	{ "build-dep", apt_build_dep, AVAILABLE, YES },
+	{ "check", apt_check, AVAILABLE, NO }, // FIXME: not sure
+	{ "clean", apt_clean, AVAILABLE, NO },
+	{ "autoclean", apt_autoclean, AVAILABLE, NO },
+	/* apt-cache */
+	{ "show", apt_show, AVAILABLE, YES },
+	{ "dump", apt_dump, AVAILABLE, NO },
+	{ "add", apt_add, FS, NO },
+	{ "showpkg", apt_showpkg, AVAILABLE, YES },
+	{ "stats", apt_stats, NONE, NO },
+	{ "showsrc", apt_showsrc, AVAILABLE, NO },
+	{ "dumpavail", apt_dumpavail, NONE, NO },
+	{ "unmet", apt_unmet, AVAILABLE, NO },
+	{ "search", apt_search, AVAILABLE, NO },
+	{ "depends", apt_depends, AVAILABLE, YES },
+	{ "redepends", apt_redepends, AVAILABLE, YES },
+	{ "pkgnames", apt_pkgnames, NONE, NO },
+	{ "dotty", apt_dotty, AVAILABLE, NO },
+	{ "policy", apt_policy, AVAILABLE, NO },
+	{ "madison", apt_madison, AVAILABLE, NO },
+	{ "whatis", apt_whatis, AVAILABLE, YES },
+	/* aptsh */
+	{ "dpkg", apt_dpkg, FS, NO },
+	{ "whichpkg", apt_whichpkg, FS, NO },
+	{ "listfiles", apt_listfiles, INSTALLED, YES },
+	{ "dump-cfg", apt_dump_cfg, FS, NO },
+	{ "rls", apt_regex, AVAILABLE, NO },
+	{ "ls", apt_ls, AVAILABLE, NO },
+	{ "commit", apt_commit, NONE, NO },
+	{ "commit-say", apt_commit_say, NONE, NO },
+	{ "commit-clear", apt_commit_clear, NONE, NO },
+	{ "commit-remove", apt_commit_remove, NONE, NO },
+	{ "commit-status", apt_commit_status, NONE, NO },
+	{ "help", apt_help, NONE, NO },
+	{ "quit", NULL, NONE, NO } 
+};
+
+// Check whether package exists
+// ex decides which packages ought to be checked:
+//   AVAILABLE - all packages (default)
+//   INSTALLED  - only installed packages
+bool package_exists(char * name, enum completion ex = AVAILABLE)
+{
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+
+	Cache = new pkgCache(m);
+	e = Cache->PkgBegin();
+
+	while (e.end() == false) {
+		if (ex == INSTALLED) {
+			pkgCache::Package * ppk = (pkgCache::Package *)e;
+			// 6 means installed
+			if (ppk->CurrentState == 6) {
+				if (! strcmp(e.Name(), name)) {
+					return true;
+				}
+			}else {
+				e++;
+				continue;
+			}
+		}
+		if (! strcmp(e.Name(), name)) {
+			//e++;
+			return true;
+		}
+		e++;
+	}
+	return false;
+}
+
+// Validates aptsh commadn
+// You can't give a command with ';' at the begining, if so it will throw up a warning
+// Also, command must be already trimmed
+int validate(char * cmd)
+{
+	//cmd = trimleft(cmd); <- it should be trimmed in execute()
+
+	// Well, we don't try to validate shell commands
+	if (cmd[0] == '.')
+		return 0;
+	char * tmp = first_word(cmd);
+	char ok = 0;
+	enum completion sort;
+	char do_validation = 0;
+	for (int i = 0; i < CMD_NUM; i++) {
+		if (! strcmp(tmp, cmds[i].name)) {
+			ok = 1;
+			sort = cmds[i].cpl;
+			do_validation = cmds[i].do_validation;
+			break;
+		}
+	}
+	if (! ok) {
+		fprintf(stderr, "Warning: Unknown command: %s\n", tmp);
+		free(tmp);
+		return 1;
+	}
+	ok = 0;
+
+	char *cmd2 = cmd+strlen(tmp);
+
+	if (do_validation)
+	if (sort == AVAILABLE) {
+		while (1) {
+			free(tmp);
+			cmd2 = trimleft(cmd2);
+			tmp = first_word(cmd2);
+			if (! strcmp(tmp, ""))
+				break;
+			//printf("P: %s -\n", tmp);
+
+			// it may be a parameter for apt, not a pkg's name
+			if (tmp[0] == '-') {
+				cmd2 = cmd2+strlen(tmp);
+				continue;
+			}
+
+			if (! package_exists(tmp)) {
+				fprintf(stderr, "Warning: Package doesn't exist: %s\n", tmp);
+			}
+			cmd2 = cmd2+strlen(tmp);
+		}
+	} else
+	if (sort == INSTALLED) {
+		while (1) {
+			free(tmp);
+			cmd2 = trimleft(cmd2);
+			tmp = first_word(cmd2);
+			if (! strcmp(tmp, ""))
+				break;
+			
+			// it may be a parameter for apt, not a pkg's name
+			if (tmp[0] == '-') {
+				cmd2 = cmd2+strlen(tmp);
+				continue;
+			}
+
+			if (! package_exists(tmp, INSTALLED)) {
+				fprintf(stderr, "Warning: Package is not installed: %s\n", tmp);
+			}
+			cmd2 = cmd2+strlen(tmp);
+		}
+	}
+
+	free(tmp);
+	return 0;
+}
+
+// Returns >0 when user wants to exit
+int execute(char * line, char addhistory)
+{
+	if (CFG_USE_HISTORY && addhistory)
+		if (line && strcmp("", trimleft(line))) {
+			add_history(line);
+			if (CFG_HISTORY_COUNT)
+				if ((access(CFG_HISTORY_FILE, F_OK) == -1))
+					write_history(CFG_HISTORY_FILE);
+				else
+					append_history(1, CFG_HISTORY_FILE);
+		}
+	
+	if (trimleft(line)[0] == '`') {
+		storing = !storing;
+		return 0;
+	}
+
+	if (storing) {
+		char * line_t = trimleft(trimleft(line));
+
+		commit_count++;
+		commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
+
+		validate(line_t);
+		//                     line contains ' sign, so we don't need to allocate +1 bytes.
+		
+		commitz[commit_count-1] = strdup(line_t);
+		//commitz[commit_count-1] = (char*)malloc(strlen(line_t));
+		//strcpy(commitz[commit_count-1], line_t);
+		return 0;
+	}
+
+	if (line[0] == '.') {
+		//system((char*)(line+1));
+		realizecmd((char*)(line+1));
+		
+		//continue;
+		return 0;
+	}
+
+	char * execmd = first_word(trimleft(line));
+	
+	if ((! strcmp(execmd, "quit")) || (!strcmp(execmd, "exit")) || (!strcmp(execmd, "bye")))
+		//break;
+		return 1;
+		
+	
+	aptcmd = line;
+	char help = 0;
+	for (int i = 0; i < CMD_NUM; i++) {
+		if (! strcmp(execmd, cmds[i].name)) {
+			if (cmds[i].funct != NULL)
+				(*(cmds[i].funct))();
+			help = 1;
+			break;
+		}
+	}
+	if (!help) {
+		fprintf(stderr, "No such command! See 'help'.\n");
+	}
+	
+	free(execmd);
+	
+	return 0;
+}
+
+// This macro executes aptcmd command (ie. install aptsh), preceding it with shell command - WW (ie. apt-get)
+char * tmp;
+#define newcmd(WW) \
+tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
+sprintf(tmp, "%s %s", WW, aptcmd);\
+/*system(tmp);*/\
+realizecmd(tmp);\
+/*free(tmp);*/
 
 /* aptsh */
 
@@ -82,6 +364,7 @@ int apt_help()
 // Who knows whether code beyond works...
 
 	system("man aptsh");
+//	realizecmd("man aptsh");
 }
 
 
@@ -113,8 +396,10 @@ int apt_regex()
 
 	i_setsig();
 
-	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+5);
-	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd);
+	// prevents from situation when user prefixes cmd with whitespaces
+	char * aptcmd_t = trimleft(aptcmd);
+	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+5);
+	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd_t);
 	pipe = popen(tmp, "w");
 	
 	//while (i < hm) {
@@ -137,9 +422,11 @@ int apt_ls()
 	pkgCache::PkgIterator e = Cache.PkgBegin();
 
 	i_setsig();
-
-	tmp = (char*)malloc(strlen(aptcmd)+strlen(SHARED_FOLDER)+4);
-	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd);
+	
+	// prevents from situation when user prefixes cmd with whitespaces
+	char * aptcmd_t = trimleft(aptcmd);
+	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+4);
+	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd_t);
 	pipe = popen(tmp, "w");
 
 	while (e.end() == false) {
@@ -157,7 +444,7 @@ int apt_dpkg()
 }
 
 int apt_whichpkg()
-{	
+{
 	char * cmdtmp = aptcmd;
 	aptcmd = trimleft(aptcmd)+strlen("whichpkg");
 	newcmd("dpkg -S");
@@ -174,31 +461,140 @@ int apt_listfiles()
 
 int apt_commit()
 {
-	if (first == NULL)
-		return 0;
-	struct commit_item * iterator = first;
-	struct commit_item * n;
-	while (1) {
-		n = iterator->next;
-		free(iterator);
-		if (n->next == NULL) {
-			free(n);
-			first = NULL;
-			break;
+	use_realcmd = 0;
+
+	for (int i = 0; i < commit_count; i++) {
+		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
+		execute(commitz[i], 0);
+	}
+}
+
+int apt_commit_say()
+{
+	
+	yes = trimleft(trimleft(aptcmd)+strlen("commit-say"));
+	//char * yes = (char*)malloc(strlen(SHARED_FOLDER)+strlen(tmp)+strlen("csay ")+1);
+	//sprintf(yes, "%scsay %s", SHARED_FOLDER, tmp);
+	
+	use_realcmd = 1;
+
+	i_setsig();
+
+	for (int i = 0; i < commit_count; i++) {
+		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
+		//realcmd = NULL;
+		execute(commitz[i], 0);
+	}
+
+	//free(yes);
+	use_realcmd = 0;
+}
+
+int apt_commit_clear()
+{
+	for (int i = 0; i < commit_count; i++) {
+		free(commitz[i]);
+	}
+	free(commitz);
+	commitz = NULL;
+	commit_count = 0;
+	return 0;
+}
+
+// used by qsort
+void swap(int * a, int * b)
+{
+	int tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+void qsort(int z[], int beg, int end)
+{
+	if (end > beg+1) {
+		int p = z[beg];
+		int l = beg+1;
+		int r = end;
+		while (l < r) {
+			if (z[l] <= p) {
+				l++;
+			} else {
+				swap(&z[l], &z[--r]);
+			}
 		}
-		iterator = n;
+		swap(&z[beg], &z[--l]);
+		qsort(z, beg, l);
+		qsort(z, r, end);
+	}
+}
+
+// removes item from commitz
+void real_remove(int num)
+{
+	int hm = num;
+	free(commitz[hm]);
+	while (hm < (commit_count-1)) {
+		commitz[hm] = commitz[hm+1];
+		hm++;
+	}
+ 	commit_count--;
+	commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
+}
+
+int apt_commit_remove()
+{
+	char * cmd = trimleft(aptcmd);
+	char * tmp = first_word(cmd);
+	cmd = cmd+strlen(tmp);
+	int arrlen = 0;
+	int * arr = NULL;
+	while (1) {
+		free(tmp);
+		cmd = trimleft(cmd);
+		tmp = first_word(cmd);
+		if (! strcmp(tmp, ""))
+			break;
+		cmd = cmd+strlen(tmp);
+		int value = atoi(tmp);
+		if ((value > 0) && (value <= commit_count)) {
+			// Check whether item already exist
+			bool exists = false;
+			for (int i = 0; i < arrlen; i++) {
+				if (arr[i] == value) {
+					//It produces too much unnecessary mess, thus it's commented
+					// fprintf(stderr, "Hey, you can't remove item %d twice!\n", value);
+					exists = true;
+				}
+			}
+			if (! exists) {
+				arr = (int*)realloc(arr, ++arrlen*sizeof(int));
+				arr[arrlen-1] = value;
+			}
+		} else {
+			fprintf(stderr, "Item number %d doesn't exist!\n", value);
+		}
+		//printf("%s\n", tmp);
+	}
+	free(tmp);
+	qsort(arr, 0, arrlen);
+	for (int i = arrlen-1; i >= 0; i--) {
+		//printf("%d\n", arr[i]);
+		real_remove(arr[i]-1);
 	}
 }
 
 int apt_commit_status()
 {
-	if (first == NULL)
-		return 0;
-	struct commit_item * iterator = first;
-	for (; iterator->next != NULL; iterator = iterator->next) {
-		printf(" %s\n", iterator->text);
+	
+	for (int i = 0; i < commit_count; i++) {
+		printf("%d: %s\n", i+1, commitz[i]);
 	}
-	printf(" %s\n", iterator->text);
+	/*
+	for (; iterator->next != NULL; iterator = iterator->next) {
+		printf("%d: %s\n", ++i, iterator->text);
+	}
+	printf("%d: %s\n", ++i, iterator->text);
+	*/
 }
 
 /* apt-get */
@@ -367,7 +763,8 @@ int apt_whatis()
 #define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'"
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
 	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
-	system(tmp);
+	//system(tmp);
+	realizecmd(tmp);
 	free(tmp);
 }
 
