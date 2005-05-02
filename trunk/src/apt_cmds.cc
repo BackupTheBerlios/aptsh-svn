@@ -543,6 +543,26 @@ void real_remove(int num)
 
 int apt_commit_remove()
 {
+// It ought not to be used outside this function. It's just internal macro
+#define add_item(VALUE)\
+	if ((VALUE > 0) && (VALUE <= commit_count)) {\
+		/* Check whether item already exist */\
+		bool exists = false;\
+		for (int j = 0; j < arrlen; j++) {\
+			if (arr[j] == VALUE) {\
+				/*It produces too much unnecessary mess, thus it's commented\
+				  fprintf(stderr, "Hey, you can't remove item %d twice!\n", value); */\
+				exists = true;\
+			}\
+		}\
+		if (! exists) {\
+			arr = (int*)realloc(arr, ++arrlen*sizeof(int));\
+			arr[arrlen-1] = VALUE;\
+		}\
+	} else {\
+		fprintf(stderr, "Item number %d doesn't exist!\n", VALUE);\
+	}
+	
 	char * cmd = trimleft(aptcmd);
 	char * tmp = first_word(cmd);
 	cmd = cmd+strlen(tmp);
@@ -555,25 +575,30 @@ int apt_commit_remove()
 		if (! strcmp(tmp, ""))
 			break;
 		cmd = cmd+strlen(tmp);
-		int value = atoi(tmp);
-		if ((value > 0) && (value <= commit_count)) {
-			// Check whether item already exist
-			bool exists = false;
-			for (int i = 0; i < arrlen; i++) {
-				if (arr[i] == value) {
-					//It produces too much unnecessary mess, thus it's commented
-					// fprintf(stderr, "Hey, you can't remove item %d twice!\n", value);
-					exists = true;
+		char * end;
+		if (end = strstr(tmp, "-")) {
+			int len = end-tmp;
+			char * begin = (char*)malloc(len+1);
+			strncpy(begin, tmp, len);
+			begin[len] = '\0';
+			end++; // It contants '-', so we omit it...
+			// printf("%s - %s\n\n", begin, end);
+			int _begin = atoi(begin);
+			int _end = atoi(end);
+			if (begin <= end)
+				for (int i = _begin; i <= _end; i++) {
+					add_item(i);
 				}
-			}
-			if (! exists) {
-				arr = (int*)realloc(arr, ++arrlen*sizeof(int));
-				arr[arrlen-1] = value;
-			}
+			else
+				for (int i = _end; i >= _begin; i--) {
+					add_item(i);
+				}
+			free(begin);
 		} else {
-			fprintf(stderr, "Item number %d doesn't exist!\n", value);
+			// add_item is a macro, so it would be converted MANY times without this
+			int _tmp = atoi(tmp);
+			add_item(_tmp);
 		}
-		//printf("%s\n", tmp);
 	}
 	free(tmp);
 	qsort(arr, 0, arrlen);
