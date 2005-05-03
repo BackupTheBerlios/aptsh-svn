@@ -583,8 +583,20 @@ int apt_commit_remove()
 			begin[len] = '\0';
 			end++; // It contants '-', so we omit it...
 			// printf("%s - %s\n\n", begin, end);
-			int _begin = atoi(begin);
-			int _end = atoi(end);
+			int _begin;
+			if (! strcmp(begin, "last")) {
+				_begin = commit_count;
+			} else {
+				_begin = atoi(begin);
+			}
+			
+			int _end;
+			if (! strcmp(end, "last")) {
+				_end = commit_count;
+			} else {
+				_end = atoi(end);
+			}
+				
 			if (begin <= end)
 				for (int i = _begin; i <= _end; i++) {
 					add_item(i);
@@ -596,7 +608,12 @@ int apt_commit_remove()
 			free(begin);
 		} else {
 			// add_item is a macro, so it would be converted MANY times without this
-			int _tmp = atoi(tmp);
+			int _tmp;
+			if (! strcmp(tmp, "last")) {
+				_tmp = commit_count;
+			} else {
+				_tmp = atoi(tmp);
+			}
 			add_item(_tmp);
 		}
 	}
