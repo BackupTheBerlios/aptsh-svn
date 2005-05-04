@@ -205,7 +205,8 @@ void initialize_rl()
 
 struct option arg_opts[] =
 {
-	{"config-file", required_argument, 0, 'c' }
+	{"config-file", required_argument, 0, 'c' },
+	{"storing", no_argument, 0, 's' }
 };
 
 // Number of steps
@@ -233,11 +234,14 @@ int main(int argc, char ** argv)
 
 	cfg_defaults();
 	config_file = NULL;
-	while ((c = getopt_long(argc, argv, "c:", arg_opts, &option_index)) != -1) {
+	while ((c = getopt_long(argc, argv, "sc:", arg_opts, &option_index)) != -1) {
 		switch (c) {
 			case 'c':
 				config_file = optarg;
 				cfg_parse();
+				break;
+			case 's':
+				storing = 1;
 				break;
 		}
 	}
