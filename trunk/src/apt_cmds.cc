@@ -37,14 +37,7 @@ char storing;
 char * aptcmd;
 
 char use_realcmd;
-//char * realcmd;
-/*#define realizecmd(STH)\
-if (use_realcmd) {\
-	realcmd = (char*)malloc(strlen(STH)+1);\
-	strcpy(realcmd, STH);\
-}else {\
-	system(STH);\
-}*/
+
 char * yes;
 
 // Number of steps in commitlog
@@ -345,24 +338,6 @@ int apt_dump_cfg()
 
 int apt_help()
 {
-// Who knows whether code beneath works...
-/*	pkgCache * Cache;
-	pkgCache::PkgIterator e;
-	
-	Cache = new pkgCache(m);
-	e = Cache->PkgBegin();
-
-	while (e.end() == false) {
-		pkgCache::Package * ppk = (pkgCache::Package *)e;
-		// (1 << 1) is pkgFLAG_New
-		if (ppk->Flags & (1 << 1)) {
-			printf("%s\n", e.Name());
-		}
-		e++;
-	}	
-*/
-// Who knows whether code beyond works...
-
 	system("man aptsh");
 //	realizecmd("man aptsh");
 }
