@@ -16,7 +16,7 @@ elif [ $1 = 'release' ]; then
 	svn checkout svn://svn.berlios.de/aptsh/trunk/
 	mv trunk/* .
 	rm -rf trunk
-	f=$2
+	f=aptsh-$2
 else
 	f=$1
 fi
@@ -33,7 +33,7 @@ perl -pi -e 's/^Maintainer.*$/Maintainer: Marcin Wrochniak <wrochniak\@gmail\.co
 perl -pi -e 's/^Description.*$/Description: APT interactive shell/g' debian/control
 cat debian/control | head -n $[`wc -l debian/control | awk '{print $1}'`-1] > control_tmp
 cp control_tmp debian/control
-echo " Aptsh will help you in managing packages by providing very nice pseudo-shell." >> debian/control
+echo " Aptsh helps in managing packages by providing very nice pseudo-shell." >> debian/control
 rm control_tmp
 
 echo "/etc/aptsh.conf" > debian/conffiles
