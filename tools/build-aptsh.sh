@@ -27,7 +27,7 @@ cp -rf * $f/
 
 cd $f
 
-dh_make -s -e wrochniak@gmail.com
+yes "" | dh_make -s -e wrochniak@gmail.com
 
 perl -pi -e 's/^Maintainer.*$/Maintainer: Marcin Wrochniak <wrochniak\@gmail\.com>/g' debian/control
 perl -pi -e 's/^Description.*$/Description: APT interactive shell/g' debian/control
