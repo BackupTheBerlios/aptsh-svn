@@ -20,3 +20,5 @@ extern struct commit_item * first;
 
 #define SHARED_FOLDER "/usr/share/aptsh/"
 
+#define VERSION "0.0.3"
+
