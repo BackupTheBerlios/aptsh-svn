@@ -151,9 +151,8 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 	static pkgCache::PkgIterator e;
 
 	Cache = new pkgCache(m);
-	e = Cache->PkgBegin();
 
-	while (e.end() == false) {
+	for (e = Cache->PkgBegin(); e.end() == false; e++) {
 		if (ex == INSTALLED) {
 			pkgCache::Package * ppk = (pkgCache::Package *)e;
 			// 6 means installed
@@ -162,7 +161,6 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 					return true;
 				}
 			}else {
-				e++;
 				continue;
 			}
 		}
@@ -170,7 +168,6 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 			//e++;
 			return true;
 		}
-		e++;
 	}
 	return false;
 }
