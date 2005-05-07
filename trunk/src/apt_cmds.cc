@@ -119,7 +119,7 @@ struct command
 	{ "unmet", apt_unmet, AVAILABLE, NO },
 	{ "search", apt_search, AVAILABLE, NO },
 	{ "depends", apt_depends, AVAILABLE, YES },
-	{ "redepends", apt_redepends, AVAILABLE, YES },
+	{ "rdepends", apt_rdepends, AVAILABLE, YES },
 	{ "pkgnames", apt_pkgnames, NONE, NO },
 	{ "dotty", apt_dotty, AVAILABLE, NO },
 	{ "policy", apt_policy, AVAILABLE, NO },
@@ -747,7 +747,7 @@ int apt_depends()
 	newcmd("apt-cache");
 }
 
-int apt_redepends()
+int apt_rdepends()
 {
 	newcmd("apt-cache");
 }

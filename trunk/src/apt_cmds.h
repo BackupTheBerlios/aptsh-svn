@@ -57,7 +57,7 @@ int apt_dumpavail();
 int apt_unmet();
 int apt_search();
 int apt_depends();
-int apt_redepends();
+int apt_rdepends();
 int apt_pkgnames();
 int apt_dotty();
 int apt_policy();
