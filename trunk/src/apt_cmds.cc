@@ -254,7 +254,10 @@ int validate(char * cmd)
 int execute(char * line, char addhistory)
 {
 	if (CFG_USE_HISTORY && addhistory)
-		if (line && strcmp("", trimleft(line))) {
+		if (line && strcmp("", trimleft(line)) &&
+		/* below it check whether history is empty, if so it allows to add new entry, else it checks
+		   whether this line was added recently - if not, it allows to add n.e. */
+		( history_list() == NULL ? 1 : strcmp(history_list()[history_length-1]->line, line) )){
 			add_history(line);
 			if (CFG_HISTORY_COUNT)
 				if ((access(CFG_HISTORY_FILE, F_OK) == -1))
