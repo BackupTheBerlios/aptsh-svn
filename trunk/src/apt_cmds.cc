@@ -538,7 +538,6 @@ int apt_commit_remove()
 			strncpy(begin, tmp, len);
 			begin[len] = '\0';
 			end++; // It contants '-', so we omit it...
-			// printf("%s - %s\n\n", begin, end);
 			int _begin;
 			if (! strcmp(begin, "last")) {
 				_begin = commit_count;
@@ -553,12 +552,12 @@ int apt_commit_remove()
 				_end = atoi(end);
 			}
 				
-			if (begin <= end)
+			if (_begin <= _end)
 				for (int i = _begin; i <= _end; i++) {
 					add_item(i);
 				}
 			else
-				for (int i = _end; i >= _begin; i--) {
+				for (int i = _end; i <= _begin; i++) {
 					add_item(i);
 				}
 			free(begin);
@@ -576,7 +575,6 @@ int apt_commit_remove()
 	free(tmp);
 	qsort(arr, arrlen, sizeof(int), compare_ints);
 	for (int i = arrlen-1; i >= 0; i--) {
-		//printf("%d\n", arr[i]);
 		real_remove(arr[i]-1);
 	}
 }
