@@ -476,33 +476,6 @@ int apt_commit_clear()
 	return 0;
 }
 
-// used by qsort
-void swap(int * a, int * b)
-{
-	int tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
-void qsort(int z[], int beg, int end)
-{
-	if (end > beg+1) {
-		int p = z[beg];
-		int l = beg+1;
-		int r = end;
-		while (l < r) {
-			if (z[l] <= p) {
-				l++;
-			} else {
-				swap(&z[l], &z[--r]);
-			}
-		}
-		swap(&z[beg], &z[--l]);
-		qsort(z, beg, l);
-		qsort(z, r, end);
-	}
-}
-
 // removes item from commitz
 void real_remove(int num)
 {
@@ -514,6 +487,14 @@ void real_remove(int num)
 	}
  	commit_count--;
 	commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
+}
+
+int compare_ints(const void *a, const void *b)
+{
+	const int * _a = (const int *)a;
+	const int * _b = (const int *)b;
+
+	return (*_a > *_b)-(*_a < *_b);
 }
 
 int apt_commit_remove()
@@ -593,7 +574,7 @@ int apt_commit_remove()
 		}
 	}
 	free(tmp);
-	qsort(arr, 0, arrlen);
+	qsort(arr, arrlen, sizeof(int), compare_ints);
 	for (int i = arrlen-1; i >= 0; i--) {
 		//printf("%d\n", arr[i]);
 		real_remove(arr[i]-1);
