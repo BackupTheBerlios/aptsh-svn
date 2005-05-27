@@ -497,28 +497,36 @@ int compare_ints(const void *a, const void *b)
 	return (*_a > *_b)-(*_a < *_b);
 }
 
+
+
+// Function below is used internally by apt_commit_remove() to add items to 
+// internal array of items to remove from command-queue
+#if __GNUC__ >= 3
+inline
+#endif
+void add_item(const int value, int * (&arr), int & arrlen)
+{
+	if ((value > 0) && (value <= commit_count)) {
+		/* Check whether item already exist */
+		bool exists = false;
+		for (int j = 0; j < arrlen; j++) {
+			if (arr[j] == value) {
+				/*It produces too much unnecessary mess, thus it's commented\
+				  fprintf(stderr, "Hey, you can't remove item %d twice!\n", value); */
+				exists = true;
+			}
+		}
+		if (! exists) {
+			arr = (int*)realloc(arr, ++arrlen*sizeof(int));
+			arr[arrlen-1] = value;
+		}
+	} else {
+		fprintf(stderr, "Item number %d doesn't exist!\n", value);
+	}
+}
+
 int apt_commit_remove()
 {
-// It ought not to be used outside this function. It's just internal macro
-#define add_item(VALUE)\
-	if ((VALUE > 0) && (VALUE <= commit_count)) {\
-		/* Check whether item already exist */\
-		bool exists = false;\
-		for (int j = 0; j < arrlen; j++) {\
-			if (arr[j] == VALUE) {\
-				/*It produces too much unnecessary mess, thus it's commented\
-				  fprintf(stderr, "Hey, you can't remove item %d twice!\n", value); */\
-				exists = true;\
-			}\
-		}\
-		if (! exists) {\
-			arr = (int*)realloc(arr, ++arrlen*sizeof(int));\
-			arr[arrlen-1] = VALUE;\
-		}\
-	} else {\
-		fprintf(stderr, "Item number %d doesn't exist!\n", VALUE);\
-	}
-	
 	char * cmd = trimleft(aptcmd);
 	char * tmp = first_word(cmd);
 	cmd = cmd+strlen(tmp);
@@ -554,11 +562,11 @@ int apt_commit_remove()
 				
 			if (_begin <= _end)
 				for (int i = _begin; i <= _end; i++) {
-					add_item(i);
+					add_item(i, arr, arrlen);
 				}
 			else
 				for (int i = _end; i <= _begin; i++) {
-					add_item(i);
+					add_item(i, arr, arrlen);
 				}
 			free(begin);
 		} else {
@@ -569,7 +577,7 @@ int apt_commit_remove()
 			} else {
 				_tmp = atoi(tmp);
 			}
-			add_item(_tmp);
+			add_item(_tmp, arr, arrlen);
 		}
 	}
 	free(tmp);
