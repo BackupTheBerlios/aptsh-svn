@@ -48,8 +48,6 @@ extern void i_setsig();
 
 void realizecmd(char * sth) {
 	if (use_realcmd) {
-		//char * tmp = (char*)malloc(strlen(STH)+1);
-		//strcpy
 		i_setsig();
 
 		FILE * fp = popen(sth, "w");
@@ -211,7 +209,6 @@ int validate(char * cmd)
 			tmp = first_word(cmd2);
 			if (! strcmp(tmp, ""))
 				break;
-			//printf("P: %s -\n", tmp);
 
 			// it may be a parameter for apt, not a pkg's name
 			if (tmp[0] == '-') {
@@ -278,26 +275,20 @@ int execute(char * line, char addhistory)
 		commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
 
 		validate(line_t);
-		//                     line contains ' sign, so we don't need to allocate +1 bytes.
 		
 		commitz[commit_count-1] = strdup(line_t);
-		//commitz[commit_count-1] = (char*)malloc(strlen(line_t));
-		//strcpy(commitz[commit_count-1], line_t);
 		return 0;
 	}
 
 	if (line[0] == '.') {
-		//system((char*)(line+1));
 		realizecmd((char*)(line+1));
 		
-		//continue;
 		return 0;
 	}
 
 	char * execmd = first_word(trimleft(line));
 	
 	if ((! strcmp(execmd, "quit")) || (!strcmp(execmd, "exit")) || (!strcmp(execmd, "bye")))
-		//break;
 		return 1;
 		
 	
@@ -377,9 +368,7 @@ int apt_regex()
 	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd_t);
 	pipe = popen(tmp, "w");
 	
-	//while (i < hm) {
 	while (e.end() == false) {
-		//i++;
 		fprintf(pipe, "%s\n", e.Name());
 		e++;
 	}	
@@ -448,8 +437,6 @@ int apt_commit_say()
 {
 	
 	yes = trimleft(trimleft(aptcmd)+strlen("commit-say"));
-	//char * yes = (char*)malloc(strlen(SHARED_FOLDER)+strlen(tmp)+strlen("csay ")+1);
-	//sprintf(yes, "%scsay %s", SHARED_FOLDER, tmp);
 	
 	use_realcmd = 1;
 
@@ -457,11 +444,9 @@ int apt_commit_say()
 
 	for (int i = 0; i < commit_count; i++) {
 		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
-		//realcmd = NULL;
 		execute(commitz[i], 0);
 	}
 
-	//free(yes);
 	use_realcmd = 0;
 }
 
@@ -589,16 +574,9 @@ int apt_commit_remove()
 
 int apt_commit_status()
 {
-	
 	for (int i = 0; i < commit_count; i++) {
 		printf("%d: %s\n", i+1, commitz[i]);
 	}
-	/*
-	for (; iterator->next != NULL; iterator = iterator->next) {
-		printf("%d: %s\n", ++i, iterator->text);
-	}
-	printf("%d: %s\n", ++i, iterator->text);
-	*/
 }
 
 /* apt-get */

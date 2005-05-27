@@ -50,9 +50,7 @@ char * cpl_pkg(const char * text, int state)
 		i = 0;
 	}
 
-	//while (i < hm) {
 	while (e.end() == false) {
-		//i++;
 		if (! strncmp(e.Name(), text, len)) {
 			char * tmp = (char*)malloc(strlen(e.Name())+1);
 			strcpy(tmp, e.Name());
@@ -79,9 +77,7 @@ char * cpl_pkg_i(const char * text, int state)
 		i = 0;
 	}
 
-	//while (i < hm) {
 	while (e.end() == false) {
-		//i++;
 		pkgCache::Package * ppk = (pkgCache::Package *)e;
 		if (ppk->CurrentState != 6) {
 			e++;
@@ -130,9 +126,6 @@ char * cpl_main(const char * text_orig, int state)
 		name = cmds[index].name;
 		index++;
 		if (! strncmp(text, name, len)) {
-			//tmp = (char*)malloc(strlen(name)+1);
-			//strcpy(tmp, name);
-			//return tmp;
 			return strdup(name);
 		}
 	}
@@ -183,8 +176,6 @@ char ** completion(const char * text, int start, int end)
 
 	// check if we're completing first word
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
-	//if (start == 0) {
-	//if ((start == 0) || ( (rl_line_buffer[0]==';')&& ((start==1)||(start==2) ) )) {
 		m = rl_completion_matches(text, cpl_main);
 	}else {
 		switch (check_command()) {
@@ -221,7 +212,6 @@ int main(int argc, char ** argv)
 	int option_index = 0;
 	char * execmd = NULL;
 	int i;
-	//char help = 0;
 	char * line;
 
 	commitlog = NULL;
@@ -231,7 +221,6 @@ int main(int argc, char ** argv)
 	commitz = NULL;
 	storing = 0;
 	use_realcmd = 0;
-	//cl_size = 0;
 
 	cfg_defaults();
 	config_file = NULL;
@@ -262,13 +251,10 @@ int main(int argc, char ** argv)
 	}
 
 	printf("Reading package database...\n");
-	//read_index1();
-	//read_index2();
 	read_indexes();
 	printf("Ready.\n");
 	
 	for (;;) {
-		//help = 0;
 		if (storing)
 			line = readline(CFG_PS1_STORING);
 		else
