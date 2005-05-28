@@ -13,9 +13,11 @@ if (! open(FILE, $path)) {
 
 open(OUT, $out);
 
-print '<html><body style="background: silver;"><div style="width: 42em; background: white; padding: 1em;">';
+print '<html><body style="background: silver;"><div style="width: 42em; font-size: 10pt; background: white; padding: 1em; font-family: verdana,arial,helvetica,sans-serif ">';
 
 while ($z = <FILE>) {
+	$z =~ s/\\\\/\\/g;
+	$z =~ s/\\-/-/g;
 	$z =~ s/\.RS/<div>/g;
 	$z =~ s/\.RE/<\/div>/g;
 	$z =~ s/^\.TH(.*)(\d).*\"(.*)\".*\"(.*)\".*$/<h3>\1 (\2)<\/h3>\n<br><i>\3<\/i>\n<br><i>\4<\/i>/;
