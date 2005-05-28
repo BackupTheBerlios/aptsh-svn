@@ -6,7 +6,7 @@ clean:
 	cd src && make clean
 
 install:
-	cp src/aptsh.1 $(DESTDIR)/usr/man/man1/
+	cp src/aptsh.1 $(DESTDIR)/usr/share/man/man1/
 	cp src/aptsh $(DESTDIR)/usr/bin/
 	cp src/aptsh.conf $(DESTDIR)/etc/
 	if test ! -d $(DESTDIR)/usr/share/aptsh/; then  \
