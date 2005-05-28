@@ -46,7 +46,7 @@ License:
 
 Aptsh is licened under the terms of the GNU General Public License (GPL),
 version 2.0 or later, as published by the Free Software Foundation.  See
-the file COPYING.GPL [included], /usr/share/common-licenses/GPL, or
+the file, /usr/share/common-licenses/GPL, or
 <http://www.gnu.org/copyleft/gpl.txt> for the terms of the latest version
 of the GNU General Public License.
 EOF
