@@ -29,6 +29,29 @@ cd $f
 
 yes "" | dh_make -s -e wrochniak@gmail.com
 
+copy1=$(head -n 1 debian/copyright)
+copy2=$(head -n 2 debian/copyright | awk 'BEGIN {z=0} //{z++; if (z == 2) {print $_}}')
+
+echo $copy1 > debian/copyright
+echo $copy2 >> debian/copyright
+cat << EOF >> debian/copyright
+
+It was downloaded from http://aptsh.berlios.de
+
+Copyright: Marcin Wrochniak
+
+Upstream Author: Marcin Wrochniak <wrochniak@gmail.com>
+
+License:
+
+Aptsh is licened under the terms of the GNU General Public License (GPL),
+version 2.0 or later, as published by the Free Software Foundation.  See
+the file COPYING.GPL [included], /usr/share/common-licenses/GPL, or
+<http://www.gnu.org/copyleft/gpl.txt> for the terms of the latest version
+of the GNU General Public License.
+EOF
+
+perl -pi -e 's/^Section: unknown$/Section: admin/g' debian/control
 perl -pi -e 's/^Maintainer.*$/Maintainer: Marcin Wrochniak <wrochniak\@gmail\.com>/g' debian/control
 perl -pi -e 's/^Description.*$/Description: APT interactive shell/g' debian/control
 cat debian/control | head -n $[`wc -l debian/control | awk '{print $1}'`-1] > control_tmp
@@ -36,11 +59,11 @@ cp control_tmp debian/control
 echo " Aptsh helps in managing packages by providing very nice pseudo-shell." >> debian/control
 rm control_tmp
 
-echo "/etc/aptsh.conf" > debian/conffiles
+#echo "/etc/aptsh.conf" > debian/conffiles - debhelper does this automatically
 
 echo "etc"  >> debian/dirs
 echo "usr/share/aptsh" >> debian/dirs
-echo "usr/man/man1" >> debian/dirs
+echo "usr/share/man/man1" >> debian/dirs
 
 rm debian/README.Debian
 
