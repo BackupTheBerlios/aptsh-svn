@@ -130,6 +130,7 @@ struct command
 	{ "dump-cfg", apt_dump_cfg, FS, NO },
 	{ "rls", apt_regex, AVAILABLE, NO },
 	{ "ls", apt_ls, AVAILABLE, NO },
+	{ "orphans", apt_orphans, NONE, NO },
 	{ "commit", apt_commit, NONE, NO },
 	{ "commit-say", apt_commit_say, NONE, NO },
 	{ "commit-clear", apt_commit_clear, NONE, NO },
@@ -421,6 +422,51 @@ int apt_listfiles()
 	aptcmd = trimleft(aptcmd)+strlen("listfiles");
 	newcmd("dpkg -L");
 	aptcmd = cmdtmp;
+}
+
+int apt_orphans()
+{
+	static int len;
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+	static int i;
+	
+	Cache = new pkgCache(m);
+	e = Cache->PkgBegin();
+	i = 0;
+
+	while (e.end() == false) {
+		if (e->CurrentVer != 0) {
+			const char * section = e.Section();
+			if (section == NULL) // it can't be library, since it doesn't belong to any section. :)
+				continue;
+			if (strstr(section, "libs") || strstr(section, "libdevel")) {
+				//printf("%s\n", e.Name());
+				//pkgCache::DepIterator D = e.RevDependsList();
+				//if (D.end()) {
+				//	printf("%s\n", e.Name());
+				//	continue;
+				//}
+				bool found = false;
+				for (pkgCache::DepIterator D = e.RevDependsList(); D.end() == false; D++ ) {
+					pkgCache::PkgIterator tmp = D.ParentPkg();
+					if (tmp->CurrentVer != 0) {
+						found = true;
+						break;
+					}
+				}
+				if (! found)
+					printf("%s\n", e.Name());
+			}
+		}
+		/*if (! strncmp(e.Name(), text, len)) {
+			char * tmp = (char*)malloc(strlen(e.Name())+1);
+			strcpy(tmp, e.Name());
+			e++;
+			return tmp;
+		}*/
+		e++;
+	}	
 }
 
 int apt_commit()

@@ -10,7 +10,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#define CMD_NUM 40
+#define CMD_NUM 41
 
 extern char * aptcmd;
 
@@ -27,6 +27,7 @@ int apt_ls();
 int apt_help();
 int apt_whichpkg();
 int apt_listfiles();
+int apt_orphans();
 int apt_commit();
 int apt_commit_say();
 int apt_commit_clear();
