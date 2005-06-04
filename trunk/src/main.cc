@@ -20,7 +20,20 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include <apt-pkg/error.h>
 #include <apt-pkg/pkgcachegen.h>
+#include <apt-pkg/init.h>
+#include <apt-pkg/progress.h>
+#include <apt-pkg/sourcelist.h>
+#include <apt-pkg/cmndline.h>
+#include <apt-pkg/strutl.h>
+#include <apt-pkg/pkgrecords.h>
+#include <apt-pkg/srcrecords.h>
+#include <apt-pkg/version.h>
+#include <apt-pkg/policy.h>
+#include <apt-pkg/tagfile.h>
+#include <apt-pkg/algorithms.h>
+#include <apt-pkg/sptr.h>
 
 #include "readindex.h"
 #include "apt_cmds.h"
@@ -116,7 +129,6 @@ char * cpl_main(const char * text_orig, int state)
 	} else {
 		text = (char*)text_orig;
 	}
-	
 
 	if (!state) {
 		index = 0;
@@ -222,6 +234,7 @@ int main(int argc, char ** argv)
 	storing = 0;
 	use_realcmd = 0;
 
+	
 	cfg_defaults();
 	config_file = NULL;
 	while ((c = getopt_long(argc, argv, "vsc:", arg_opts, &option_index)) != -1) {
@@ -242,6 +255,8 @@ int main(int argc, char ** argv)
 		config_file = CONFIG_FILE;
 		cfg_parse();
 	}
+
+	// Initialize libreadline
 	initialize_rl();
 
 	if (CFG_HISTORY_COUNT  && CFG_USE_HISTORY) {
@@ -250,9 +265,22 @@ int main(int argc, char ** argv)
 		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
 	}
 
-	printf("Reading package database...\n");
-	read_indexes();
-	printf("Ready.\n");
+	
+	// Initialize libapt-pkg
+	if (pkgInitConfig(*_config) == false ||
+	pkgInitSystem(*_config, _system) == false)
+	{
+		_error->DumpErrors();
+		return 100;
+	}
+
+	if (_config->FindB("APT::Cache::Generate", true)) {
+		puts("Generating and mapping caches...");
+		gen_indexes();
+	} else {
+		puts("Mapping caches...");
+		read_indexes();
+	}
 	
 	for (;;) {
 		if (storing)

@@ -20,7 +20,9 @@ extern "C" {
 
 
 extern class MMap *m;
-		
+
+int gen_indexes(bool load = true);
+
 int read_indexes();
 
 struct package

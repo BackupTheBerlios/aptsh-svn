@@ -21,7 +21,20 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <apt-pkg/error.h>
 #include <apt-pkg/pkgcachegen.h>
+#include <apt-pkg/init.h>
+#include <apt-pkg/progress.h>
+#include <apt-pkg/sourcelist.h>
+#include <apt-pkg/cmndline.h>
+#include <apt-pkg/strutl.h>
+#include <apt-pkg/pkgrecords.h>
+#include <apt-pkg/srcrecords.h>
+#include <apt-pkg/version.h>
+#include <apt-pkg/policy.h>
+#include <apt-pkg/tagfile.h>
+#include <apt-pkg/algorithms.h>
+#include <apt-pkg/sptr.h>
 
 #include "config_parse.h"
 #include "readindex.h"
@@ -40,6 +53,19 @@ MMap *m;
 void free_indexes()
 {
 	delete m;
+}
+
+// Generate cache file (and load if requested)
+int gen_indexes(bool load)
+{
+	pkgSourceList *SrcList = new pkgSourceList();
+	SrcList->ReadMainList();
+
+	OpProgress Prog;
+	if (load)
+		pkgMakeStatusCache(*SrcList, Prog, &m, true);
+	else
+		pkgMakeStatusCache(*SrcList, Prog);
 }
 
 int read_indexes()

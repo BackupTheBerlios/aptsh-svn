@@ -25,7 +25,20 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include <apt-pkg/error.h>
 #include <apt-pkg/pkgcachegen.h>
+#include <apt-pkg/init.h>
+#include <apt-pkg/progress.h>
+#include <apt-pkg/sourcelist.h>
+#include <apt-pkg/cmndline.h>
+#include <apt-pkg/strutl.h>
+#include <apt-pkg/pkgrecords.h>
+#include <apt-pkg/srcrecords.h>
+#include <apt-pkg/version.h>
+#include <apt-pkg/policy.h>
+#include <apt-pkg/tagfile.h>
+#include <apt-pkg/algorithms.h>
+#include <apt-pkg/sptr.h>
 
 #include "apt_cmds.h"
 #include "config_parse.h"
@@ -66,17 +79,20 @@ void realizecmd(char * sth) {
 
 long tmpdate;
 
-#define R_MSG "Reading package database...\n"
-
 // Checks whether cache file has been changed since last reading (stored in tmpdate)
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
 		return;
 	
-	if (update_date(CFG_UPDATE_FILE) > tmpdate) {
-		free_indexes();
-		printf(R_MSG);
+	free_indexes();
+	puts("Generating and mapping caches...");
+
+	if (_config->FindB("APT::Cache::Generate", true)) {
+		puts("Generating and mapping caches...");
+		gen_indexes();
+	} else {
+		puts("Mapping caches...");
 		read_indexes();
 	}
 }
@@ -640,10 +656,12 @@ int apt_update()
 	newcmd("apt-get");
 	if (! CFG_REFRESH_INDEXES_ALL)
 		return 0;
-	if (update_date(CFG_UPDATE_FILE) > tmpdate)
-	{
-		free_indexes();
-		printf(R_MSG);
+
+	if (_config->FindB("APT::Cache::Generate", true)) {
+		puts("Generating and mapping caches...");
+		gen_indexes();
+	} else {
+		puts("Mapping caches...");
 		read_indexes();
 	}
 }
