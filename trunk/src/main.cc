@@ -114,13 +114,17 @@ struct command
 	int (*funct)();
 	enum completion cpl;
 	char do_validation;
+	char * master;
 } extern cmds[];
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* commands completion */
 char * cpl_main(const char * text_orig, int state)
 {
-	static int index, len;
+	static int index, index_slaves, len;
+	static bool slaves = false;
+	static int found = 0;
+	
 	char * name, * tmp;
 	
 	char * text;
@@ -130,17 +134,47 @@ char * cpl_main(const char * text_orig, int state)
 		text = (char*)text_orig;
 	}
 
+	// Re-initialize, new completion needed
 	if (!state) {
 		index = 0;
+		index_slaves = 0;
 		len = strlen(text);
+		slaves = false;
+		found = 0;
 	}
-	while (index < CMD_NUM) {
-		name = cmds[index].name;
-		index++;
-		if (! strncmp(text, name, len)) {
-			return strdup(name);
+
+	// Don't waste time and search for master commands only if we need master commands.
+	if (! slaves)
+		while (index < CMD_NUM) {
+			name = cmds[index].name;
+			struct command * now = &cmds[index];
+			index++;
+			if (! strncmp(text, name, len)) {
+				// If master command already fits, then push slaves
+				if (now->master != NULL) {
+					if (strstr(text, now->master)) {
+						return strdup(name);
+					}
+				} else {
+					found++;
+					return strdup(name);
+				}
+			}
+		}
+
+	// If we find only one command, then we search for slave commands
+	if ((found == 1) || slaves) {
+		slaves = true;
+		while (index_slaves < CMD_NUM) {
+			name = cmds[index_slaves].name;
+			struct command * now = &cmds[index_slaves];
+			index_slaves++;
+			if (! strncmp(text, name, len)) {
+				return strdup(name);
+			}
 		}
 	}
+	
 	return (char*)NULL;
 }
 

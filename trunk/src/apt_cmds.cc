@@ -107,53 +107,56 @@ struct command
 	// because such a package doesn't exist (do_validation for "install" is YES)
 	// and it checks for existence in all packages, because cpl of "install" is AVAILABLE
 	char do_validation;
+	char * master; // Master command (example: commit - master; commit-clear, commit-remove,
+	               // commit-status - slaves). NULL if there's no master command.
 } cmds[] = {
 #define YES 1
 #define NO 0
 	/* apt-get */
-	{ "install", apt_install, AVAILABLE, YES },
-	{ "update", apt_update, AVAILABLE, NO },
-	{ "upgrade", apt_upgrade, AVAILABLE, YES },
-	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO },
-	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO },
-	{ "remove", apt_remove, INSTALLED, YES },
-	{ "source", apt_source, AVAILABLE, YES },
-	{ "build-dep", apt_build_dep, AVAILABLE, YES },
-	{ "check", apt_check, AVAILABLE, NO }, // FIXME: not sure
-	{ "clean", apt_clean, AVAILABLE, NO },
-	{ "autoclean", apt_autoclean, AVAILABLE, NO },
+	{ "install", apt_install, AVAILABLE, YES, NULL },
+	{ "update", apt_update, AVAILABLE, NO, NULL },
+	{ "upgrade", apt_upgrade, AVAILABLE, YES, NULL },
+	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO, NULL },
+	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO, NULL },
+	{ "remove", apt_remove, INSTALLED, YES, NULL },
+	{ "source", apt_source, AVAILABLE, YES, NULL },
+	{ "build-dep", apt_build_dep, AVAILABLE, YES, NULL },
+	{ "check", apt_check, AVAILABLE, NO, NULL }, // FIXME: not sure
+	{ "clean", apt_clean, AVAILABLE, NO, NULL },
+	{ "autoclean", apt_autoclean, AVAILABLE, NO, NULL },
 	/* apt-cache */
-	{ "show", apt_show, AVAILABLE, YES },
-	{ "dump", apt_dump, AVAILABLE, NO },
-	{ "add", apt_add, FS, NO },
-	{ "showpkg", apt_showpkg, AVAILABLE, YES },
-	{ "stats", apt_stats, NONE, NO },
-	{ "showsrc", apt_showsrc, AVAILABLE, NO },
-	{ "dumpavail", apt_dumpavail, NONE, NO },
-	{ "unmet", apt_unmet, AVAILABLE, NO },
-	{ "search", apt_search, AVAILABLE, NO },
-	{ "depends", apt_depends, AVAILABLE, YES },
-	{ "rdepends", apt_rdepends, AVAILABLE, YES },
-	{ "pkgnames", apt_pkgnames, NONE, NO },
-	{ "dotty", apt_dotty, AVAILABLE, NO },
-	{ "policy", apt_policy, AVAILABLE, NO },
-	{ "madison", apt_madison, AVAILABLE, NO },
-	{ "whatis", apt_whatis, AVAILABLE, YES },
+	{ "show", apt_show, AVAILABLE, YES, NULL },
+	{ "dump", apt_dump, AVAILABLE, NO, NULL },
+	{ "add", apt_add, FS, NO, NULL },
+	{ "showpkg", apt_showpkg, AVAILABLE, YES, NULL },
+	{ "stats", apt_stats, NONE, NO, NULL },
+	{ "showsrc", apt_showsrc, AVAILABLE, NO, NULL },
+	{ "dumpavail", apt_dumpavail, NONE, NO, NULL },
+	{ "unmet", apt_unmet, AVAILABLE, NO, NULL },
+	{ "search", apt_search, AVAILABLE, NO, NULL },
+	{ "depends", apt_depends, AVAILABLE, YES, NULL },
+	{ "rdepends", apt_rdepends, AVAILABLE, YES, NULL },
+	{ "pkgnames", apt_pkgnames, NONE, NO, NULL },
+	{ "dotty", apt_dotty, AVAILABLE, NO, NULL },
+	{ "policy", apt_policy, AVAILABLE, NO, NULL },
+	{ "madison", apt_madison, AVAILABLE, NO, NULL },
+	{ "whatis", apt_whatis, AVAILABLE, YES, NULL },
 	/* aptsh */
-	{ "dpkg", apt_dpkg, FS, NO },
-	{ "whichpkg", apt_whichpkg, FS, NO },
-	{ "listfiles", apt_listfiles, INSTALLED, YES },
-	{ "dump-cfg", apt_dump_cfg, FS, NO },
-	{ "rls", apt_regex, AVAILABLE, NO },
-	{ "ls", apt_ls, AVAILABLE, NO },
-	{ "orphans", apt_orphans, NONE, NO },
-	{ "commit", apt_commit, NONE, NO },
-	{ "commit-say", apt_commit_say, NONE, NO },
-	{ "commit-clear", apt_commit_clear, NONE, NO },
-	{ "commit-remove", apt_commit_remove, NONE, NO },
-	{ "commit-status", apt_commit_status, NONE, NO },
-	{ "help", apt_help, NONE, NO },
-	{ "quit", NULL, NONE, NO } 
+	{ "dpkg", apt_dpkg, FS, NO, NULL },
+	{ "whichpkg", apt_whichpkg, FS, NO, NULL },
+	{ "listfiles", apt_listfiles, INSTALLED, YES, NULL },
+	{ "dump-cfg", apt_dump_cfg, FS, NO, NULL },
+	{ "rls", apt_regex, AVAILABLE, NO, NULL },
+	{ "ls", apt_ls, AVAILABLE, NO, NULL },
+	{ "orphans", apt_orphans, NONE, NO, NULL },
+	{ "orphans-all", apt_orphans_all, NONE, NO, "orphans" },
+	{ "commit", apt_commit, NONE, NO, NULL },
+	{ "commit-say", apt_commit_say, NONE, NO, "commit" },
+	{ "commit-clear", apt_commit_clear, NONE, NO, "commit" },
+	{ "commit-remove", apt_commit_remove, NONE, NO, "commit" },
+	{ "commit-status", apt_commit_status, NONE, NO, "commit" },
+	{ "help", apt_help, NONE, NO, NULL },
+	{ "quit", NULL, NONE, NO, NULL } 
 };
 
 // Check whether package exists
@@ -440,6 +443,7 @@ int apt_listfiles()
 	aptcmd = cmdtmp;
 }
 
+// Display orphaned libraries in the system
 int apt_orphans()
 {
 	static int len;
@@ -483,6 +487,35 @@ int apt_orphans()
 		}*/
 		e++;
 	}	
+}
+
+// Display all orphaned (without any reverse dependencies installed) packages in the system
+int apt_orphans_all()
+{
+	static int len;
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+	static int i;
+	
+	Cache = new pkgCache(m);
+	e = Cache->PkgBegin();
+	i = 0;
+
+	while (e.end() == false) {
+		if (e->CurrentVer != 0) {
+			bool found = false;
+			for (pkgCache::DepIterator D = e.RevDependsList(); D.end() == false; D++ ) {
+				pkgCache::PkgIterator tmp = D.ParentPkg();
+				if ((tmp->CurrentVer != 0) && D.IsCritical()) {
+					found = true;
+					break;
+				}
+			}
+			if (! found)
+				printf("%s\n", e.Name());
+		}
+		e++;
+	}
 }
 
 int apt_commit()
