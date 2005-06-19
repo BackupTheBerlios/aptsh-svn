@@ -202,7 +202,7 @@ int validate(char * cmd)
 		return 0;
 	char * tmp = first_word(cmd);
 	char ok = 0;
-	enum completion sort;
+	enum completion sort = NONE;
 	char do_validation = 0;
 	for (int i = 0; i < CMD_NUM; i++) {
 		if (! strcmp(tmp, cmds[i].name)) {
@@ -345,12 +345,16 @@ realizecmd(tmp);\
 int apt_dump_cfg()
 {
 	cfg_dump();
+
+	return 0;
 }
 
 int apt_help()
 {
 	system("man aptsh");
 //	realizecmd("man aptsh");
+
+	return 0;
 }
 
 
@@ -385,7 +389,7 @@ int apt_regex()
 	// prevents from situation when user prefixes cmd with whitespaces
 	char * aptcmd_t = trimleft(aptcmd);
 	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+5);
-	sprintf(tmp, "%s%s\x0", SHARED_FOLDER, aptcmd_t);
+	sprintf(tmp, "%s%s%c", SHARED_FOLDER, aptcmd_t, '\0');
 	pipe = popen(tmp, "w");
 	
 	while (e.end() == false) {
@@ -395,6 +399,8 @@ int apt_regex()
 
 	fprintf(pipe, "-\n");
 	pclose(pipe);
+
+	return 0;
 }
 
 int apt_ls()
@@ -410,7 +416,7 @@ int apt_ls()
 	// prevents from situation when user prefixes cmd with whitespaces
 	char * aptcmd_t = trimleft(aptcmd);
 	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+4);
-	sprintf(tmp, "\%s%s\x0", SHARED_FOLDER, aptcmd_t);
+	sprintf(tmp, "\%s%s%c", SHARED_FOLDER, aptcmd_t, '\0');
 	pipe = popen(tmp, "w");
 
 	while (e.end() == false) {
@@ -420,11 +426,14 @@ int apt_ls()
 
 	fprintf(pipe, "-\n");
 	pclose(pipe);
+
+	return 0;
 }
 
 int apt_dpkg()
 {
 	newcmd("");
+	return 0;
 }
 
 int apt_whichpkg()
@@ -433,6 +442,8 @@ int apt_whichpkg()
 	aptcmd = trimleft(aptcmd)+strlen("whichpkg");
 	newcmd("dpkg -S");
 	aptcmd = cmdtmp;
+	
+	return 0;
 }
 
 int apt_listfiles()
@@ -441,12 +452,13 @@ int apt_listfiles()
 	aptcmd = trimleft(aptcmd)+strlen("listfiles");
 	newcmd("dpkg -L");
 	aptcmd = cmdtmp;
+
+	return 0;
 }
 
 // Display orphaned libraries in the system
 int apt_orphans()
 {
-	static int len;
 	static pkgCache * Cache;
 	static pkgCache::PkgIterator e;
 	static int i;
@@ -486,13 +498,14 @@ int apt_orphans()
 			return tmp;
 		}*/
 		e++;
-	}	
+	}
+
+	return 0;
 }
 
 // Display all orphaned (without any reverse dependencies installed) packages in the system
 int apt_orphans_all()
 {
-	static int len;
 	static pkgCache * Cache;
 	static pkgCache::PkgIterator e;
 	static int i;
@@ -516,6 +529,8 @@ int apt_orphans_all()
 		}
 		e++;
 	}
+
+	return 0;
 }
 
 int apt_commit()
@@ -526,6 +541,8 @@ int apt_commit()
 		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
 		execute(commitz[i], 0);
 	}
+
+	return 0;
 }
 
 int apt_commit_say()
@@ -543,6 +560,8 @@ int apt_commit_say()
 	}
 
 	use_realcmd = 0;
+
+	return 0;
 }
 
 int apt_commit_clear()
@@ -619,8 +638,8 @@ int apt_commit_remove()
 		if (! strcmp(tmp, ""))
 			break;
 		cmd = cmd+strlen(tmp);
-		char * end;
-		if (end = strstr(tmp, "-")) {
+		char * end = NULL;
+		if ((end = strstr(tmp, "-")) != NULL) {
 			int len = end-tmp;
 			char * begin = (char*)malloc(len+1);
 			strncpy(begin, tmp, len);
@@ -665,6 +684,8 @@ int apt_commit_remove()
 	for (int i = arrlen-1; i >= 0; i--) {
 		real_remove(arr[i]-1);
 	}
+
+	return 0;
 }
 
 int apt_commit_status()
@@ -672,6 +693,7 @@ int apt_commit_status()
 	for (int i = 0; i < commit_count; i++) {
 		printf("%d: %s\n", i+1, commitz[i]);
 	}
+	return 0;
 }
 
 /* apt-get */
@@ -681,6 +703,7 @@ int apt_install()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_update()
@@ -697,6 +720,7 @@ int apt_update()
 		puts("Mapping caches...");
 		read_indexes();
 	}
+	return 0;
 }
 
 int apt_upgrade()
@@ -704,6 +728,7 @@ int apt_upgrade()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_dselect_upgrade()
@@ -711,6 +736,7 @@ int apt_dselect_upgrade()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_dist_upgrade()
@@ -718,6 +744,7 @@ int apt_dist_upgrade()
 	tmpdate = update_date(CFG_UPDATE_FILE);	
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_remove()
@@ -725,6 +752,7 @@ int apt_remove()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_source()
@@ -732,6 +760,7 @@ int apt_source()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_build_dep()
@@ -739,6 +768,7 @@ int apt_build_dep()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_check()
@@ -746,6 +776,7 @@ int apt_check()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_clean()
@@ -753,11 +784,13 @@ int apt_clean()
 	tmpdate = update_date(CFG_UPDATE_FILE);
 	newcmd("apt-get");
 	check_a();
+	return 0;
 }
 
 int apt_autoclean()
 {
 	newcmd("apt-get");
+	return 0;
 }
 
 /* apt-cache */
@@ -765,76 +798,91 @@ int apt_autoclean()
 int apt_show()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_dump()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_add()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_showpkg()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_stats()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_showsrc()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_dumpavail()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_unmet()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_search()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_depends()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_rdepends()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_pkgnames()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_dotty()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_policy()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_madison()
 {
 	newcmd("apt-cache");
+	return 0;
 }
 
 int apt_whatis()
@@ -845,6 +893,7 @@ int apt_whatis()
 	//system(tmp);
 	realizecmd(tmp);
 	free(tmp);
+	return 0;
 }
 
 

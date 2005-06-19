@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -59,9 +60,9 @@ void cfg_dump()
 	int i = 0;
 	for (; i < OPTIONS_COUNT; i++) {
 		if (options[i].is_int) {
-			printf("%s = %d\n", options[i].name, options[i].value);
+			printf("%s = %d\n", options[i].name, (int)options[i].value);
 		} else {
-			printf("%s = %s\n", options[i].name, options[i].value);
+			printf("%s = %s\n", options[i].name, (char*)options[i].value);
 		}
 	}
 }

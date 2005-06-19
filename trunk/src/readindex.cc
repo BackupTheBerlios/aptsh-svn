@@ -66,6 +66,8 @@ int gen_indexes(bool load)
 		pkgMakeStatusCache(*SrcList, Prog, &m, true);
 	else
 		pkgMakeStatusCache(*SrcList, Prog);
+
+	return 0;
 }
 
 int read_indexes()
@@ -79,6 +81,8 @@ int read_indexes()
 	c = &Cache;
 	pkgCache &si = *c;
 	hm = si.Head().PackageCount;
+
+	return 0;
 }
 
 

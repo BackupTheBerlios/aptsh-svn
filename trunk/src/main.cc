@@ -125,7 +125,7 @@ char * cpl_main(const char * text_orig, int state)
 	static bool slaves = false;
 	static int found = 0;
 	
-	char * name, * tmp;
+	char * name;//, * tmp;
 	
 	char * text;
 	if (text_orig[0] == ';') {
@@ -167,7 +167,7 @@ char * cpl_main(const char * text_orig, int state)
 		slaves = true;
 		while (index_slaves < CMD_NUM) {
 			name = cmds[index_slaves].name;
-			struct command * now = &cmds[index_slaves];
+			//struct command * now = &cmds[index_slaves];
 			index_slaves++;
 			if (! strncmp(text, name, len)) {
 				return strdup(name);
@@ -256,8 +256,6 @@ int main(int argc, char ** argv)
 {
 	int c;
 	int option_index = 0;
-	char * execmd = NULL;
-	int i;
 	char * line;
 
 	commitlog = NULL;

@@ -8,22 +8,22 @@ rls: rls.c
 	gcc -Wall rls.c -o rls
 
 aptsh: main.o readindex.o apt_cmds.o string.o config_parse.o aptsh.1.gz
-	g++ -g -O2 -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o 
+	g++ -g -O2 -Wall -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o 
 
 main.o: main.cc readindex.h apt_cmds.h config_parse.h 
-	g++ -g -O2 -c main.cc -o main.o 
+	g++ -g -O2 -Wall -c main.cc -o main.o 
 
 readindex.o: readindex.cc readindex.h 
-	g++ -g -O2 -c readindex.cc -o readindex.o 
+	g++ -g -O2 -Wall -c readindex.cc -o readindex.o 
 
 apt_cmds.o: apt_cmds.cc apt_cmds.h config_parse.h readindex.h
-	g++ -g -O2 -c apt_cmds.cc -o apt_cmds.o 
+	g++ -g -O2 -Wall -c apt_cmds.cc -o apt_cmds.o 
 
 string.o: string.c string.h 
-	gcc -g -O2 -c string.c -o string.o 
+	gcc -g -O2 -Wall -c string.c -o string.o 
 
 config_parse.o: config_parse.c config_parse.h 
-	gcc -g -O2 -c config_parse.c -o config_parse.o 
+	gcc -g -O2 -Wall -c config_parse.c -o config_parse.o 
 
 # <debug>
 debug: aptsh-debug
