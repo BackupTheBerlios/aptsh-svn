@@ -639,7 +639,7 @@ int apt_commit_remove()
 			break;
 		cmd = cmd+strlen(tmp);
 		char * end = NULL;
-		if ((end = strstr(tmp, "-")) != NULL) {
+		if ((end = strchr(tmp, '-')) != NULL) {
 			int len = end-tmp;
 			char * begin = (char*)malloc(len+1);
 			strncpy(begin, tmp, len);
