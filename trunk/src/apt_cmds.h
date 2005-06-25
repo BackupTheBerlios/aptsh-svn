@@ -29,11 +29,11 @@ int apt_whichpkg();
 int apt_listfiles();
 int apt_orphans();
 int apt_orphans_all();
-int apt_commit();
-int apt_commit_say();
-int apt_commit_clear();
-int apt_commit_remove();
-int apt_commit_status();
+int apt_queue();
+int apt_queue_commit();
+int apt_queue_commit_say();
+int apt_queue_clear();
+int apt_queue_remove();
 
 /* apt-get functions */
 int apt_install();

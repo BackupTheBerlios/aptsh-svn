@@ -150,11 +150,11 @@ struct command
 	{ "ls", apt_ls, AVAILABLE, NO, NULL },
 	{ "orphans", apt_orphans, NONE, NO, NULL },
 	{ "orphans-all", apt_orphans_all, NONE, NO, "orphans" },
-	{ "commit", apt_commit, NONE, NO, NULL },
-	{ "commit-say", apt_commit_say, NONE, NO, "commit" },
-	{ "commit-clear", apt_commit_clear, NONE, NO, "commit" },
-	{ "commit-remove", apt_commit_remove, NONE, NO, "commit" },
-	{ "commit-status", apt_commit_status, NONE, NO, "commit" },
+	{ "queue", apt_queue, NONE, NO, NULL },
+	{ "queue-commit", apt_queue_commit, NONE, NO, "queue" },
+	{ "queue-commit-say", apt_queue_commit_say, NONE, NO, "queue" },
+	{ "queue-clear", apt_queue_clear, NONE, NO, "queue" },
+	{ "queue-remove", apt_queue_remove, NONE, NO, "queue" },
 	{ "help", apt_help, NONE, NO, NULL },
 	{ "quit", NULL, NONE, NO, NULL } 
 };
@@ -533,7 +533,7 @@ int apt_orphans_all()
 	return 0;
 }
 
-int apt_commit()
+int apt_queue_commit()
 {
 	use_realcmd = 0;
 
@@ -545,7 +545,7 @@ int apt_commit()
 	return 0;
 }
 
-int apt_commit_say()
+int apt_queue_commit_say()
 {
 	
 	yes = trimleft(trimleft(aptcmd)+strlen("commit-say"));
@@ -564,7 +564,7 @@ int apt_commit_say()
 	return 0;
 }
 
-int apt_commit_clear()
+int apt_queue_clear()
 {
 	for (int i = 0; i < commit_count; i++) {
 		free(commitz[i]);
@@ -624,7 +624,7 @@ void add_item(const int value, int * (&arr), int & arrlen)
 	}
 }
 
-int apt_commit_remove()
+int apt_queue_remove()
 {
 	char * cmd = trimleft(aptcmd);
 	char * tmp = first_word(cmd);
@@ -688,7 +688,7 @@ int apt_commit_remove()
 	return 0;
 }
 
-int apt_commit_status()
+int apt_queue()
 {
 	for (int i = 0; i < commit_count; i++) {
 		printf("%d: %s\n", i+1, commitz[i]);
