@@ -86,7 +86,6 @@ void check_a()
 		return;
 	
 	free_indexes();
-	puts("Generating and mapping caches...");
 
 	if (_config->FindB("APT::Cache::Generate", true)) {
 		puts("Generating and mapping caches...");
