@@ -1,0 +1,23 @@
+AptSh Howto
+making Apt more human-enabled
+
+
+
++ Introduction +
+++Old Apt...++
+If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
+
+So you're an Apt user. Your daily work doesn't require launching apt-get or apt-cache too often. But from time to time it does, and then in consumes much time... well, maybe not as much as it would take without Apt, but you know that it could be done faster. When you need to install some piece of software, you search for it with apt-cache, copy package's name and paste it after ``apt-get install``. That's not good - it's better to use bash-completion. But it still may be not enough; if so, try Aptsh. Of course, Aptsh is not just bash-completion rewritten in a mixture of C and C++. Beside tab-completion it can speed up your work in many other ways - just read further. 
+
+++Pseudo-shell?++
+Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like 'install', 'remove' or 'dist-upgrade' - you know them from Apt.
+
+
++ Usage +
+++Basics++
+If you want to see all commands available in Aptsh, they are in ``man aptsh``, or just ``help`` if you are in Apt (a clue: pressing Tab twice in Aptsh doesn't list them all, I'll explain it later - just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed without 'apt-get' and 'apt-cache' before. And that's it - just typing Apt commands directly after prompt.
+
+++TAB completion++
+Without Tab completion, Aptsh would be like a car without the engine - you actually can use in the Flinstone way, but it's simpler just to walk.
+
+If you use the Unix shell, you probably know what the headline of this paragraph means (Yes, there are shells without that feature, but nowadays it's just as basic as a cup of coffee in the morning). Tab completion in Aptsh works in the same way, except it usually lists matching packages, not files.
