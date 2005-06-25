@@ -1,9 +1,12 @@
 AptSh Howto
-making Apt more human-enabled
-
+by Marcin Wrochniak
+<wrochniak at gmail.com>
 
 
 + Introduction +
+++Note++
+Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But behaviour of Aptsh shouldn't differ too much.
+
 ++Old Apt...++
 If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
 
