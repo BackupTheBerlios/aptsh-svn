@@ -115,25 +115,21 @@ struct command
 	enum completion cpl;
 	char do_validation;
 	char * master;
+	bool has_slaves;
 } extern cmds[];
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* commands completion */
-char * cpl_main(const char * text_orig, int state)
+char * cpl_main(const char * text, int state)
 {
 	static int index, index_slaves, len;
 	static bool slaves = false;
 	static int found = 0;
 	
-	char * name;//, * tmp;
+	char * name;
 	
-	char * text;
-	if (text_orig[0] == ';') {
-		text = (char*)text_orig+1;
-	} else {
-		text = (char*)text_orig;
-	}
-
+	static bool alone = true;
+	
 	// Re-initialize, new completion needed
 	if (!state) {
 		index = 0;
@@ -141,6 +137,26 @@ char * cpl_main(const char * text_orig, int state)
 		len = strlen(text);
 		slaves = false;
 		found = 0;
+		alone = true;
+
+		/* Since it's the first launch of this function,
+		 * it's the best place to check whether only one
+		 * master command matches to our pattern - if not,
+		 * then we add '*' sign after every master command
+		 * with slaves.
+		 */
+		int _found = 0;
+		for (int i = 0; i < CMD_NUM; i++) {
+			if (!strncmp(text, cmds[i].name, len) && cmds[i].master == NULL) {
+				_found++;
+				
+				// We're interested only about whether it's not a single command
+				if (_found > 1) {
+					alone = false;
+					break;
+				}
+			}
+		}
 	}
 
 	// Don't waste time and search for master commands only if we need master commands.
@@ -157,7 +173,19 @@ char * cpl_main(const char * text_orig, int state)
 					}
 				} else {
 					found++;
-					return strdup(name);
+					/* If it's an alone master command with slaves (we've checked it earlier),
+					 * then we display a '*' sign after it.
+					 */
+					if (now->has_slaves && !alone) {
+						int tmp_len = strlen(name);
+						char * tmp_cmd = (char*)malloc(tmp_len+2);
+						strcpy(tmp_cmd, name);
+						tmp_cmd[tmp_len] = '*';
+						tmp_cmd[tmp_len+1] = '\0';
+						return tmp_cmd;
+						
+					} else
+						return strdup(name);
 				}
 			}
 		}
@@ -169,7 +197,7 @@ char * cpl_main(const char * text_orig, int state)
 			name = cmds[index_slaves].name;
 			//struct command * now = &cmds[index_slaves];
 			index_slaves++;
-			if (! strncmp(text, name, len)) {
+			if (! strncmp(text, name, len) && cmds[index_slaves-1].master != NULL) {
 				return strdup(name);
 			}
 		}
