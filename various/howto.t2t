@@ -5,7 +5,7 @@ by Marcin Wrochniak
 
 + Introduction +
 ++Note++
-Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But behaviour of Aptsh shouldn't differ too much.
+Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But the general behaviour of Aptsh shouldn't differ too much.
 
 ++Old Apt...++
 If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
@@ -64,29 +64,29 @@ But let's get down to the business... First sort of completion is used for Aptsh
 
 See this:
 ```
-aptsh> (TAB pressed twice)
+aptsh>
 add              dump             policy           source
-autoclean        dump-cfg         queue            stats
+autoclean        dump-cfg         queue*           stats
 build-dep        dumpavail        quit             unmet
 check            help             rdepends         update
 clean            install          remove           upgrade
 depends          listfiles        rls              whatis
 dist-upgrade     ls               search           whichpkg
 dotty            madison          show
-dpkg             orphans          showpkg
+dpkg             orphans*         showpkg
 dselect-upgrade  pkgnames         showsrc
 
 aptsh>
 ```
 
-There's nothing about ``help-howto``, just ``help``. As you already know, these two funtions compose a group. Grouping of commands serves to save space on your terminal by displaying only the master command. Of course, completion works for all commands, not only these basic; you just have to type the whole master command. Just see this:
+There's nothing about ``help-howto``, just ``help`` (plus a ``*`` character). As you already know, these two funtions compose a group. Grouping of commands serves to save space on your terminal by displaying only the master command. That ``*`` tells you that it's just a master (root) of a command group. Of course, completion works for all commands, not only these basic; you just have to type the whole master command. Just see this:
 ```
 aptsh> help (TAB pressed twice)
 help  help-howto
 aptsh> help
 ```
 
-It works! :) You can check other groups, like ``queue`` or ``orphans``.
+It works! :) And it doesn't show any star sign, because now only members of a one group are being shown. You can check other groups, like ``queue`` or ``orphans``.
 
 +++Packages completion+++
 Second type of completion is used for packages. This one is very simple, it's in the old Bash style. Of course, when you want to install some packages, Aptsh will prompt you all available packages; and only installed when removing. As usual, some examples.
