@@ -45,6 +45,8 @@
 #include "readindex.h"
 #include "string.h"
 
+#include "column.h"
+
 char storing;
 
 char * aptcmd;
@@ -515,6 +517,8 @@ int apt_orphans_all()
 	e = Cache->PkgBegin();
 	i = 0;
 
+	column_display * view = new column_display(2, ' ');
+
 	while (e.end() == false) {
 		if (e->CurrentVer != 0) {
 			bool found = false;
@@ -525,11 +529,17 @@ int apt_orphans_all()
 					break;
 				}
 			}
-			if (! found)
-				printf("%s\n", e.Name());
+			if (! found) {
+				view->add((char*)e.Section(), 0);
+				view->add((char*)e.Name(), 1);
+			}
 		}
 		e++;
 	}
+
+	view->dump();
+
+	delete view;
 
 	return 0;
 }

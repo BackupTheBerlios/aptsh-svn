@@ -7,8 +7,8 @@ ls: ls.c
 rls: rls.c
 	gcc -Wall rls.c -o rls
 
-aptsh: main.o readindex.o apt_cmds.o string.o config_parse.o aptsh.1.gz
-	g++ -g -O2 -Wall -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o 
+aptsh: main.o readindex.o apt_cmds.o string.o config_parse.o column.o aptsh.1.gz
+	g++ -g -O2 -Wall -lreadline -lapt-pkg -o aptsh main.o readindex.o apt_cmds.o string.o config_parse.o column.o
 
 main.o: main.cc readindex.h apt_cmds.h config_parse.h 
 	g++ -g -O2 -Wall -c main.cc -o main.o 
@@ -23,7 +23,10 @@ string.o: string.c string.h
 	gcc -g -O2 -Wall -c string.c -o string.o 
 
 config_parse.o: config_parse.c config_parse.h 
-	gcc -g -O2 -Wall -c config_parse.c -o config_parse.o 
+	gcc -g -O2 -Wall -c config_parse.c -o config_parse.o
+
+column.o: column.cc column.h
+	g++ -g -O2 -Wall -c column.cc -o column.o
 
 # <debug>
 debug: aptsh-debug
