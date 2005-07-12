@@ -111,55 +111,57 @@ struct command
 	char * master; // Master command (example: commit - master; commit-clear, commit-remove,
 	               // commit-status - slaves). NULL if there's no master command.
 	bool has_slaves;
+	bool apt_get; // If command launches the apt-get command, then we can simulate it
+	              // by adding -s/--simulate option (CFG_QUEUE_SIMULATE decides whether
+		      // we can or can't do the simulation)
 } cmds[] = {
 #define YES 1
 #define NO 0
 	/* apt-get */
-	{ "install", apt_install, AVAILABLE, YES, NULL, false },
-	{ "update", apt_update, AVAILABLE, NO, NULL, false },
-	{ "upgrade", apt_upgrade, AVAILABLE, YES, NULL, false },
-	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO, NULL, false },
-	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO, NULL, false },
-	{ "remove", apt_remove, INSTALLED, YES, NULL, false },
-	{ "source", apt_source, AVAILABLE, YES, NULL, false },
-	{ "build-dep", apt_build_dep, AVAILABLE, YES, NULL, false },
-	{ "check", apt_check, AVAILABLE, NO, NULL, false }, // FIXME: not sure
-	{ "clean", apt_clean, AVAILABLE, NO, NULL, false },
-	{ "autoclean", apt_autoclean, AVAILABLE, NO, NULL, false },
+	{ "install", apt_install, AVAILABLE, YES, NULL, false, true },
+	{ "update", apt_update, AVAILABLE, NO, NULL, false, true },
+	{ "upgrade", apt_upgrade, AVAILABLE, YES, NULL, false, true },
+	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO, NULL, false, true },
+	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO, NULL, false, true },
+	{ "remove", apt_remove, INSTALLED, YES, NULL, false, true },
+	{ "source", apt_source, AVAILABLE, YES, NULL, false, true },
+	{ "build-dep", apt_build_dep, AVAILABLE, YES, NULL, false, true },
+	{ "check", apt_check, AVAILABLE, NO, NULL, false, true },
+	{ "clean", apt_clean, AVAILABLE, NO, NULL, false, true },
+	{ "autoclean", apt_autoclean, AVAILABLE, NO, NULL, false, true },
 	/* apt-cache */
-	{ "show", apt_show, AVAILABLE, YES, NULL, false },
-	{ "dump", apt_dump, AVAILABLE, NO, NULL, false },
-	{ "add", apt_add, FS, NO, NULL, false },
-	{ "showpkg", apt_showpkg, AVAILABLE, YES, NULL, false },
-	{ "stats", apt_stats, NONE, NO, NULL, false },
-	{ "showsrc", apt_showsrc, AVAILABLE, NO, NULL, false },
-	{ "dumpavail", apt_dumpavail, NONE, NO, NULL, false },
-	{ "unmet", apt_unmet, AVAILABLE, NO, NULL, false },
-	{ "search", apt_search, AVAILABLE, NO, NULL, false },
-	{ "depends", apt_depends, AVAILABLE, YES, NULL, false },
-	{ "rdepends", apt_rdepends, AVAILABLE, YES, NULL, false },
-	{ "pkgnames", apt_pkgnames, NONE, NO, NULL, false },
-	{ "dotty", apt_dotty, AVAILABLE, NO, NULL, false
-	},
-	{ "policy", apt_policy, AVAILABLE, NO, NULL, false },
-	{ "madison", apt_madison, AVAILABLE, NO, NULL, false },
-	{ "whatis", apt_whatis, AVAILABLE, YES, NULL, false },
+	{ "show", apt_show, AVAILABLE, YES, NULL, false, false },
+	{ "dump", apt_dump, AVAILABLE, NO, NULL, false, false },
+	{ "add", apt_add, FS, NO, NULL, false, false },
+	{ "showpkg", apt_showpkg, AVAILABLE, YES, NULL, false, false },
+	{ "stats", apt_stats, NONE, NO, NULL, false, false },
+	{ "showsrc", apt_showsrc, AVAILABLE, NO, NULL, false, false },
+	{ "dumpavail", apt_dumpavail, NONE, NO, NULL, false, false },
+	{ "unmet", apt_unmet, AVAILABLE, NO, NULL, false, false },
+	{ "search", apt_search, AVAILABLE, NO, NULL, false, false },
+	{ "depends", apt_depends, AVAILABLE, YES, NULL, false, false },
+	{ "rdepends", apt_rdepends, AVAILABLE, YES, NULL, false, false },
+	{ "pkgnames", apt_pkgnames, NONE, NO, NULL, false, false },
+	{ "dotty", apt_dotty, AVAILABLE, NO, NULL, false, false },
+	{ "policy", apt_policy, AVAILABLE, NO, NULL, false, false },
+	{ "madison", apt_madison, AVAILABLE, NO, NULL, false, false },
+	{ "whatis", apt_whatis, AVAILABLE, YES, NULL, false, false },
 	/* aptsh */
-	{ "dpkg", apt_dpkg, FS, NO, NULL, false },
-	{ "whichpkg", apt_whichpkg, FS, NO, NULL, false },
-	{ "listfiles", apt_listfiles, INSTALLED, YES, NULL, false },
-	{ "dump-cfg", apt_dump_cfg, FS, NO, NULL, false },
-	{ "rls", apt_regex, AVAILABLE, NO, NULL, false },
-	{ "ls", apt_ls, AVAILABLE, NO, NULL, false },
-	{ "orphans", apt_orphans, NONE, NO, NULL, true },
-	{ "orphans-all", apt_orphans_all, NONE, NO, "orphans", false },
-	{ "queue", apt_queue, NONE, NO, NULL, true },
-	{ "queue-commit", apt_queue_commit, NONE, NO, "queue", false },
-	{ "queue-commit-say", apt_queue_commit_say, NONE, NO, "queue", false },
-	{ "queue-clear", apt_queue_clear, NONE, NO, "queue", false },
-	{ "queue-remove", apt_queue_remove, NONE, NO, "queue", false},
-	{ "help", apt_help, NONE, NO, NULL, false },
-	{ "quit", NULL, NONE, NO, NULL, false } 
+	{ "dpkg", apt_dpkg, FS, NO, NULL, false, false },
+	{ "whichpkg", apt_whichpkg, FS, NO, NULL, false, false },
+	{ "listfiles", apt_listfiles, INSTALLED, YES, NULL, false, false },
+	{ "dump-cfg", apt_dump_cfg, FS, NO, NULL, false, false },
+	{ "rls", apt_regex, AVAILABLE, NO, NULL, false, false },
+	{ "ls", apt_ls, AVAILABLE, NO, NULL, false, false },
+	{ "orphans", apt_orphans, NONE, NO, NULL, true, false },
+	{ "orphans-all", apt_orphans_all, NONE, NO, "orphans", false, false },
+	{ "queue", apt_queue, NONE, NO, NULL, true, false },
+	{ "queue-commit", apt_queue_commit, NONE, NO, "queue", false, false },
+	{ "queue-commit-say", apt_queue_commit_say, NONE, NO, "queue", false, false },
+	{ "queue-clear", apt_queue_clear, NONE, NO, "queue", false, false },
+	{ "queue-remove", apt_queue_remove, NONE, NO, "queue", false, false },
+	{ "help", apt_help, NONE, NO, NULL, false, false },
+	{ "quit", NULL, NONE, NO, NULL, false, false } 
 };
 
 // Check whether package exists
@@ -270,6 +272,13 @@ int validate(char * cmd)
 	return 0;
 }
 
+// This macro executes aptcmd command (ie. install aptsh), preceding it with shell command - WW (ie. apt-get)
+char * tmp;
+#define newcmd(WW) \
+tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
+sprintf(tmp, "%s %s", WW, aptcmd);\
+realizecmd(tmp);
+
 // Returns >0 when user wants to exit
 int execute(char * line, char addhistory)
 {
@@ -293,7 +302,23 @@ int execute(char * line, char addhistory)
 
 	if (storing) {
 		char * line_t = trimleft(trimleft(line));
-
+		
+		if (CFG_QUEUE_SIMULATE) {
+			char * fword = first_word(line_t);
+			use_realcmd = 0;
+			for (int i = 0; i < CMD_NUM; i++) {
+				if (!strcmp(fword, cmds[i].name) && cmds[i].apt_get) {
+					const char * simulator = "apt-get --simulate";
+					tmp = (char*)malloc(strlen(line)+strlen(simulator)+2);
+					sprintf(tmp, "%s %s", simulator, line);
+					system(tmp);
+					free(tmp);
+					break;
+				}
+			}
+			free(fword);
+		}
+		
 		commit_count++;
 		commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
 
@@ -334,14 +359,6 @@ int execute(char * line, char addhistory)
 	return 0;
 }
 
-// This macro executes aptcmd command (ie. install aptsh), preceding it with shell command - WW (ie. apt-get)
-char * tmp;
-#define newcmd(WW) \
-tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
-sprintf(tmp, "%s %s", WW, aptcmd);\
-/*system(tmp);*/\
-realizecmd(tmp);\
-/*free(tmp);*/
 
 /* aptsh */
 

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 	
-#define OPTIONS_COUNT 8
+#define OPTIONS_COUNT 9
 
 #define CFG_PS1 (char*)get_cfg_opt(0)
 #define CFG_USE_HISTORY (int)get_cfg_opt(1)
@@ -28,6 +28,7 @@ extern "C" {
 #define CFG_HISTORY_FILE (char*)get_cfg_opt(5)
 #define CFG_HISTORY_COUNT (int)get_cfg_opt(6)
 #define CFG_PS1_STORING (char*)get_cfg_opt(7)
+#define CFG_QUEUE_SIMULATE (char*)get_cfg_opt(8)
 
 extern char * config_file;
 

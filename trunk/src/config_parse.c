@@ -21,7 +21,7 @@
 
 char * config_file;
 
-char *defaults[] = {
+const char *defaults[] = {
 	"apt> ", /* ps1 */
 	(void*) 1, /* use_history */
 	"/var/cache/apt/pkgcache.bin", /* update_file */
@@ -30,6 +30,7 @@ char *defaults[] = {
 	"/tmp/.aptsh_history", /* history_file */     /* <- Default could be dangerous! */
 	(void*) 0, /* history_count */
 	"* apt> ", /* ps1_storing */
+	(void*) 1, /* queue_simulate */
 };
 
 struct config_option {
@@ -47,6 +48,7 @@ struct config_option {
 	{ "history_file", NULL, STR },
 	{ "history_count", NULL, INT },
 	{ "ps1_s", NULL, STR },
+	{ "queue_simulate", NULL, INT },
 };
 
 void * get_cfg_opt(int index) {
@@ -72,7 +74,7 @@ void cfg_defaults()
 	int i = 0;
 	for (; i < OPTIONS_COUNT; i++) {
 		if (options[i].is_int) {
-			options[i].value = defaults[i];
+			options[i].value = (void*)defaults[i];
 		}else {
 			free(options[i].value);
 			options[i].value = (void*)malloc(strlen(defaults[i])+1);

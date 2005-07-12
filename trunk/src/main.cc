@@ -116,6 +116,7 @@ struct command
 	char do_validation;
 	char * master;
 	bool has_slaves;
+	bool apt_get;
 } extern cmds[];
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
