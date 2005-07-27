@@ -39,7 +39,7 @@
 #include "apt_cmds.h"
 #include "string.h"
 #include "config_parse.h"
-
+#include "dpkg_complete.h"
 
 // These variables are used to store commit log.
 struct commit_item * commitlog; // last item in list
@@ -249,6 +249,9 @@ char ** completion(const char * text, int start, int end)
 		}
 	}
 
+	char * tmpword = word_at_point(rl_line_buffer, rl_point);
+	dpkg_complete * dpkg = new dpkg_complete(tmpword, rl_line_buffer, rl_point);
+	
 	// check if we're completing first word
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
 		m = rl_completion_matches(text, cpl_main);
@@ -256,9 +259,18 @@ char ** completion(const char * text, int start, int end)
 		switch (check_command()) {
 			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
 			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
+			case DPKG :
+			     //tmpword = word_at_point(rl_line_buffer, rl_point);
+			     m = rl_completion_matches(text, dpkg->completion); 
+			     //free(tmpword);
+			     break;
 			default: break;
 		}
 	}
+
+	free(tmpword);
+	delete dpkg;
+	
 	return m;
 }
 

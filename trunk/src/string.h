@@ -25,6 +25,8 @@ char * trim(char * src);
 
 long update_date(char * fn);
 
+char * word_at_point(char *text, int point);
+
 #ifdef __cplusplus
 }
 #endif

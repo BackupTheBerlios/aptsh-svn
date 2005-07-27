@@ -69,3 +69,28 @@ long update_date(char * fn)
 	return st.st_mtime;
 }
 
+/* returns a word which contains the char at 'point' position */
+char * word_at_point(char *text, int point)
+{
+	int front = point;
+	int back = point;
+	char * ret = (char*)malloc(back-front+1);
+
+	if (text[point] == ' ')
+		return " ";
+
+	while (text[front] != ' ' && front >= 0) {
+		front--;
+	}
+	front++;
+
+	while (text[back] != ' ' && text[back] != '\000') {
+		back++;
+	}
+
+	strncpy(ret, &text[front], back-front);
+	ret[back-front] = '\000';
+
+	return ret;
+}
+

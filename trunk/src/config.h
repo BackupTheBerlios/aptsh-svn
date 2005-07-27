@@ -3,6 +3,7 @@
 enum completion {
 	INSTALLED,
 	AVAILABLE,
+	DPKG,
 	FS,
 	NONE
 };

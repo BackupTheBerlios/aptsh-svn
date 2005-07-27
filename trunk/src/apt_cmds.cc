@@ -147,7 +147,7 @@ struct command
 	{ "madison", apt_madison, AVAILABLE, NO, NULL, false, false },
 	{ "whatis", apt_whatis, AVAILABLE, YES, NULL, false, false },
 	/* aptsh */
-	{ "dpkg", apt_dpkg, FS, NO, NULL, false, false },
+	{ "dpkg", apt_dpkg, DPKG, NO, NULL, false, false },
 	{ "whichpkg", apt_whichpkg, FS, NO, NULL, false, false },
 	{ "listfiles", apt_listfiles, INSTALLED, YES, NULL, false, false },
 	{ "dump-cfg", apt_dump_cfg, FS, NO, NULL, false, false },
