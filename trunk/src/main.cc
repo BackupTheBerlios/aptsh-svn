@@ -249,8 +249,8 @@ char ** completion(const char * text, int start, int end)
 		}
 	}
 
-	char * tmpword = word_at_point(rl_line_buffer, rl_point);
-	dpkg_complete * dpkg = new dpkg_complete(tmpword, rl_line_buffer, rl_point);
+	char * tmpword;
+	dpkg_complete * dpkg;
 	
 	// check if we're completing first word
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
@@ -260,16 +260,21 @@ char ** completion(const char * text, int start, int end)
 			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
 			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
 			case DPKG :
-			     //tmpword = word_at_point(rl_line_buffer, rl_point);
-			     m = rl_completion_matches(text, dpkg->completion); 
-			     //free(tmpword);
+			     tmpword = word_at_point(rl_line_buffer, rl_point);
+			     dpkg = new dpkg_complete(tmpword, rl_line_buffer, rl_point);
+
+			     if (dpkg->completion != NULL)
+				     m = rl_completion_matches(text, dpkg->completion); 
+
+			     free(tmpword);
+			     delete dpkg;
+
 			     break;
+			     
 			default: break;
 		}
 	}
 
-	free(tmpword);
-	delete dpkg;
 	
 	return m;
 }
