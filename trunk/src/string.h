@@ -27,6 +27,20 @@ long update_date(char * fn);
 
 char * word_at_point(char *text, int point);
 
+// this class server to iterate through
+// words in a string
+class word_iterator
+{
+	public:
+		word_iterator(char * _text);
+		char * next_word();
+		char * operator++();
+	private:
+		const char * text;
+		int len;
+		char * cur;
+};
+
 #ifdef __cplusplus
 }
 #endif

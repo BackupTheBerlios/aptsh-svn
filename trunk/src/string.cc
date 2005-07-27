@@ -94,3 +94,20 @@ char * word_at_point(char *text, int point)
 	return ret;
 }
 
+word_iterator::word_iterator(char *_text) : text(_text)
+{
+	cur = trimleft((char*)_text);
+	len = strlen(_text);
+}
+
+char * word_iterator::next_word()
+{
+	char * fword = first_word(cur);
+	cur = trimleft(cur+strlen(fword));
+	return strlen(fword) ? fword : NULL;
+}
+
+char * word_iterator::operator++()
+{
+	return next_word();
+}

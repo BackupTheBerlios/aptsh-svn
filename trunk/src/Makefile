@@ -19,8 +19,8 @@ readindex.o: readindex.cc readindex.h
 apt_cmds.o: apt_cmds.cc apt_cmds.h config_parse.h readindex.h
 	g++ -g -O2 -Wall -c apt_cmds.cc -o apt_cmds.o 
 
-string.o: string.c string.h 
-	gcc -g -O2 -Wall -c string.c -o string.o 
+string.o: string.cc string.h 
+	g++ -g -O2 -Wall -c string.cc -o string.o 
 
 config_parse.o: config_parse.c config_parse.h 
 	gcc -g -O2 -Wall -c config_parse.c -o config_parse.o
