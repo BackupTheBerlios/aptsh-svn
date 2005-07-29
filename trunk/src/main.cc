@@ -11,6 +11,7 @@
 */
 #include "config.h"
 
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -337,6 +338,9 @@ int main(int argc, char ** argv)
 	// Initialize libreadline
 	initialize_rl();
 
+	if (getuid() > 0)
+		fprintf(stderr, "Warning: Aptsh is not running as root!\n");
+	
 	if (CFG_HISTORY_COUNT  && CFG_USE_HISTORY) {
 		printf("Reading commands history...\n");
 		history_truncate_file(CFG_HISTORY_FILE, CFG_HISTORY_COUNT);
