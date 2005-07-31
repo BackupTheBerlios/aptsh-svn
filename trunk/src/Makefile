@@ -35,8 +35,8 @@ dpkg_complete.o: dpkg_complete.cc dpkg_complete.h
 # <debug>
 debug: aptsh-debug
 
-aptsh-debug: main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o
-	g++ -g -ggdb -L/usr/lib/debug -lreadline -lapt-pkg -o aptsh-debug main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o
+aptsh-debug: main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o column-debug.o dpkg_complete-debug.o
+	g++ -g -ggdb -L/usr/lib/debug -lreadline -lapt-pkg -o aptsh-debug main-debug.o readindex-debug.o apt_cmds-debug.o string-debug.o config_parse-debug.o column-debug.o dpkg_complete-debug.o
 
 main-debug.o: main.cc readindex.h apt_cmds.h config_parse.h
 	g++ -g -ggdb -c main.cc -o main-debug.o
@@ -47,11 +47,17 @@ readindex-debug.o: readindex.cc readindex.h
 apt_cmds-debug.o: apt_cmds.cc apt_cmds.h config_parse.h readindex.h
 	g++ -g -ggdb -c apt_cmds.cc -o apt_cmds-debug.o
 
-string-debug.o: string.c string.h
-	gcc -g -ggdb -c string.c -o string-debug.o
+string-debug.o: string.cc string.h
+	g++ -g -ggdb -c string.cc -o string-debug.o
 
 config_parse-debug.o: config_parse.c config_parse.h
 	gcc -g -ggdb -c config_parse.c -o config_parse-debug.o
+
+column-debug.o: column.h column.cc
+	g++ -g -ggdb -c column.cc -o column-debug.o
+
+dpkg_complete-debug.o: dpkg_complete.h dpkg_complete.cc
+	g++ -g -ggdb -c dpkg_complete.cc -o dpkg_complete-debug.o
 
 # </debug>
 

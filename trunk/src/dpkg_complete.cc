@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "string.h"
 
@@ -102,7 +105,7 @@ dpkg_complete::dpkg_complete(char * word, char * text, int index)
 						case AVAILABLE: completion = &cpl_pkg; decided = true; break;
 						case INSTALLED: completion = &cpl_pkg_i; decided = true; break;
 						case FS: completion = NULL; decided = true; break;
-						case FS_DEB: completion = NULL; decided = true; break; // FIXME: function for fs_deb needs to be written!!
+						case FS_DEB: completion = &fs_deb; decided = true; break; // FIXME: function for fs_deb needs to be written!!
 						default: break;
 					}
 		}
@@ -130,6 +133,66 @@ char * dpkg_complete::normal(const char * text, int state)
 		}
 	}
 
+	return NULL;
+}
+
+char * dpkg_complete::fs_deb(const char * text, int state)
+{
+	static DIR *dp;
+	static struct dirent *dinfo;
+	static char * real_name; // this is the last part of path, for example
+	                         // when text is '/a/b/c', then real_name is 'c'
+	static char * real_path; // real_path is the string before real_name
+	                        // (when text is '/a/b/c', then real_path is '/a/b/'
+	
+	if (! state) {
+		int len = strlen(text);
+	//	int i;
+
+		// FIXME: this sould be done without found variable
+		bool found = false;
+		for (real_name = (char*)text+strlen(text)-1; real_name >= text; real_name--) {
+			if (*real_name == '/') {
+				real_name++;
+				found = true;
+				break;
+			}
+		}
+		
+		if (!found)
+			real_name = (char*)text;
+		
+		real_path = strndup(text, strlen(text)-strlen(real_name));
+		if (! strcmp(trimleft(real_path), ""))
+			real_path = strdup("./");
+		//	real_name = (char*)text;
+		if ((dp = opendir(real_path)) == NULL) {
+			perror("Completion error, couldn't open the directory");
+		}
+	}
+
+	while ((dinfo = readdir(dp)) > 0) {
+		char * name = dinfo->d_name;
+		int len = strlen(name)-1;
+		
+		// Yeah, this condition is UGLY.
+		// But it's also fast...
+		if ((name[len] == 'B' || name[len] == 'b') &&
+		    (name[len-1] == 'E' || name[len-1] == 'e') &&
+		    (name[len-2] == 'D' || name[len-2] == 'd') &&
+		    (name[len-3] == '.')) {
+			if (! strncmp(real_name, name, strlen(real_name))) {
+				char * result = (char*)malloc(strlen(real_path)+strlen(name)+1);
+				sprintf(result, "%s%s", real_path, name);
+				return strdup(result);
+			}
+		}
+	}
+
+	closedir(dp);
+
+	free(real_path);
+	
 	return NULL;
 }
 

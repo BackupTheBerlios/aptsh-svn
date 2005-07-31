@@ -29,6 +29,7 @@ char * word_at_point(char *text, int point);
 
 // this class server to iterate through
 // words in a string
+#ifdef __cplusplus
 class word_iterator
 {
 	public:
@@ -40,7 +41,7 @@ class word_iterator
 		int len;
 		char * cur;
 };
-
+#endif
 #ifdef __cplusplus
 }
 #endif

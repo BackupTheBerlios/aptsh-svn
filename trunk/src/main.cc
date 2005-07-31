@@ -261,11 +261,12 @@ char ** completion(const char * text, int start, int end)
 			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
 			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
 			case DPKG :
+			     //printf("%d: %s\n", rl_point, rl_line_buffer);
 			     tmpword = word_at_point(rl_line_buffer, rl_point);
 			     dpkg = new dpkg_complete(tmpword, rl_line_buffer, rl_point);
 
 			     if (dpkg->completion != NULL)
-				     m = rl_completion_matches(text, dpkg->completion); 
+			     	m = rl_completion_matches(text, dpkg->completion); 
 
 			     free(tmpword);
 			     delete dpkg;
@@ -301,6 +302,7 @@ extern char storing;
 
 int main(int argc, char ** argv)
 {
+	word_at_point("dpkg /home/vrok/aptsh", 21);
 	int c;
 	int option_index = 0;
 	char * line;

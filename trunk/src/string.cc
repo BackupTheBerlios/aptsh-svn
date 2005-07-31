@@ -74,7 +74,7 @@ char * word_at_point(char *text, int point)
 {
 	int front = point;
 	int back = point;
-	char * ret = (char*)malloc(back-front+1);
+	char * ret;// = (char*)malloc(back-front+1);
 
 	if (text[point] == ' ')
 		return " ";
@@ -84,12 +84,14 @@ char * word_at_point(char *text, int point)
 	}
 	front++;
 
-	while (text[back] != ' ' && text[back] != '\000') {
+	while (text[back] != ' ' && text[back] != '\0') {
 		back++;
 	}
+	back--;
 
-	strncpy(ret, &text[front], back-front);
-	ret[back-front] = '\000';
+	ret = (char*)malloc(back-front+2);
+	strncpy(ret, text+front, back-front+1);
+	ret[back-front+1] = '\0';
 
 	return ret;
 }
