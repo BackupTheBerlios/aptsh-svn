@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "string.h"
@@ -146,8 +147,7 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 	                        // (when text is '/a/b/c', then real_path is '/a/b/'
 	
 	if (! state) {
-		int len = strlen(text);
-	//	int i;
+		//int len = strlen(text);
 
 		// FIXME: this sould be done without found variable
 		bool found = false;
@@ -165,27 +165,37 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 		real_path = strndup(text, strlen(text)-strlen(real_name));
 		if (! strcmp(trimleft(real_path), ""))
 			real_path = strdup("./");
-		//	real_name = (char*)text;
-		if ((dp = opendir(real_path)) == NULL) {
-			perror("Completion error, couldn't open the directory");
+		
+		if ((dp = opendir(real_path)) == NULL) {\
+			perror("Completion error, couldn't open the directory");\
 		}
 	}
 
+	struct stat *fdesc = (struct stat *)malloc(sizeof(struct stat));
+	
 	while ((dinfo = readdir(dp)) > 0) {
 		char * name = dinfo->d_name;
 		int len = strlen(name)-1;
-		
+	
+		char * full_name = (char*)malloc(strlen(real_path)+strlen(name)+1);
+		sprintf(full_name, "%s%s", real_path, name);
+		stat(full_name, fdesc);
+	
 		// Yeah, this condition is UGLY.
 		// But it's also fast...
-		if ((name[len] == 'B' || name[len] == 'b') &&
+		if ( (((name[len] == 'B' || name[len] == 'b') &&
 		    (name[len-1] == 'E' || name[len-1] == 'e') &&
 		    (name[len-2] == 'D' || name[len-2] == 'd') &&
-		    (name[len-3] == '.')) {
-			if (! strncmp(real_name, name, strlen(real_name))) {
-				char * result = (char*)malloc(strlen(real_path)+strlen(name)+1);
-				sprintf(result, "%s%s", real_path, name);
-				return strdup(result);
-			}
+		    (name[len-3] == '.')) || S_ISDIR(fdesc->st_mode)) && name[0] != '.') {
+			if (! strncmp(real_name, name, strlen(real_name)))
+				if (strcmp(real_path, "./")) {
+					free(fdesc);
+					return full_name;
+				} else {
+					free(fdesc);
+					free(full_name);
+					return strdup(name);
+				}
 		}
 	}
 
