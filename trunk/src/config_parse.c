@@ -33,11 +33,7 @@ const char *defaults[] = {
 	(void*) 1, /* queue_simulate */
 };
 
-struct config_option {
-        char * name; /* name of option */
-        void * value;
-        char is_int; /* is this option an integer? if so, use value as a area for integer. else, use as char* */
-} options[] = {
+struct config_option options[] = {
 #define INT 1
 #define STR 0
         { "ps1", NULL, STR },
@@ -51,11 +47,13 @@ struct config_option {
 	{ "queue_simulate", NULL, INT },
 };
 
+#if 0
 void * get_cfg_opt(int index) {
 	if (index < OPTIONS_COUNT)
 		return options[index].value;
 	return NULL;
 }
+#endif
 
 void cfg_dump()
 {

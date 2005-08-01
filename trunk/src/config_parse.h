@@ -17,22 +17,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	
+
+struct config_option {
+        char * name; /* name of option */
+        void * value;
+        char is_int; /* is this option an integer? if so, use value as a area for integer. else, use as char* */
+};
+
+extern struct config_option options[];
+
 #define OPTIONS_COUNT 9
 
-#define CFG_PS1 (char*)get_cfg_opt(0)
-#define CFG_USE_HISTORY (int)get_cfg_opt(1)
-#define CFG_UPDATE_FILE (char*)get_cfg_opt(2)
-#define CFG_REFRESH_INDEXES (int)get_cfg_opt(3)
-#define CFG_REFRESH_INDEXES_ALL (int)get_cfg_opt(4)
-#define CFG_HISTORY_FILE (char*)get_cfg_opt(5)
-#define CFG_HISTORY_COUNT (int)get_cfg_opt(6)
-#define CFG_PS1_STORING (char*)get_cfg_opt(7)
-#define CFG_QUEUE_SIMULATE (char*)get_cfg_opt(8)
+#define CFG_PS1                     (char*)options[0].value
+#define CFG_USE_HISTORY             (int)options[1].value
+#define CFG_UPDATE_FILE             (char*)options[2].value
+#define CFG_REFRESH_INDEXES         (int)options[3].value
+#define CFG_REFRESH_INDEXES_ALL     (int)options[4].value
+#define CFG_HISTORY_FILE            (char*)options[5].value
+#define CFG_HISTORY_COUNT           (int)options[6].value
+#define CFG_PS1_STORING             (char*)options[7].value
+#define CFG_QUEUE_SIMULATE          (char*)options[8].value
 
 extern char * config_file;
-
-void * get_cfg_opt(int index);
 
 void cfg_defaults();
 void cfg_dump();

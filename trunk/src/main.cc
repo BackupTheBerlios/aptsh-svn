@@ -293,6 +293,7 @@ struct option arg_opts[] =
 	{"config-file", required_argument, 0, 'c' },
 	{"storing", no_argument, 0, 's' },
 	{"version", no_argument, 0, 'v' },
+	{"execute", required_argument, 0, 'x' },
 };
 
 // Number of steps
@@ -302,7 +303,6 @@ extern char storing;
 
 int main(int argc, char ** argv)
 {
-	word_at_point("dpkg /home/vrok/aptsh", 21);
 	int c;
 	int option_index = 0;
 	char * line;
@@ -318,7 +318,7 @@ int main(int argc, char ** argv)
 	
 	cfg_defaults();
 	config_file = NULL;
-	while ((c = getopt_long(argc, argv, "vsc:", arg_opts, &option_index)) != -1) {
+	while ((c = getopt_long(argc, argv, "x:vsc:", arg_opts, &option_index)) != -1) {
 		switch (c) {
 			case 'c':
 				config_file = optarg;
@@ -329,6 +329,23 @@ int main(int argc, char ** argv)
 				break;
 			case 'v':
 				puts(VERSION);
+				return 0;
+			case 'x':
+				// We need to set both CFG_REFRESH_INDEXES and
+				// CFG_REFRESH_INDEXES_ALL to 0, because we haven't
+				// made libapt-pkg initialization yet, so it will
+				// crush when refreshing the indexes.
+				
+				// Since CFG_REFRESH_INDEXES is (int)options[3].value
+				// we can't use the macro, and that's why we address
+				// it directly.
+				options[3].value = 0;
+				
+				// Read comment above.
+				// This is CFG_REFRESH_INDEXES_ALL
+				options[4].value = 0;
+
+				execute(optarg, 0);
 				return 0;
 		}
 	}
