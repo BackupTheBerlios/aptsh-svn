@@ -89,10 +89,10 @@ extern char * cpl_pkg_i(const char * text, int state);
 dpkg_complete::dpkg_complete(char * word, char * text, int index)
 {
 	word = trimleft(word);
-	if (strstr(word, "--")) {
+	if (strstr(word, "--") == word) {
 		completion = &normal_double;
 	} else
-	if (strchr(word, '-')) {
+	if (strchr(word, '-') == word) {
 		completion = &normal;
 	} else {
 		word_iterator * wi = new word_iterator(text);
