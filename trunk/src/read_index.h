@@ -11,8 +11,8 @@
 */
 
 
-#ifndef READINDEX_H
-#define READINDEX_H
+#ifndef READ_INDEX_H
+#define READ_INDEX_H
 
 #ifdef __cplusplus
 extern "C" {

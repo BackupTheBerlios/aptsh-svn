@@ -42,7 +42,7 @@
 
 #include "apt_cmds.h"
 #include "config_parse.h"
-#include "readindex.h"
+#include "read_index.h"
 #include "string.h"
 
 #include "column.h"

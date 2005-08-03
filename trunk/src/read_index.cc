@@ -37,7 +37,7 @@ using namespace std;
 #include <apt-pkg/sptr.h>
 
 #include "config_parse.h"
-#include "readindex.h"
+#include "read_index.h"
 
 struct package * pkg_start;
 struct package * pkg_iterator;

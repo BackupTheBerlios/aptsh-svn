@@ -36,7 +36,7 @@
 #include <apt-pkg/algorithms.h>
 #include <apt-pkg/sptr.h>
 
-#include "readindex.h"
+#include "read_index.h"
 #include "apt_cmds.h"
 #include "string.h"
 #include "config_parse.h"
