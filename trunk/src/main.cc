@@ -38,7 +38,7 @@
 
 #include "read_index.h"
 #include "apt_cmds.h"
-#include "string.h"
+#include "string_utils.h"
 #include "config_parse.h"
 #include "dpkg_complete.h"
 

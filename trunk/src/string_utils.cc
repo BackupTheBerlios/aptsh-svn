@@ -15,7 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "string.h"
+#include "string_utils.h"
 
 /* returns a pointer to _new_ string contaning the first word of *cmd */
 char * first_word(const char * cmd)

@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#include "string.h"
+#include "string_utils.h"
 
 #include "dpkg_complete.h"
 

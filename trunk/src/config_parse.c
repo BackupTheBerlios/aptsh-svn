@@ -17,7 +17,7 @@
 
 #include "config.h"
 #include "config_parse.h"
-#include "string.h"
+#include "string_utils.h"
 
 char * config_file;
 

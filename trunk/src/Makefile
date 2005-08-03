@@ -7,8 +7,8 @@ ls: ls.c
 rls: rls.c
 	gcc -Wall rls.c -o rls
 
-aptsh: main.o read_index.o apt_cmds.o string.o config_parse.o column.o dpkg_complete.o aptsh.1.gz
-	g++ -g -O2 -Wall -lreadline -lapt-pkg -o aptsh main.o read_index.o apt_cmds.o string.o config_parse.o column.o dpkg_complete.o
+aptsh: main.o read_index.o apt_cmds.o string_utils.o config_parse.o column.o dpkg_complete.o aptsh.1.gz
+	g++ -g -O2 -Wall -lreadline -lapt-pkg -o aptsh main.o read_index.o apt_cmds.o string_utils.o config_parse.o column.o dpkg_complete.o
 
 main.o: main.cc read_index.h apt_cmds.h config_parse.h 
 	g++ -g -O2 -Wall -c main.cc -o main.o 
@@ -19,8 +19,8 @@ read_index.o: read_index.cc read_index.h
 apt_cmds.o: apt_cmds.cc apt_cmds.h config_parse.h read_index.h
 	g++ -g -O2 -Wall -c apt_cmds.cc -o apt_cmds.o 
 
-string.o: string.cc string.h 
-	g++ -g -O2 -Wall -c string.cc -o string.o 
+string_utils.o: string_utils.cc string_utils.h 
+	g++ -g -O2 -Wall -c string_utils.cc -o string_utils.o 
 
 config_parse.o: config_parse.c config_parse.h 
 	gcc -g -O2 -Wall -c config_parse.c -o config_parse.o
@@ -47,8 +47,8 @@ readindex-debug.o: read_index.cc read_index.h
 apt_cmds-debug.o: apt_cmds.cc apt_cmds.h config_parse.h read_index.h
 	g++ -g -ggdb -c apt_cmds.cc -o apt_cmds-debug.o
 
-string-debug.o: string.cc string.h
-	g++ -g -ggdb -c string.cc -o string-debug.o
+string-debug.o: string_utils.cc string_utils.h
+	g++ -g -ggdb -c string_utils.cc -o string-debug.o
 
 config_parse-debug.o: config_parse.c config_parse.h
 	gcc -g -ggdb -c config_parse.c -o config_parse-debug.o
