@@ -109,16 +109,7 @@ char * cpl_pkg_i(const char * text, int state)
 	return (char*)NULL;
 }
 
-struct command
-{
-	char * name;
-	int (*funct)();
-	enum completion cpl;
-	char do_validation;
-	char * master;
-	bool has_slaves;
-	bool apt_get;
-} extern cmds[];
+struct command extern cmds[];
 
 /* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
 /* commands completion */

@@ -10,7 +10,28 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#define CMD_NUM 42
+#ifndef APT_CMDS_H
+#define APT_CMDS_H
+
+#define CMD_NUM 43
+
+struct command
+{
+	char * name;
+	int (*funct)();
+	enum completion cpl;
+	// decides whether words after command sould be validated,
+	// example: "install apt dpkg kde qwertyqqw" is going to warn on "qwertyqqw",
+	// because such a package doesn't exist (do_validation for "install" is true)
+	// and it checks for existence in all packages, because cpl of "install" is AVAILABLE
+	bool do_validation;
+	char * master; // Master command (example: commit - master; commit-clear, commit-remove,
+	               // commit-status - slaves). NULL if there's no master command.
+	bool has_slaves;
+	bool apt_get; // If command launches the apt-get command, then we can simulate it
+	              // by adding -s/--simulate option (CFG_QUEUE_SIMULATE decides whether
+		      // we can or can't do the simulation)
+};
 
 extern char * aptcmd;
 
@@ -22,6 +43,7 @@ int execute(char * line, char addhistory = 1);
 /* aptsh */
 int apt_dump_cfg();
 int apt_dpkg();
+int apt_dpkg_reconfigure();
 int apt_regex();
 int apt_ls();
 int apt_help();
@@ -66,5 +88,5 @@ int apt_policy();
 int apt_madison();
 int apt_whatis();
 
-
+#endif
 

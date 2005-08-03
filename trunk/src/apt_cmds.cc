@@ -98,70 +98,53 @@ void check_a()
 	}
 }
 
-struct command
-{
-	char * name;
-	int (*funct)();
-	enum completion cpl;
-	// decides whether words after command sould be validated,
-	// example: "install apt dpkg kde qwertyqqw" is going to warn on "qwertyqqw",
-	// because such a package doesn't exist (do_validation for "install" is YES)
-	// and it checks for existence in all packages, because cpl of "install" is AVAILABLE
-	char do_validation;
-	char * master; // Master command (example: commit - master; commit-clear, commit-remove,
-	               // commit-status - slaves). NULL if there's no master command.
-	bool has_slaves;
-	bool apt_get; // If command launches the apt-get command, then we can simulate it
-	              // by adding -s/--simulate option (CFG_QUEUE_SIMULATE decides whether
-		      // we can or can't do the simulation)
-} cmds[] = {
-#define YES 1
-#define NO 0
+struct command cmds[] = {
 	/* apt-get */
-	{ "install", apt_install, AVAILABLE, YES, NULL, false, true },
-	{ "update", apt_update, AVAILABLE, NO, NULL, false, true },
-	{ "upgrade", apt_upgrade, AVAILABLE, YES, NULL, false, true },
-	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, NO, NULL, false, true },
-	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, NO, NULL, false, true },
-	{ "remove", apt_remove, INSTALLED, YES, NULL, false, true },
-	{ "source", apt_source, AVAILABLE, YES, NULL, false, true },
-	{ "build-dep", apt_build_dep, AVAILABLE, YES, NULL, false, true },
-	{ "check", apt_check, AVAILABLE, NO, NULL, false, true },
-	{ "clean", apt_clean, AVAILABLE, NO, NULL, false, true },
-	{ "autoclean", apt_autoclean, AVAILABLE, NO, NULL, false, true },
+	{ "install", apt_install, AVAILABLE, true, NULL, false, true },
+	{ "update", apt_update, AVAILABLE, false, NULL, false, true },
+	{ "upgrade", apt_upgrade, AVAILABLE, true, NULL, false, true },
+	{ "dselect-upgrade", apt_dselect_upgrade, AVAILABLE, false, NULL, false, true },
+	{ "dist-upgrade", apt_dist_upgrade, AVAILABLE, false, NULL, false, true },
+	{ "remove", apt_remove, INSTALLED, true, NULL, false, true },
+	{ "source", apt_source, AVAILABLE, true, NULL, false, true },
+	{ "build-dep", apt_build_dep, AVAILABLE, true, NULL, false, true },
+	{ "check", apt_check, AVAILABLE, false, NULL, false, true },
+	{ "clean", apt_clean, AVAILABLE, false, NULL, false, true },
+	{ "autoclean", apt_autoclean, AVAILABLE, false, NULL, false, true },
 	/* apt-cache */
-	{ "show", apt_show, AVAILABLE, YES, NULL, false, false },
-	{ "dump", apt_dump, AVAILABLE, NO, NULL, false, false },
-	{ "add", apt_add, FS, NO, NULL, false, false },
-	{ "showpkg", apt_showpkg, AVAILABLE, YES, NULL, false, false },
-	{ "stats", apt_stats, NONE, NO, NULL, false, false },
-	{ "showsrc", apt_showsrc, AVAILABLE, NO, NULL, false, false },
-	{ "dumpavail", apt_dumpavail, NONE, NO, NULL, false, false },
-	{ "unmet", apt_unmet, AVAILABLE, NO, NULL, false, false },
-	{ "search", apt_search, AVAILABLE, NO, NULL, false, false },
-	{ "depends", apt_depends, AVAILABLE, YES, NULL, false, false },
-	{ "rdepends", apt_rdepends, AVAILABLE, YES, NULL, false, false },
-	{ "pkgnames", apt_pkgnames, NONE, NO, NULL, false, false },
-	{ "dotty", apt_dotty, AVAILABLE, NO, NULL, false, false },
-	{ "policy", apt_policy, AVAILABLE, NO, NULL, false, false },
-	{ "madison", apt_madison, AVAILABLE, NO, NULL, false, false },
-	{ "whatis", apt_whatis, AVAILABLE, YES, NULL, false, false },
+	{ "show", apt_show, AVAILABLE, true, NULL, false, false },
+	{ "dump", apt_dump, AVAILABLE, false, NULL, false, false },
+	{ "add", apt_add, FS, false, NULL, false, false },
+	{ "showpkg", apt_showpkg, AVAILABLE, true, NULL, false, false },
+	{ "stats", apt_stats, NONE, false, NULL, false, false },
+	{ "showsrc", apt_showsrc, AVAILABLE, false, NULL, false, false },
+	{ "dumpavail", apt_dumpavail, NONE, false, NULL, false, false },
+	{ "unmet", apt_unmet, AVAILABLE, false, NULL, false, false },
+	{ "search", apt_search, AVAILABLE, false, NULL, false, false },
+	{ "depends", apt_depends, AVAILABLE, true, NULL, false, false },
+	{ "rdepends", apt_rdepends, AVAILABLE, true, NULL, false, false },
+	{ "pkgnames", apt_pkgnames, NONE, false, NULL, false, false },
+	{ "dotty", apt_dotty, AVAILABLE, false, NULL, false, false },
+	{ "policy", apt_policy, AVAILABLE, false, NULL, false, false },
+	{ "madison", apt_madison, AVAILABLE, false, NULL, false, false },
+	{ "whatis", apt_whatis, AVAILABLE, true, NULL, false, false },
 	/* aptsh */
-	{ "dpkg", apt_dpkg, DPKG, NO, NULL, false, false },
-	{ "whichpkg", apt_whichpkg, FS, NO, NULL, false, false },
-	{ "listfiles", apt_listfiles, INSTALLED, YES, NULL, false, false },
-	{ "dump-cfg", apt_dump_cfg, FS, NO, NULL, false, false },
-	{ "rls", apt_regex, AVAILABLE, NO, NULL, false, false },
-	{ "ls", apt_ls, AVAILABLE, NO, NULL, false, false },
-	{ "orphans", apt_orphans, NONE, NO, NULL, true, false },
-	{ "orphans-all", apt_orphans_all, NONE, NO, "orphans", false, false },
-	{ "queue", apt_queue, NONE, NO, NULL, true, false },
-	{ "queue-commit", apt_queue_commit, NONE, NO, "queue", false, false },
-	{ "queue-commit-say", apt_queue_commit_say, NONE, NO, "queue", false, false },
-	{ "queue-clear", apt_queue_clear, NONE, NO, "queue", false, false },
-	{ "queue-remove", apt_queue_remove, NONE, NO, "queue", false, false },
-	{ "help", apt_help, NONE, NO, NULL, false, false },
-	{ "quit", NULL, NONE, NO, NULL, false, false } 
+	{ "dpkg", apt_dpkg, DPKG, false, NULL, true, false },
+	{ "dpkg-reconfigure", apt_dpkg_reconfigure, INSTALLED, true, "dpkg", false, false },
+	{ "whichpkg", apt_whichpkg, FS, false, NULL, false, false },
+	{ "listfiles", apt_listfiles, INSTALLED, true, NULL, false, false },
+	{ "dump-cfg", apt_dump_cfg, FS, false, NULL, false, false },
+	{ "rls", apt_regex, AVAILABLE, false, NULL, false, false },
+	{ "ls", apt_ls, AVAILABLE, false, NULL, false, false },
+	{ "orphans", apt_orphans, NONE, false, NULL, true, false },
+	{ "orphans-all", apt_orphans_all, NONE, false, "orphans", false, false },
+	{ "queue", apt_queue, NONE, false, NULL, true, false },
+	{ "queue-commit", apt_queue_commit, NONE, false, "queue", false, false },
+	{ "queue-commit-say", apt_queue_commit_say, NONE, false, "queue", false, false },
+	{ "queue-clear", apt_queue_clear, NONE, false, "queue", false, false },
+	{ "queue-remove", apt_queue_remove, NONE, false, "queue", false, false },
+	{ "help", apt_help, NONE, false, NULL, false, false },
+	{ "quit", NULL, NONE, false, NULL, false, false } 
 };
 
 // Check whether package exists
@@ -451,6 +434,12 @@ int apt_ls()
 }
 
 int apt_dpkg()
+{
+	newcmd("");
+	return 0;
+}
+
+int apt_dpkg_reconfigure()
 {
 	newcmd("");
 	return 0;
