@@ -71,8 +71,7 @@ void realizecmd(char * sth) {
 		strcpy(tmp, yes);
 		tmp[len] = '\n';
 		tmp[len+1] = '\0';
-		while ((fputs(tmp, fp)!=EOF)) {
-		}
+		while ((fputs(tmp, fp)!=EOF));
 		pclose(fp);
 	}else {
 		system(sth);
@@ -379,6 +378,9 @@ void i_setsig()
 	}
 }
 
+// This is used by apt_regex() and apt_ls().
+#define LIBEXEC_PREFIX "aptsh_"
+
 int apt_regex()
 {
 	FILE * pipe;
@@ -391,8 +393,8 @@ int apt_regex()
 
 	// prevents from situation when user prefixes cmd with whitespaces
 	char * aptcmd_t = trimleft(aptcmd);
-	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+5);
-	sprintf(tmp, "%s%s%c", SHARED_FOLDER, aptcmd_t, '\0');
+	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+5);
+	sprintf(tmp, "%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
 	pipe = popen(tmp, "w");
 	
 	while (e.end() == false) {
@@ -418,8 +420,8 @@ int apt_ls()
 	
 	// prevents from situation when user prefixes cmd with whitespaces
 	char * aptcmd_t = trimleft(aptcmd);
-	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_FOLDER)+4);
-	sprintf(tmp, "\%s%s%c", SHARED_FOLDER, aptcmd_t, '\0');
+	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+4);
+	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
 	pipe = popen(tmp, "w");
 
 	while (e.end() == false) {
