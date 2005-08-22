@@ -567,7 +567,7 @@ int apt_queue_commit()
 int apt_queue_commit_say()
 {
 	
-	yes = trimleft(trimleft(aptcmd)+strlen("commit-say"));
+	yes = trimleft(trimleft(aptcmd)+strlen("queue-commit-say"));
 	
 	use_realcmd = 1;
 
