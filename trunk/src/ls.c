@@ -13,19 +13,28 @@ int main(int argc, char ** argv)
 	char in [1024];
 	char * wildcard = argv[1];
 
-	if (argc == 1) {
+	/* it's commented because it should behave as a normal ls command
+	 * and list all items when no arguments.
+	 */
+	/*if (argc == 1) {
 		fprintf(stderr, "Not enough parameters!\n");
 		while (strcmp(in, "-") != 0) { scanf("%s\n", in); }
 		return 1;
-	}
+	}*/
 	
 	scanf("%s\n", in);
-	while (strcmp(in, "-") != 0) {
-		if (! fnmatch(wildcard, in, 0)) {
-			printf("%s\n", in);
+	if (argc == 1) {
+		while (strcmp(in, "-") != 0) {
+			puts(in);
+			scanf("%s\n", in);
 		}
-		scanf("%s\n", in);
-	}
+	} else
+		while (strcmp(in, "-") != 0) {
+			if (! fnmatch(wildcard, in, 0)) {
+				puts(in);
+			}
+			scanf("%s\n", in);
+		}
 
 	return 0;
 }
