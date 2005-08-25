@@ -1,4 +1,4 @@
-AptSh Howto
+Aptsh Howto
 by Marcin Wrochniak
 <wrochniak at gmail.com>
 
@@ -7,12 +7,12 @@ by Marcin Wrochniak
 ++Note++
 Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But the general behaviour of Aptsh shouldn't differ too much.
 
-++Old Apt...++
+++Apt++
 If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
 
 So you're an Apt user. Your daily work doesn't require launching ``apt-get`` or ``apt-cache`` too often. But from time to time it does, and then in consumes much time... well, maybe not as much as it would take without Apt, but you know that it could be done faster. When you need to install some piece of software, you search for it with ``apt-cache``, copy package's name and paste it after ``apt-get install``. That's not good - it's better to use bash-completion. But it still may be not enough; if so, try Aptsh. Of course, Aptsh is not just bash-completion rewritten in a mixture of C and C++. Beside tab-completion it can speed up your work in many other ways - just read further. 
 
-++Pseudo-shell?++
+++Pseudo-shell++
 Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like ``install``, ``remove`` or ``dist-upgrade`` - you know them from Apt.
 
 + Usage +
@@ -107,3 +107,65 @@ xterm         xtermcontrol  xterminal     xtermset
 aptsh> install xterm
 ```
 
++++Dpkg special completion+++
+The last one type of completion in Aptsh is very unique and (currently) is available only for ``dpkg`` command. It handles all Dpkg's options (long, with ``--`` and short, with ``-``).
+
+++Commands history++
+A list of commands that you have typed in stored in Aptsh. You can access them with ``Up`` button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
+
+++Searching packages++
+When you use a system like Debian with large numer of available packages, then you know, that sometimes it's really hard to find the right package. In Aptsh, execpt the ``search`` command, which launches ``apt-cache search``; and commands completion (which also may be considered as a kind of searching), there are few more ways.
+
++++ls+++
+The ``ls`` command works like the normal ``ls``, except that it lists packages instead of files. So if you type ``ls`` you will see running list of all available packages (you can pipe them to ``more`` or ``less`` - try to type ``ls | less``). And if you use a wildcard - then you will see only packages equal to the wildcard (for instance, ``ls kde*`` will show only packages that begin with ``kde``). Here's an example:
+
+```
+aptsh> ls wmi*
+wmitime
+wmifs
+wmibam
+wmix
+wminet
+wmifinfo
+
+aptsh> ls wmi* | grep x$
+wmix
+
+aptsh> ls gnome*games
+gnome-card-games
+gnome-games
+
+aptsh>
+```
+
++++rls+++
+``ls`` command uses wildcards to find the packages, and ``rls`` uses regular expressions for the same job. Regular expressions are more powerful than wildcards, but often they are too complicated - except some situatuons. If you want to list all packages with ``kde`` in their names, it's simpler to write ``rls kde`` than ``ls *kde*``.
+
+```
+aptsh> rls ^wmi
+wmitime
+wmifs
+wmibam
+wmix
+wminet
+wmifinfo
+
+aptsh> rls ^wmi.*x$
+wmix
+
+aptsh> rls ^gnome.*games$
+gnome-card-games
+gnome-games
+
+aptsh> rls irssi
+irssi-scripts
+irssi-snapshot
+irssi-common
+irssi-text
+xirssi
+irssi-snapshot-dev
+irssi
+irssi-plugin-icq
+
+aptsh>
+```
