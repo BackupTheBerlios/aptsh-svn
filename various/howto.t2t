@@ -114,6 +114,7 @@ The last one type of completion in Aptsh is very unique and (currently) is avail
 A list of commands that you have typed in stored in Aptsh. You can access them with ``Up`` button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
 
 ++Searching packages++
++++Intro+++
 When you use a system like Debian with large numer of available packages, then you know, that sometimes it's really hard to find the right package. In Aptsh, execpt the ``search`` command, which launches ``apt-cache search``; and commands completion (which also may be considered as a kind of searching), there are few more ways.
 
 +++ls+++
@@ -166,6 +167,121 @@ xirssi
 irssi-snapshot-dev
 irssi
 irssi-plugin-icq
+
+aptsh>
+```
+
+++Command queue++
++++Switching between modes+++
+The command queue mechanism is a quite important part of Aptsh. When you are in the queue mode, all commands are only stored in memory, they are not executed at the time. They will be executed later, of course if you will launch them. To switch between normal and queue modes, type `. If you turned on the queue mode, the prompt should change into the one that's specified in ``ps1_s`` variable in ``aptsh.conf``. If you turned on normal mode, prompt will change into ``ps1`` variable.
+
+Below is an example how to switch between modes (``ps1 = aptsh>`` and ``ps1_s = * aptsh>``).
+
+```
+aptsh> show
+E: No packages found
+
+aptsh> `
+
+* aptsh> show
+
+* aptsh> `
+
+aptsh>
+```
+
++++Manipulating the queue+++
+A special commands group serves for command queue manipulation and execution. Here's a list of commands connected with manipulation:
+
+``queue`` - Show the queue.
+
+``queue-clear`` - Clean the queue.
+
+``queue-remove`` - Remove commands from list (queue). Give commands' numbers as arguments, you can give numbers of particular items or sections of them (``queue-remove 1 2 3`` is correct as well as ``queue-remove 1-3``).
+
+A little example of how it works:
+
+```
+aptsh> `
+
+* aptsh> rls
+
+* aptsh> ls
+
+* aptsh> show kde
+
+* aptsh> show gnome
+
+* aptsh> a
+Warning: Unknown command: a
+
+* aptsh> b
+Warning: Unknown command: b
+
+* aptsh> c
+Warning: Unknown command: c
+
+* aptsh> d
+Warning: Unknown command: d
+
+* aptsh> `
+
+aptsh> queue
+1: rls
+2: ls
+3: show kde
+4: show gnome
+5: a
+6: b
+7: c
+8: d
+
+aptsh> queue-remove 1 3 6-8
+
+aptsh> queue
+1: ls
+2: show gnome
+3: a
+
+aptsh> queue-clear
+
+aptsh> queue
+
+aptsh>
+```
+
++++Executing commands from queue+++
+Two commands are responsible for launching the command queue. First one, simpler, is ``queue-commit``. It just iterates all commands in the queue. Second one is ``queue-commit-say`` - it works similarily to the first one, except that it provides autoresponder (a mechanism which automatically responds to the commands' yes-or-no questions).
+
+``queue-commit`` in action:
+
+```
+aptsh> `
+
+* aptsh> remove xterm
+
+* aptsh> install xterm
+
+* aptsh> `
+
+aptsh> queue-commit
+ >>> Doing step 1 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  kubuntu-desktop xterm
+0 upgraded, 0 newly installed, 2 to remove and 44 not upgraded.
+Need to get 0B of archives.
+After unpacking 1221kB disk space will be freed.
+Do you want to continue [Y/n]? n
+Abort.
+Generating and mapping caches...
+ >>> Doing step 2 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+xterm is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 44 not upgraded.
+Generating and mapping caches...
 
 aptsh>
 ```
