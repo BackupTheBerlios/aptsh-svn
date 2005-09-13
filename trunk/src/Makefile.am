@@ -10,6 +10,9 @@ bin_PROGRAMS = aptsh
 #libexecdir=$(led)/aptsh
 libexec_PROGRAMS = aptsh_ls aptsh_rls
 
+man_MANS = aptsh.1
+EXTRA_DIST = $(man_MANS)
+
 aptsh_ls_SOURCES = ls.c
 aptsh_ls_CFLAGS = -Wall @CFLAGS@
 
