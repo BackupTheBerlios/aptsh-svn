@@ -16,10 +16,21 @@ AC_DEFINE(VERSION, "0.0.4")
 sysconfdir=/etc
 AC_DEFINE(CONFIG_FILE, "/etc/aptsh.conf", [Aptsh configuration file])
 
-if test "x$prefix" == "xNONE"; then
-	SHD="\"$ac_default_prefix/libexec/\""
+AC_ARG_WITH(builddeb,
+  [  --without-builddeb          Don't compile the program for FHS and packaging into deb])
+
+if test "x$with_builddeb" != "xno"; then
+	if test "x$prefix" == "xNONE"; then
+		SHD="\"$ac_default_prefix/lib/aptsh/\""
+	else
+		SHD="\"$prefix/lib/aptsh/\""
+	fi
 else
-	SHD="\"$prefix/libexec/\""
+	if test "x$prefix" == "xNONE"; then
+		SHD="\"$ac_default_prefix/libexec/\""
+	else
+		SHD="\"$prefix/libexec/\""
+	fi
 fi
 
 AC_DEFINE_UNQUOTED(SHARED_DIR, $SHD, [Aptsh libexec directory])
