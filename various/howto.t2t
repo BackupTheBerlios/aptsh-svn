@@ -285,3 +285,114 @@ Generating and mapping caches...
 
 aptsh>
 ```
+
+This is fine, but it still requires user's activity. Sometimes you may not want to play with Apt's questions - if so, then use ``queue-commit-say`` command, which is provided with autoresponer. It's really simple to use: command's arguments are the answer to all questions (``stdin`` of command-queue will be repeately feed with the arguments). If you don't provide any arguments, then Aptsh will use breakline character as the answer, so in most cases the default actions will be taken (for instance, if Apt asks you with ``[Y/n]`` (where Yes is the default one) or ``[y/N]`` (where No is the default one) question, then pressing Enter key will cause the default action). 
+
+In example below, we try to remove and then install xterm (it's already installed). The autoresponer will answer ``n`` to Apt's question.
+
+```
+aptsh> `
+* aptsh> remove xterm
+
+* aptsh> install xterm
+
+* aptsh> `
+
+aptsh> queue-commit-say n
+ >>> Doing step 1 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  xterm
+0 upgraded, 0 newly installed, 1 to remove and 42 not upgraded.
+Need to get 0B of archives.
+After unpacking 1188kB disk space will be freed.
+Do you want to continue [Y/n]? Abort.
+Generating and mapping caches...
+ >>> Doing step 2 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+xterm is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 42 not upgraded.
+Generating and mapping caches...
+
+aptsh>
+```
+
+As you have just seen, it had neither removed nor installed xterm, because it answered ``n`` to the question. But the default answer was ``Y``, so if we don't provide any arguments to ``queue-commit-say``, then iApt will decide for us and xterm will be removed.
+
+```
+aptsh> queue
+1: remove xterm
+2: install xterm
+
+aptsh> queue-commit-say
+ >>> Doing step 1 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  xterm
+0 upgraded, 0 newly installed, 1 to remove and 42 not upgraded.
+Need to get 0B of archives.
+After unpacking 1188kB disk space will be freed.
+Do you want to continue [Y/n]? 
+(Reading database ... 76203 files and directories currently installed.)
+Removing xterm ...
+Generating and mapping caches...
+ >>> Doing step 2 of 2...
+Reading package lists... Done
+Building dependency tree... Done
+Suggested packages:
+  xfonts-cyrillic
+The following NEW packages will be installed:
+  xterm
+0 upgraded, 1 newly installed, 0 to remove and 42 not upgraded.
+Need to get 0B/510kB of archives.
+After unpacking 1188kB of additional disk space will be used.
+Preconfiguring packages ...
+Selecting previously deselected package xterm.
+(Reading database ... 76183 files and directories currently installed.)
+Unpacking xterm (from .../xterm_6.8.2-10_i386.deb) ...
+Setting up xterm (6.8.2-10) ...
+Generating and mapping caches...
+
+aptsh>
+```
+
+++Orphaned packages++
++++Orphaned package?+++
+Orphaned package is a package without any reverse dependencies (packages that require the orphaned package) installed on the system.
+
++++Orphans commands group+++
+The ``orphans`` commands group contains two commands: ``orphans`` and ``orphans-all``. They both serve to locate orphaned packages on your system. They work similarily to the ``deborphans`` program, though they are a little bit poorer (deborphans' source code couldn't have been acquired by Aptsh, because it's completely different).
+
++++orphans command+++
+The ``orphans`` command finds all orphaned packages which have ``libs`` or ``libdevel`` textstring in their Section field, so it actually should list all orphaned libraries.
+
+Why only libraries? Well, when you want to clean your system, you probably will want to remove unneeded libraries - and orphaned libraries are unneeded, unless you don't use them in programming or something. And you won't remove orphaned programs, because you use them.
+
+Example:
+```
+aptsh> orphans
+libreadline5-dev
+liballegro4.1
+libsndfile1
+
+aptsh>
+```
+
++++orphans-all command+++
+But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. It's output is a little bit different from the ``orphan``'s one - it produces two columns, first one contains the Section and second one the Name.
+
+Example:
+```
+aptsh> orphans-all
+python           python-crypto
+base             lilo
+python           python2.4-pycurl
+[...]
+libs             libsndfile1
+net              lftp
+
+aptsh>
+```
