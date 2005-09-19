@@ -4,6 +4,9 @@ by Marcin Wrochniak
 
 
 + Introduction +
+++Legal++
+This document is distributed under the Creative Commons Attribution-ShareAlike License. See http://creativecommons.org/licenses/by-sa/2.5/ for details.
+
 ++Note++
 Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But the general behaviour of Aptsh shouldn't differ too much.
 
@@ -382,7 +385,7 @@ aptsh>
 ```
 
 +++orphans-all command+++
-But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. It's output is a little bit different from the ``orphan``'s one - it produces two columns, first one contains the Section and second one the Name.
+But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. It's output is a little bit different from the ``orphans``' one - it produces two columns, first one contains the Section and second one the Name.
 
 Example:
 ```
