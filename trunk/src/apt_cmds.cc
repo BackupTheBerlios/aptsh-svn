@@ -142,8 +142,9 @@ struct command cmds[] = {
 	{ "queue-commit-say", apt_queue_commit_say, NONE, false, "queue", false, false },
 	{ "queue-clear", apt_queue_clear, NONE, false, "queue", false, false },
 	{ "queue-remove", apt_queue_remove, NONE, false, "queue", false, false },
-	{ "help", apt_help, NONE, false, NULL, false, false },
-	{ "quit", NULL, NONE, false, NULL, false, false } 
+	{ "help", apt_help, NONE, false, NULL, true, false },
+	{ "help-howto", apt_help_howto, NONE, false, "help", false, false },
+	{ "quit", NULL, NONE, false, NULL, false, false },
 };
 
 // Check whether package exists
@@ -359,6 +360,13 @@ int apt_help()
 	return 0;
 }
 
+int apt_help_howto()
+{
+	system("man aptsh_howto");
+//	realizecmd("man aptsh");
+
+	return 0;
+}
 
 /* We should ignore SIGPIPE.
  * If we don't, aptsh is going to terminate when user creates a bad pipe. 

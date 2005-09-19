@@ -13,7 +13,7 @@
 #ifndef APT_CMDS_H
 #define APT_CMDS_H
 
-#define CMD_NUM 43
+#define CMD_NUM 44
 
 enum completion {
 	INSTALLED,
@@ -63,6 +63,7 @@ int apt_dpkg_reconfigure();
 int apt_regex();
 int apt_ls();
 int apt_help();
+int apt_help_howto();
 int apt_whichpkg();
 int apt_listfiles();
 int apt_orphans();

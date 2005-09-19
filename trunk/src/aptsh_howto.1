@@ -1,0 +1,457 @@
+.TH "Aptsh Howto" 1 "<wrochniak at gmail.com>" "by Marcin Wrochniak"
+
+.SH 1. Introduction
+.SS 1.1. Legal
+.P
+This document is distributed under the Creative Commons Attribution\-ShareAlike License. See http://creativecommons.org/licenses/by\-sa/2.5/ for details.
+
+.SS 1.2. Note
+.P
+Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (en_US is used in examples, although author personally uses pl_PL). But the general behaviour of Aptsh shouldn't differ too much.
+
+.SS 1.3. Apt
+.P
+If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
+
+.P
+So you're an Apt user. Your daily work doesn't require launching apt\-get or apt\-cache too often. But from time to time it does, and then in consumes much time... well, maybe not as much as it would take without Apt, but you know that it could be done faster. When you need to install some piece of software, you search for it with apt\-cache, copy package's name and paste it after apt\-get install. That's not good \- it's better to use bash\-completion. But it still may be not enough; if so, try Aptsh. Of course, Aptsh is not just bash\-completion rewritten in a mixture of C and C++. Beside tab\-completion it can speed up your work in many other ways \- just read further. 
+
+.SS 1.4. Pseudo-shell
+.P
+Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like install, remove or dist\-upgrade \- you know them from Apt.
+
+.SH 2. Usage
+.SS 2.1. Basics
+.P
+If you want to see all commands available in Aptsh, they are in man aptsh, or just help if you are in Apt (a clue: pressing Tab twice in Aptsh doesn't list them all, I'll explain it later \- just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed without 'apt\-get' and 'apt\-cache' before. And that's it \- just typing Apt commands directly after prompt.
+Some examples:
+
+.nf
+  vrok@ankh ~ $ sudo aptsh
+  Reading commands history...
+  Generating and mapping caches...
+  
+  aptsh> remove xterm
+  Reading package lists... Done
+  Building dependency tree... Done
+  The following packages will be REMOVED:
+    xterm
+  0 upgraded, 0 newly installed, 1 to remove and 32 not upgraded.
+  Need to get 0B of archives.
+  After unpacking 1188kB disk space will be freed.
+  Do you want to continue [Y/n]? n
+  Abort.
+  Generating and mapping caches...
+  
+  aptsh> install xterm
+  Reading package lists... Done
+  Building dependency tree... Done
+  xterm is already the newest version.
+  0 upgraded, 0 newly installed, 0 to remove and 32 not upgraded.
+  Generating and mapping caches...
+  
+  aptsh> show package_that_doesnt_exist
+  W: Unable to locate package package_that_doesnt_exist
+  E: No packages found
+  
+  aptsh> quit
+  vrok@ankh ~ $
+.fi
+
+
+.P
+In example above you see how to launch Aptsh (with root privileges \- that's the sudo thing), then you see effects of four Aptsh commands: remove, install, show and quit.
+
+.SS 2.2. TAB completion
+.P
+Without Tab completion, Aptsh would be like a car without the engine \- you actually can use in the Flinstone way, but it's simpler just to walk.
+
+.P
+If you use the Unix shell, you probably know what the headline of this paragraph means (Yes, there are shells without Tab completion, but nowadays it's just as basic as a cup of coffee in the morning). Tab completion in Aptsh works in the same way, except it usually lists matching packages, not files.
+
+.SS 2.2.1. Commands completion
+.P
+But let's get down to the business... First sort of completion is used for Aptsh commands. You may expect that there actually is nothing special to say, but it's no so simple. There are groups of commands serving to similar tasks, like help and help\-howto. First one displays typical Unix manual page for Aptsh, second one displays this document.
+
+.P
+See this:
+
+.nf
+  aptsh>
+  add              dump             policy           source
+  autoclean        dump-cfg         queue*           stats
+  build-dep        dumpavail        quit             unmet
+  check            help             rdepends         update
+  clean            install          remove           upgrade
+  depends          listfiles        rls              whatis
+  dist-upgrade     ls               search           whichpkg
+  dotty            madison          show
+  dpkg             orphans*         showpkg
+  dselect-upgrade  pkgnames         showsrc
+  
+  aptsh>
+.fi
+
+
+.P
+There's nothing about help\-howto, just help (plus a * character). As you already know, these two funtions compose a group. Grouping of commands serves to save space on your terminal by displaying only the master command. That * tells you that it's just a master (root) of a command group. Of course, completion works for all commands, not only these basic; you just have to type the whole master command. Just see this:
+
+.nf
+  aptsh> help (TAB pressed twice)
+  help  help-howto
+  aptsh> help
+.fi
+
+
+.P
+It works! :) And it doesn't show any star sign, because now only members of a one group are being shown. You can check other groups, like queue or orphans.
+
+.SS 2.2.2. Packages completion
+.P
+Second type of completion is used for packages. This one is very simple, it's in the old Bash style. Of course, when you want to install some packages, Aptsh will prompt you all available packages; and only installed when removing. As usual, some examples.
+
+.nf
+  aptsh> install (TAB pressed twice)
+  Display all 20571 possibilities? (y or n)
+  
+  aptsh> remove (TAB pressed twice)
+  Display all 1038 possibilities? (y or n)
+  
+  aptsh> install kde (TAB pressed twice)
+  Display all 164 possibilities? (y or n)
+  
+  aptsh> install xterm (TAB pressed twice)
+  xterm         xtermcontrol  xterminal     xtermset
+  
+  aptsh> install xterm
+.fi
+
+
+.SS 2.2.3. Dpkg special completion
+.P
+The last one type of completion in Aptsh is very unique and (currently) is available only for dpkg command. It handles all Dpkg's options (long, with \-\- and short, with \-).
+
+.SS 2.3. Commands history
+.P
+A list of commands that you have typed in stored in Aptsh. You can access them with Up button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set use_history variable in aptsh.conf to 0. Other variables connected with history are history_file \- it's a file where the commands list is saved (please do not use the default one \- it might be dangerous because the non\-root users can read the file!), and history_count \- it's the number of commands you want to save to a file (if it's 0, then history is not saved).
+
+.SS 2.4. Searching packages
+.SS 2.4.1. Intro
+.P
+When you use a system like Debian with large numer of available packages, then you know, that sometimes it's really hard to find the right package. In Aptsh, execpt the search command, which launches apt\-cache search; and commands completion (which also may be considered as a kind of searching), there are few more ways.
+
+.SS 2.4.2. ls
+.P
+The ls command works like the normal ls, except that it lists packages instead of files. So if you type ls you will see running list of all available packages (you can pipe them to more or less \- try to type ls | less). And if you use a wildcard \- then you will see only packages equal to the wildcard (for instance, ls kde* will show only packages that begin with kde). Here's an example:
+
+.nf
+  aptsh> ls wmi*
+  wmitime
+  wmifs
+  wmibam
+  wmix
+  wminet
+  wmifinfo
+  
+  aptsh> ls wmi* | grep x$
+  wmix
+  
+  aptsh> ls gnome*games
+  gnome-card-games
+  gnome-games
+  
+  aptsh>
+.fi
+
+
+.SS 2.4.3. rls
+.P
+ls command uses wildcards to find the packages, and rls uses regular expressions for the same job. Regular expressions are more powerful than wildcards, but often they are too complicated \- except some situatuons. If you want to list all packages with kde in their names, it's simpler to write rls kde than ls *kde*.
+
+.nf
+  aptsh> rls ^wmi
+  wmitime
+  wmifs
+  wmibam
+  wmix
+  wminet
+  wmifinfo
+  
+  aptsh> rls ^wmi.*x$
+  wmix
+  
+  aptsh> rls ^gnome.*games$
+  gnome-card-games
+  gnome-games
+  
+  aptsh> rls irssi
+  irssi-scripts
+  irssi-snapshot
+  irssi-common
+  irssi-text
+  xirssi
+  irssi-snapshot-dev
+  irssi
+  irssi-plugin-icq
+  
+  aptsh>
+.fi
+
+
+.SS 2.5. Command queue
+.SS 2.5.1. Switching between modes
+.P
+The command queue mechanism is a quite important part of Aptsh. When you are in the queue mode, all commands are only stored in memory, they are not executed at the time. They will be executed later, of course if you will launch them. To switch between normal and queue modes, type `. If you turned on the queue mode, the prompt should change into the one that's specified in ps1_s variable in aptsh.conf. If you turned on normal mode, prompt will change into ps1 variable.
+
+.P
+Below is an example how to switch between modes (ps1 = aptsh> and ps1_s = * aptsh>).
+
+.nf
+  aptsh> show
+  E: No packages found
+  
+  aptsh> `
+  
+  * aptsh> show
+  
+  * aptsh> `
+  
+  aptsh>
+.fi
+
+
+.SS 2.5.2. Manipulating the queue
+.P
+A special commands group serves for command queue manipulation and execution. Here's a list of commands connected with manipulation:
+
+.P
+queue \- Show the queue.
+
+.P
+queue\-clear \- Clean the queue.
+
+.P
+queue\-remove \- Remove commands from list (queue). Give commands' numbers as arguments, you can give numbers of particular items or sections of them (queue\-remove 1 2 3 is correct as well as queue\-remove 1\-3).
+
+.P
+A little example of how it works:
+
+.nf
+  aptsh> `
+  
+  * aptsh> rls
+  
+  * aptsh> ls
+  
+  * aptsh> show kde
+  
+  * aptsh> show gnome
+  
+  * aptsh> a
+  Warning: Unknown command: a
+  
+  * aptsh> b
+  Warning: Unknown command: b
+  
+  * aptsh> c
+  Warning: Unknown command: c
+  
+  * aptsh> d
+  Warning: Unknown command: d
+  
+  * aptsh> `
+  
+  aptsh> queue
+  1: rls
+  2: ls
+  3: show kde
+  4: show gnome
+  5: a
+  6: b
+  7: c
+  8: d
+  
+  aptsh> queue-remove 1 3 6-8
+  
+  aptsh> queue
+  1: ls
+  2: show gnome
+  3: a
+  
+  aptsh> queue-clear
+  
+  aptsh> queue
+  
+  aptsh>
+.fi
+
+
+.SS 2.5.3. Executing commands from queue
+.P
+Two commands are responsible for launching the command queue. First one, simpler, is queue\-commit. It just iterates all commands in the queue. Second one is queue\-commit\-say \- it works similarily to the first one, except that it provides autoresponder (a mechanism which automatically responds to the commands' yes\-or\-no questions).
+
+.P
+queue\-commit in action:
+
+.nf
+  aptsh> `
+  
+  * aptsh> remove xterm
+  
+  * aptsh> install xterm
+  
+  * aptsh> `
+  
+  aptsh> queue-commit
+   >>> Doing step 1 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  The following packages will be REMOVED:
+    kubuntu-desktop xterm
+  0 upgraded, 0 newly installed, 2 to remove and 44 not upgraded.
+  Need to get 0B of archives.
+  After unpacking 1221kB disk space will be freed.
+  Do you want to continue [Y/n]? n
+  Abort.
+  Generating and mapping caches...
+   >>> Doing step 2 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  xterm is already the newest version.
+  0 upgraded, 0 newly installed, 0 to remove and 44 not upgraded.
+  Generating and mapping caches...
+  
+  aptsh>
+.fi
+
+
+.P
+This is fine, but it still requires user's activity. Sometimes you may not want to play with Apt's questions \- if so, then use queue\-commit\-say command, which is provided with autoresponer. It's really simple to use: command's arguments are the answer to all questions (stdin of command\-queue will be repeately feed with the arguments). If you don't provide any arguments, then Aptsh will use breakline character as the answer, so in most cases the default actions will be taken (for instance, if Apt asks you with [Y/n] (where Yes is the default one) or [y/N] (where No is the default one) question, then pressing Enter key will cause the default action). 
+
+.P
+In example below, we try to remove and then install xterm (it's already installed). The autoresponer will answer n to Apt's question.
+
+.nf
+  aptsh> `
+  * aptsh> remove xterm
+  
+  * aptsh> install xterm
+  
+  * aptsh> `
+  
+  aptsh> queue-commit-say n
+   >>> Doing step 1 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  The following packages will be REMOVED:
+    xterm
+  0 upgraded, 0 newly installed, 1 to remove and 42 not upgraded.
+  Need to get 0B of archives.
+  After unpacking 1188kB disk space will be freed.
+  Do you want to continue [Y/n]? Abort.
+  Generating and mapping caches...
+   >>> Doing step 2 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  xterm is already the newest version.
+  0 upgraded, 0 newly installed, 0 to remove and 42 not upgraded.
+  Generating and mapping caches...
+  
+  aptsh>
+.fi
+
+
+.P
+As you have just seen, it had neither removed nor installed xterm, because it answered n to the question. But the default answer was Y, so if we don't provide any arguments to queue\-commit\-say, then iApt will decide for us and xterm will be removed.
+
+.nf
+  aptsh> queue
+  1: remove xterm
+  2: install xterm
+  
+  aptsh> queue-commit-say
+   >>> Doing step 1 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  The following packages will be REMOVED:
+    xterm
+  0 upgraded, 0 newly installed, 1 to remove and 42 not upgraded.
+  Need to get 0B of archives.
+  After unpacking 1188kB disk space will be freed.
+  Do you want to continue [Y/n]? 
+  (Reading database ... 76203 files and directories currently installed.)
+  Removing xterm ...
+  Generating and mapping caches...
+   >>> Doing step 2 of 2...
+  Reading package lists... Done
+  Building dependency tree... Done
+  Suggested packages:
+    xfonts-cyrillic
+  The following NEW packages will be installed:
+    xterm
+  0 upgraded, 1 newly installed, 0 to remove and 42 not upgraded.
+  Need to get 0B/510kB of archives.
+  After unpacking 1188kB of additional disk space will be used.
+  Preconfiguring packages ...
+  Selecting previously deselected package xterm.
+  (Reading database ... 76183 files and directories currently installed.)
+  Unpacking xterm (from .../xterm_6.8.2-10_i386.deb) ...
+  Setting up xterm (6.8.2-10) ...
+  Generating and mapping caches...
+  
+  aptsh>
+.fi
+
+
+.SS 2.6. Orphaned packages
+.SS 2.6.1. Orphaned package?
+.P
+Orphaned package is a package without any reverse dependencies (packages that require the orphaned package) installed on the system.
+
+.SS 2.6.2. Orphans commands group
+.P
+The orphans commands group contains two commands: orphans and orphans\-all. They both serve to locate orphaned packages on your system. They work similarily to the deborphans program, though they are a little bit poorer (deborphans' source code couldn't have been acquired by Aptsh, because it's completely different).
+
+.SS 2.6.3. orphans command
+.P
+The orphans command finds all orphaned packages which have libs or libdevel textstring in their Section field, so it actually should list all orphaned libraries.
+
+.P
+Why only libraries? Well, when you want to clean your system, you probably will want to remove unneeded libraries \- and orphaned libraries are unneeded, unless you don't use them in programming or something. And you won't remove orphaned programs, because you use them.
+
+.P
+Example:
+
+.nf
+  aptsh> orphans
+  libreadline5-dev
+  liballegro4.1
+  libsndfile1
+  
+  aptsh>
+.fi
+
+
+.SS 2.6.4. orphans-all command
+.P
+But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. It's output is a little bit different from the orphans' one \- it produces two columns, first one contains the Section and second one the Name.
+
+.P
+Example:
+
+.nf
+  aptsh> orphans-all
+  python           python-crypto
+  base             lilo
+  python           python2.4-pycurl
+  [...]
+  libs             libsndfile1
+  net              lftp
+  
+  aptsh>
+.fi
+
+
+.\" man code generated by txt2tags 2.0 (http://txt2tags.sf.net)
+.\" cmdline: txt2tags -t man howto.t2t
+
