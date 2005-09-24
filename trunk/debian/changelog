@@ -1,6 +1,7 @@
-aptsh (0.0.4-1) unstable; urgency=low
+aptsh (0.0.4) unstable; urgency=low
 
   * Initial Release.
+  * This is the first release with packages not generated automatically.
 
- -- vrok <wrochniak@gmail.com>  Sat, 17 Sep 2005 20:30:05 +0200
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sat, 24 Sep 2005 17:18:26 +0200
 
