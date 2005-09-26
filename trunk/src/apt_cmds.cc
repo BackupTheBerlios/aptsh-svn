@@ -362,7 +362,12 @@ int apt_help()
 
 int apt_help_howto()
 {
-	system("man aptsh_howto");
+	char * cmdtmp = aptcmd;
+	aptcmd = trimleft(aptcmd)+strlen("help-howto");
+	newcmd("zcat /usr/share/doc/aptsh/HOWTO.gz");
+	aptcmd = cmdtmp;
+
+//	system("zcat /usr/share/doc/aptsh/howto.gz");
 //	realizecmd("man aptsh");
 
 	return 0;
