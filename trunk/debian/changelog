@@ -2,6 +2,7 @@ aptsh (0.0.4) unstable; urgency=low
 
   * Initial Release.
   * This is the first release with packages not generated automatically.
+  * ITP. Closes: #330342.
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Sat, 24 Sep 2005 17:18:26 +0200
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Tue, 27 Sep 2005 18:53:59 +0200
 
