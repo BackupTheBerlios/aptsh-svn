@@ -9,7 +9,7 @@ Package: aptsh
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: apt interactive shell
- Aptsh helps in managing packages by providing very nice pseudo-shell,
+ Aptsh helps in managing packages by providing nice pseudo-shell,
  with commands completion and simplified access to Apt's commands.
  Additional features, like command-queue and orphaned packages 
  searcher are also included.
