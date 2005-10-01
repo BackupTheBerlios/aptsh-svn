@@ -61,7 +61,10 @@ binary-arch: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_installdeb
+	if [ ! -d $(CURDIR)/debian/aptsh/DEBIAN/ ]; then\
+		mkdir $(CURDIR)/debian/aptsh/DEBIAN/;\
+	fi;
+	install -p -m 644 -o root -g root debian/conffiles $(CURDIR)/debian/aptsh/DEBIAN/conffiles;
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
