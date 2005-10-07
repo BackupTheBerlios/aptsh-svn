@@ -7,19 +7,13 @@ by Marcin Wrochniak
   ===============
 
 
-	1.1. Legal
-	==========
-
-This document is distributed under the Creative Commons Attribution-ShareAlike License. See http://creativecommons.org/licenses/by-sa/2.5/ for details.
-
-
-	1.2. Note
+	1.1. Note
 	=========
 
 Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (en_US is used in examples, although author personally uses pl_PL). But the general behaviour of Aptsh shouldn't differ too much.
 
 
-	1.3. Apt
+	1.2. Apt
 	========
 
 If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
@@ -27,7 +21,7 @@ If you read this, then you probably know what Apt is. And I hope you like it; if
 So you're an Apt user. Your daily work doesn't require launching apt-get or apt-cache too often. But from time to time it does, and then in consumes much time... well, maybe not as much as it would take without Apt, but you know that it could be done faster. When you need to install some piece of software, you search for it with apt-cache, copy package's name and paste it after apt-get install. That's not good - it's better to use bash-completion. But it still may be not enough; if so, try Aptsh. Of course, Aptsh is not just bash-completion rewritten in a mixture of C and C++. Beside tab-completion it can speed up your work in many other ways - just read further. 
 
 
-	1.4. Pseudo-shell
+	1.3. Pseudo-shell
 	=================
 
 Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like install, remove or dist-upgrade - you know them from Apt.
