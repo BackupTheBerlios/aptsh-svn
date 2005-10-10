@@ -34,12 +34,12 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 endif
 
 
-	dh_clean  --exclude ./aptsh-2005.03.20/aptsh-2005.03.20.orig
+	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k  --exclude ./aptsh-2005.03.20/aptsh-2005.03.20.orig
+	dh_clean -k
 	dh_installdirs
 
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/aptsh
@@ -61,10 +61,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-	if [ ! -d $(CURDIR)/debian/aptsh/DEBIAN/ ]; then\
-		mkdir $(CURDIR)/debian/aptsh/DEBIAN/;\
-	fi;
-	install -p -m 644 -o root -g root debian/conffiles $(CURDIR)/debian/aptsh/DEBIAN/conffiles;
+	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
