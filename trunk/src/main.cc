@@ -12,6 +12,9 @@
 #include "config.h"
 
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -292,6 +295,12 @@ extern int commit_count;
 extern char ** commitz;
 extern char storing;
 
+static void user_abort(int ignore)
+{
+	puts("bye!");
+	exit(0);
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -306,6 +315,7 @@ int main(int argc, char ** argv)
 	storing = 0;
 	use_realcmd = 0;
 
+	signal(SIGINT, user_abort);
 	
 	cfg_defaults();
 	config_file = NULL;
@@ -380,6 +390,9 @@ int main(int argc, char ** argv)
 		else
 			line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
+		if (line == NULL)
+			user_abort(0);
+
 		if (! strcmp(trimleft(line), "")) {
 			free(line);
 			continue;

@@ -1,3 +1,9 @@
+aptsh (0.0.5) unstable; urgency=low
+
+  * Aptsh crashed when line was NULL (now exits). Closes: #333550.
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Fri, 14 Oct 2005 14:18:16 +0200
+
 aptsh (0.0.4) unstable; urgency=low
 
   * Initial Release.
