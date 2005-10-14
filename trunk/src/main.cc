@@ -315,6 +315,7 @@ int main(int argc, char ** argv)
 	storing = 0;
 	use_realcmd = 0;
 
+	// Handle ctrl + c
 	signal(SIGINT, user_abort);
 	
 	cfg_defaults();
@@ -391,6 +392,7 @@ int main(int argc, char ** argv)
 			line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
 		if (line == NULL)
+			// Probably user pressed ctrl + d
 			user_abort(0);
 
 		if (! strcmp(trimleft(line), "")) {
