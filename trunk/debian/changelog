@@ -2,9 +2,11 @@ aptsh (0.0.5) unstable; urgency=low
 
   * Aptsh used to crash when line was NULL (now exits). Closes: #333550.
   * Fixed PS1 in default configuration file which had been causing libreadline
-    to mess up the screen when line was too long. Closes: #334130. 
+    to mess up the screen when line was too long. Closes: #334130.
+  * Added --help option and fixed bug with not recognized arguments.
+    Closes: #335172.
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Sun, 16 Oct 2005 14:33:41 +0200
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sun, 23 Oct 2005 12:04:14 +0200
 
 aptsh (0.0.4) unstable; urgency=low
 

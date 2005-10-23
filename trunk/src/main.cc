@@ -284,10 +284,12 @@ void initialize_rl()
 
 struct option arg_opts[] =
 {
-	{"config-file", required_argument, 0, 'c' },
+	{"help", no_argument, 0, '?' },
 	{"storing", no_argument, 0, 's' },
 	{"version", no_argument, 0, 'v' },
+	{"config-file", required_argument, 0, 'c' },
 	{"execute", required_argument, 0, 'x' },
+	{0, 0, 0, 0}
 };
 
 // Number of steps
@@ -320,7 +322,7 @@ int main(int argc, char ** argv)
 	
 	cfg_defaults();
 	config_file = NULL;
-	while ((c = getopt_long(argc, argv, "x:vsc:", arg_opts, &option_index)) != -1) {
+	while ((c = getopt_long(argc, argv, "?svc:x:", arg_opts, &option_index)) != -1) {
 		switch (c) {
 			case 'c':
 				config_file = optarg;
@@ -349,6 +351,20 @@ int main(int argc, char ** argv)
 
 				execute(optarg, 0);
 				return 0;
+			case '?':
+				/* --help and not recognized arguments should go here */
+				puts("Usage: aptsh [OPTION]...\n"
+				     "\n"
+				     "-c, --config-file FILE   Use config file different than /etc/aptsh.conf\n"
+				     "-s, --storing            Run in queue mode\n"
+				     "-v, --version            Display version and exit\n"
+				     "-x, --execute COMMAND    Execute COMMAND and exit\n"
+				     "-?, --help               Display this text\n"
+				     "\n"
+				     "Please report bugs to bugs.debian.org\n");
+				return 0;
+			default:
+				fputs("Hey! It shouldn't go here!", stderr);
 		}
 	}
 	if (config_file == NULL) {
