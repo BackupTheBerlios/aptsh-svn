@@ -29,12 +29,12 @@ extern struct config_option options[];
 #define OPTIONS_COUNT 9
 
 #define CFG_PS1                     (char*)options[0].value
-#define CFG_USE_HISTORY             (int)options[1].value
+#define CFG_USE_HISTORY             (unsigned long int)options[1].value
 #define CFG_UPDATE_FILE             (char*)options[2].value
-#define CFG_REFRESH_INDEXES         (int)options[3].value
-#define CFG_REFRESH_INDEXES_ALL     (int)options[4].value
+#define CFG_REFRESH_INDEXES         (unsigned long int)options[3].value
+#define CFG_REFRESH_INDEXES_ALL     (unsigned long int)options[4].value
 #define CFG_HISTORY_FILE            (char*)options[5].value
-#define CFG_HISTORY_COUNT           (int)options[6].value
+#define CFG_HISTORY_COUNT           (unsigned long int)options[6].value
 #define CFG_PS1_STORING             (char*)options[7].value
 #define CFG_QUEUE_SIMULATE          (char*)options[8].value
 

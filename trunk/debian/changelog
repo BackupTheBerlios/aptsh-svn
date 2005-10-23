@@ -5,8 +5,9 @@ aptsh (0.0.5) unstable; urgency=low
     to mess up the screen when line was too long. Closes: #334130.
   * Added --help option and fixed bug with not recognized arguments.
     Closes: #335172.
+  * Should build on 64-bit architectures now. Closes: #334109.
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Sun, 23 Oct 2005 12:04:14 +0200
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sun, 23 Oct 2005 15:46:18 +0200
 
 aptsh (0.0.4) unstable; urgency=low
 

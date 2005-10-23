@@ -60,7 +60,7 @@ void cfg_dump()
 	int i = 0;
 	for (; i < OPTIONS_COUNT; i++) {
 		if (options[i].is_int) {
-			printf("%s = %d\n", options[i].name, (int)options[i].value);
+			printf("%s = %lx\n", options[i].name, (unsigned long int)options[i].value);
 		} else {
 			printf("%s = %s\n", options[i].name, (char*)options[i].value);
 		}
@@ -87,7 +87,7 @@ int cfg_set(char * name, char * value)
 	for (i = 0; i < OPTIONS_COUNT; i++) {
 		if (! strcmp(name, options[i].name)) {
 			if (options[i].is_int) {
-				options[i].value = (void*)atoi(value);
+				options[i].value = (void*)atol(value);
 			}else {
 				options[i].value = (void*)malloc(strlen(value)+1);
 				strcpy(options[i].value, value);
