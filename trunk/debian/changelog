@@ -6,8 +6,9 @@ aptsh (0.0.5) unstable; urgency=low
   * Added --help option and fixed bug with not recognized arguments.
     Closes: #335172.
   * Should build on 64-bit architectures now. Closes: #334109.
+  * Changed libreadline4 to libreadline5. 
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Sun, 23 Oct 2005 15:46:18 +0200
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sat,  3 Dec 2005 11:01:35 +0100
 
 aptsh (0.0.4) unstable; urgency=low
 

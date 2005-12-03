@@ -2,7 +2,7 @@ Source: aptsh
 Section: admin
 Priority: optional
 Maintainer: Marcin Wrochniak <wrochniak@gmail.com>
-Build-Depends: debhelper (>= 4.0.0), libreadline4-dev, libapt-pkg-dev (>= 0.5.28.6)
+Build-Depends: debhelper (>= 4.0.0), libreadline5-dev, libapt-pkg-dev (>= 0.5.28.6)
 Standards-Version: 3.6.2
 
 Package: aptsh
