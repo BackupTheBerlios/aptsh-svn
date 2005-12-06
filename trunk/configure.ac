@@ -7,7 +7,7 @@ AC_HEADER_STDC
 
 AM_CONFIG_HEADER(src/config.h)
 
-AC_DEFINE(VERSION, "0.0.5")
+AC_DEFINE(VERSION, "0.0.6")
 
 # Whops... :)
 # Well, Aptsh is intended to be used only on Debian-like systems,

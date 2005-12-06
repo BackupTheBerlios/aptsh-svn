@@ -205,10 +205,12 @@ char * cpl_main(const char * text, int state)
 enum completion check_command()
 {
 	char * line = trimleft(rl_line_buffer);
+#if 0
 	if (line[0] == ';') {
 		line++;
 		line = trimleft(line);
 	}
+#endif
 	char * to_check = trimleft(first_word(line));
 	int i = 0;
 	for (; i < CMD_NUM; i++) {

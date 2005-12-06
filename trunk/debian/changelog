@@ -1,3 +1,9 @@
+aptsh (0.0.6) unstable; urgency=low
+
+  * Fixed *.deb completion for dpkg --install command.
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Tue,  6 Dec 2005 10:12:14 +0100
+
 aptsh (0.0.5) unstable; urgency=low
 
   * Aptsh used to crash when line was NULL (now exits). Closes: #333550.

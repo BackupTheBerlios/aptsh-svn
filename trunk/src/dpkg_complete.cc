@@ -18,6 +18,9 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include <readline/readline.h>
+#include <readline/tilde.h>
+
 #include "string_utils.h"
 
 #include "dpkg_complete.h"
@@ -155,12 +158,12 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 	static char * real_name; // this is the last part of path, for example
 	                         // when text is '/a/b/c', then real_name is 'c'
 	static char * real_path; // real_path is the string before real_name
-	                        // (when text is '/a/b/c', then real_path is '/a/b/'
+	                         // (when text is '/a/b/c', then real_path is '/a/b/'
 	
 	if (! state) {
 		//int len = strlen(text);
 
-		// FIXME: this sould be done without found variable
+		// FIXME: this can be done without found variable
 		bool found = false;
 		for (real_name = (char*)text+strlen(text)-1; real_name >= text; real_name--) {
 			if (*real_name == '/') {
@@ -177,9 +180,18 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 		if (! strcmp(trimleft(real_path), ""))
 			real_path = strdup("./");
 		
-		if ((dp = opendir(real_path)) == NULL) {\
-			perror("Completion error, couldn't open the directory");\
+		if (real_path[0] == '~') {
+			char * tmp = real_path;
+			real_path = tilde_expand(tmp);
+			free(tmp);
 		}
+		
+		if ((dp = opendir(real_path)) == NULL) {
+			perror("Completion error, couldn't open the directory");
+			return (char*)NULL;
+		}
+
+		rl_filename_completion_desired = 1;
 	}
 
 	struct stat *fdesc = (struct stat *)malloc(sizeof(struct stat));
