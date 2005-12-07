@@ -305,6 +305,28 @@ static void user_abort(int ignore)
 	exit(0);
 }
 
+static void libapt(bool be_silent = false)
+{
+	// Initialize libapt-pkg
+	if (pkgInitConfig(*_config) == false ||
+	pkgInitSystem(*_config, _system) == false)
+	{
+		_error->DumpErrors();
+		//return 100;
+		exit(100);
+	}
+
+	if (_config->FindB("APT::Cache::Generate", true)) {
+		if (! be_silent)
+			puts("Generating and mapping caches...");
+		gen_indexes();
+	} else {
+		if (! be_silent)
+			puts("Mapping caches...");
+		read_indexes();
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -337,6 +359,7 @@ int main(int argc, char ** argv)
 				puts(VERSION);
 				return 0;
 			case 'x':
+#if 0
 				// We need to set both CFG_REFRESH_INDEXES and
 				// CFG_REFRESH_INDEXES_ALL to 0, because we haven't
 				// made libapt-pkg initialization yet, so it will
@@ -350,7 +373,11 @@ int main(int argc, char ** argv)
 				// Read comment above.
 				// This is CFG_REFRESH_INDEXES_ALL
 				options[4].value = 0;
+#endif
 
+				// Initialize libapt-pkg and don't display any additional info
+				libapt(true);
+				
 				execute(optarg, 0);
 				return 0;
 			case '?':
@@ -386,22 +413,8 @@ int main(int argc, char ** argv)
 		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
 	}
 
-	
 	// Initialize libapt-pkg
-	if (pkgInitConfig(*_config) == false ||
-	pkgInitSystem(*_config, _system) == false)
-	{
-		_error->DumpErrors();
-		return 100;
-	}
-
-	if (_config->FindB("APT::Cache::Generate", true)) {
-		puts("Generating and mapping caches...");
-		gen_indexes();
-	} else {
-		puts("Mapping caches...");
-		read_indexes();
-	}
+	libapt();
 	
 	for (;;) {
 		if (storing)
