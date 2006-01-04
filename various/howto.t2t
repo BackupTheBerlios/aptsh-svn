@@ -5,7 +5,7 @@ by Marcin Wrochniak
 
 + Introduction +
 ++Note++
-Note that some technical details may differ at your system, for example your GNU Readline library might be configured different or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But the general behaviour of Aptsh shouldn't differ too much.
+Note that some technical details may differ on your system, for example your GNU Readline library might be configured differently or your locales might be other (``en_US`` is used in examples, although author personally uses ``pl_PL``). But the general behaviour of Aptsh shouldn't differ too much.
 
 ++Apt++
 If you read this, then you probably know what Apt is. And I hope you like it; if not, you will after reading this text. :)
@@ -17,7 +17,7 @@ Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal she
 
 + Usage +
 ++Basics++
-If you want to see all commands available in Aptsh, they are in ``man aptsh``, or just ``help`` if you are in Apt (a clue: pressing ``Tab`` twice in Aptsh doesn't list them all, I'll explain it later - just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed without 'apt-get' and 'apt-cache' before. And that's it - just typing Apt commands directly after prompt.
+If you want to see all commands available in Aptsh, they are in ``man aptsh``, or just ``help`` if you are in Apt (a clue: pressing ``Tab`` twice in Aptsh doesn't list them all, I'll explain it later - just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed in without 'apt-get' and 'apt-cache' before. And that's it - just typing Apt commands directly after prompt.
 Some examples:
 
 ```
@@ -79,7 +79,7 @@ dselect-upgrade  pkgnames         showsrc
 aptsh>
 ```
 
-There's nothing about ``help-howto``, just ``help`` (plus a ``*`` character). As you already know, these two funtions compose a group. Grouping of commands serves to save space on your terminal by displaying only the master command. That ``*`` tells you that it's just a master (root) of a command group. Of course, completion works for all commands, not only these basic; you just have to type the whole master command. Just see this:
+There's nothing about ``help-howto``, just ``help`` (plus a ``*`` character). As you already know, these two funtions compose a group. Grouping of commands serves to save space on your terminal by displaying only the master command. That ``*`` tells you that it's just a master (root) of a command group. Of course, completion works for all commands, not only these basic; you just have to type in the whole master command. Just see this:
 ```
 aptsh> help (TAB pressed twice)
 help  help-howto
@@ -111,14 +111,14 @@ aptsh> install xterm
 The last one type of completion in Aptsh is very unique and (currently) is available only for ``dpkg`` command. It handles all Dpkg's options (long, with ``--`` and short, with ``-``).
 
 ++Commands history++
-A list of commands that you have typed in stored in Aptsh. You can access them with ``Up`` button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
+A list of commands that you have typed in is stored in Aptsh. You can access them with ``Up`` button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
 
 ++Searching packages++
 +++Intro+++
 When you use a system like Debian with large numer of available packages, then you know, that sometimes it's really hard to find the right package. In Aptsh, execpt the ``search`` command, which launches ``apt-cache search``; and commands completion (which also may be considered as a kind of searching), there are few more ways.
 
 +++ls+++
-The ``ls`` command works like the normal ``ls``, except that it lists packages instead of files. So if you type ``ls`` you will see running list of all available packages (you can pipe them to ``more`` or ``less`` - try to type ``ls | less``). And if you use a wildcard - then you will see only packages equal to the wildcard (for instance, ``ls kde*`` will show only packages that begin with ``kde``). Here's an example:
+The ``ls`` command works like the normal ``ls``, except that it lists packages instead of files. So if you type in ``ls`` you will see running list of all available packages (you can pipe them to ``more`` or ``less`` - try to type ``ls | less``). And if you use a wildcard - then you will see only packages equal to the wildcard (for instance, ``ls kde*`` will show only packages that begin with ``kde``). Here's an example:
 
 ```
 aptsh> ls wmi*
@@ -251,7 +251,7 @@ aptsh>
 ```
 
 +++Executing commands from queue+++
-Two commands are responsible for launching the command queue. First one, simpler, is ``queue-commit``. It just iterates all commands in the queue. Second one is ``queue-commit-say`` - it works similarily to the first one, except that it provides autoresponder (a mechanism which automatically responds to the commands' yes-or-no questions).
+Two commands are responsible for launching the command queue. First one, simpler, is ``queue-commit``. It just iterates through all commands in the queue. Second one is ``queue-commit-say`` - it works similarily to the first one, except that it provides autoresponder (a mechanism which automatically responds to the commands' yes-or-no questions).
 
 ``queue-commit`` in action:
 
@@ -319,7 +319,7 @@ Generating and mapping caches...
 aptsh>
 ```
 
-As you have just seen, it had neither removed nor installed xterm, because it answered ``n`` to the question. But the default answer was ``Y``, so if we don't provide any arguments to ``queue-commit-say``, then iApt will decide for us and xterm will be removed.
+As you have just seen, it had neither removed nor installed xterm, because it answered ``n`` to the question. But the default answer was ``Y``, so if we don't provide any arguments to ``queue-commit-say``, then Apt will decide for us and xterm will be removed.
 
 ```
 aptsh> queue
@@ -369,7 +369,7 @@ The ``orphans`` commands group contains two commands: ``orphans`` and ``orphans-
 +++orphans command+++
 The ``orphans`` command finds all orphaned packages which have ``libs`` or ``libdevel`` textstring in their Section field, so it actually should list all orphaned libraries.
 
-Why only libraries? Well, when you want to clean your system, you probably will want to remove unneeded libraries - and orphaned libraries are unneeded, unless you don't use them in programming or something. And you won't remove orphaned programs, because you use them.
+Why only libraries? Well, when you want to clean your system, you will probably want to remove unneeded libraries - and orphaned libraries are unneeded, unless you don't use them in programming or something. And you don't want to remove orphaned programs, because you use them.
 
 Example:
 ```
@@ -382,7 +382,7 @@ aptsh>
 ```
 
 +++orphans-all command+++
-But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. It's output is a little bit different from the ``orphans``' one - it produces two columns, first one contains the Section and second one the Name.
+But well, you may really want to see all orphaned packages, not only libraries. If so, use this command. Its output is a little bit different from the ``orphans``' one - it produces two columns, first one contains the Section and second one the Name.
 
 Example:
 ```
