@@ -39,9 +39,9 @@ char * first_word(const char * cmd)
 /* returns a pointer to a left-trimmed cmd string. it doesn't make a new copy of it! */
 char * trimleft(char * cmd)
 {
-	char * tmp = cmd-1;
-	while (*(++tmp) == ' ') {}
-	return tmp;
+	char * tmp = cmd;
+	while (*tmp++ == ' ');
+	return --tmp;
 }
 
 char * trim(char * src)
