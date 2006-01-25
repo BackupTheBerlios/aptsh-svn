@@ -10,17 +10,22 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-class column_display
+/* It's just like "cat", except that it ignores all arguments and just prints
+ * its input.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char ** argv)
 {
-	public:
-		column_display(int columns, char separator, FILE *out = stdout);
-		void add(char * text, int column = 0);
-		void dump();
-		void clear();
-		const int cols;
-		const char sep;
-		const FILE *out;
-	private:
-		vector<string> flesh[5];
-};
+	char c;
+
+	while ((c = getchar()) != EOF) {
+		putchar(c);
+	}
+
+	return 0;
+}
 

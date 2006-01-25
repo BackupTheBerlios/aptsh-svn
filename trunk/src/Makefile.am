@@ -8,7 +8,7 @@ bin_PROGRAMS = aptsh
 # For some reason, libexecdir=${libexecdir}/aptsh doesn't work.
 #led=$(libexecdir)
 #libexecdir=$(led)/aptsh
-libexec_PROGRAMS = aptsh_ls aptsh_rls
+libexec_PROGRAMS = aptsh_ls aptsh_rls aptsh_printer
 
 man_MANS = aptsh.1
 EXTRA_DIST = $(man_MANS)
@@ -18,6 +18,9 @@ aptsh_ls_CFLAGS = -Wall @CFLAGS@
 
 aptsh_rls_SOURCES = rls.c
 aptsh_rls_CFLAGS = -Wall @CFLAGS@
+
+aptsh_printer_SOURCES = printer.c
+aptsh_printer_CFLAGS = -Wall @CFLAGS@
 
 aptsh_SOURCES = \
 	apt_cmds.cc\

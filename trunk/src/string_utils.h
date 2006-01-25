@@ -19,6 +19,7 @@ extern "C" {
 
 char * first_word(const char * cmd);
 
+/* Doesn't return a new instance of a string! Just increases the pointer. */
 char * trimleft(char * cmd);
 
 char * trim(char * src);
@@ -27,8 +28,6 @@ long update_date(char * fn);
 
 char * word_at_point(char *text, int point);
 
-// this class server to iterate through
-// words in a string
 #ifdef __cplusplus
 class word_iterator
 {
