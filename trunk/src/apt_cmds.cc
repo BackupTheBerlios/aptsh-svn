@@ -712,6 +712,9 @@ int apt_queue_remove()
 	}
 	free(tmp);
 	qsort(arr, arrlen, sizeof(int), compare_ints);
+	/* This is not too efficient - complexity of removing is about O(n^2).
+	 * It can be done with O(n) complexity, but O(n^2) should be enough.
+	 */
 	for (int i = arrlen-1; i >= 0; i--) {
 		real_remove(arr[i]-1);
 	}
