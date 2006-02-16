@@ -51,7 +51,7 @@ char storing;
 
 char * aptcmd;
 
-char use_realcmd;
+bool use_realcmd;
 
 char * yes;
 
@@ -256,11 +256,13 @@ int validate(char * cmd)
 }
 
 // This macro executes aptcmd command (ie. install aptsh), preceding it with shell command - WW (ie. apt-get)
-char * tmp;
-#define newcmd(WW) \
-tmp = (char*)malloc(strlen(aptcmd)+strlen(WW)+2);\
-sprintf(tmp, "%s %s", WW, aptcmd);\
-realizecmd(tmp);
+void newcmd(char *exec)
+{
+	char * tmp;
+	tmp = (char*)malloc(strlen(aptcmd)+strlen(exec)+2);
+	sprintf(tmp, "%s %s", exec, aptcmd);
+	realizecmd(tmp);
+}
 
 // Returns >0 when user wants to exit
 int execute(char * line, char addhistory)
@@ -292,7 +294,7 @@ int execute(char * line, char addhistory)
 			for (int i = 0; i < CMD_NUM; i++) {
 				if (!strcmp(fword, cmds[i].name) && cmds[i].apt_get) {
 					const char * simulator = "apt-get --simulate";
-					tmp = (char*)malloc(strlen(line)+strlen(simulator)+2);
+					char *tmp = (char*)malloc(strlen(line)+strlen(simulator)+2);
 					sprintf(tmp, "%s %s", simulator, line);
 					system(tmp);
 					free(tmp);
@@ -632,10 +634,7 @@ int compare_ints(const void *a, const void *b)
 
 // Function below is used internally by apt_commit_remove() to add items to 
 // internal array of items to remove from command-queue
-#if __GNUC__ >= 3
-inline
-#endif
-void add_item(const int value, int * (&arr), int & arrlen)
+inline void add_item(const int value, int * (&arr), int & arrlen)
 {
 	if ((value > 0) && (value <= commit_count)) {
 		/* Check whether item already exist */

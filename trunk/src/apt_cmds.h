@@ -51,7 +51,7 @@ struct command
 
 extern char * aptcmd;
 
-extern char use_realcmd;
+extern bool use_realcmd;
 extern char * realcmd;
 
 int execute(char * line, char addhistory = 1);
