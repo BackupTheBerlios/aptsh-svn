@@ -159,8 +159,6 @@ int cfg_parse()
 
 		if ((r == ' ') && (r == '\t')) {
 			if (stage == 2) {
-				/*buf[x] = '\0';
-				x = 0;*/
 				stage = 2;
 			}
 
@@ -178,7 +176,6 @@ int cfg_parse()
 		}
 			
 	}
-
 	
 	fclose(fp);
 	return 0;
