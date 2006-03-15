@@ -102,15 +102,19 @@ int cfg_set(char * name, char * value)
 int cfg_parse()
 {
 	FILE * fp;
-	char buf[1023] = "";
-	char r;
-	char * trimmed = NULL;
-	char tmp[1023];
-	int len = 0;
-	char comment = 0;
+	char buf[1024] = "";
+	char buf_v[1024] = "";
 	int x = 0;
-	char typing = 0;
-	int i = 0;
+	char r;
+
+	/* Stages:
+	 * 0 - nothing started yet
+	 * 1 - getting variable's name
+	 * 2 - whitespaces before '='
+	 * 3 - getting variable's value
+	 */
+	char stage = 0;
+
 	if (access(config_file, F_OK) == -1) {
 		fprintf(stderr, "Configuration file doesn't exist!\n");
 		return 1;
@@ -120,43 +124,59 @@ int cfg_parse()
 		return 1;
 	}
 	while ((r = fgetc(fp)) != EOF) {
-		if ((r != '\n') && comment)
-			continue;
-		if (((r == ' ') || (r == '\t')) && !typing) {
-			continue;
-		}
-		if (!typing && (r == '#')) {
-			comment = 1;
-			continue;
-		}
-		if (!typing)
-			typing = 1;
 		if (r == '\n') {
-			if (! comment) {
-				buf[x] = '\0';
-				len = strlen(buf);
-				i = 0;
-				while (buf[i] != '=') { if (i < len) i++; else break; }
-				strncpy(tmp, buf, i);
-				tmp[i] = '\0';
-				trimmed = trim(tmp);
-				if (strlen(trimmed)) {
-					cfg_set(trimmed, (char*)(buf+i+1));
-				}
-				free(trimmed);
+			if (stage == 3) {
+				buf_v[x] = '\0';
+				cfg_set(buf, buf_v);
 			}
-			comment = 0;
-			typing = 0;
-			strcpy(buf, "");
+			stage = 0;
 			x = 0;
 			continue;
 		}
 		
-		if (x > 1022) {
-			fprintf(stderr, "config err\n");
-			return 1;
+		if ((r == '#') && !stage) {
+			x = 0;
+			while (fgetc(fp) != '\n');
+			continue;
 		}
-		buf[x++] = r;
+		
+		if ((r == '=') && ((stage == 2) || (stage == 1))) {
+			buf[x] = '\0';
+			x = 0;
+			stage = 3;
+			continue;
+		}
+	
+		if ((r != ' ') && (r != '\t') && (stage <= 1)) {
+			stage = 1;
+			if (x >= 1022) {
+				fprintf(stderr, "Too long variable name.\n");
+				return 1;
+			}
+
+			buf[x++] = r;
+		}
+
+		if ((r == ' ') && (r == '\t')) {
+			if (stage == 2) {
+				/*buf[x] = '\0';
+				x = 0;*/
+				stage = 2;
+			}
+
+			if (stage != 3)
+				continue;
+		}
+
+		if (stage == 3) {
+			if (x >= 1022) {
+				fprintf(stderr, "Too long value. Maximum is 1023.\n");
+				return 1;
+			}
+		
+			buf_v[x++] = r;
+		}
+			
 	}
 
 	
