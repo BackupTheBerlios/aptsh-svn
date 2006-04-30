@@ -178,7 +178,7 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 	return false;
 }
 
-// Validates aptsh commadn
+// Validates aptsh command
 // You can't give a command with ';' at the begining, if so it will throw up a warning
 // Also, command must be already trimmed
 int validate(char * cmd)
@@ -921,9 +921,8 @@ int apt_madison()
 
 int apt_whatis()
 {
-#define WHATIS_CMD "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'"
 	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
-	sprintf(tmp, WHATIS_CMD, (char*)(trimleft(aptcmd)+strlen("whatis ")));
+	sprintf(tmp, "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'", (char*)(trimleft(aptcmd)+strlen("whatis ")));
 	//system(tmp);
 	realizecmd(tmp);
 	free(tmp);
