@@ -102,6 +102,7 @@ int cfg_set(char * name, char * value)
 int cfg_parse()
 {
 	FILE * fp;
+	static char hex_accepted[] = "1234567890abcdefABCDEF\0";
 	char buf[1024] = "";
 	char buf_v[1024] = "";
 	int x = 0;
@@ -170,6 +171,40 @@ int cfg_parse()
 			if (x >= 1022) {
 				fprintf(stderr, "Too long value. Maximum is 1023.\n");
 				return 1;
+			}
+			
+			if (r == '\\') {
+				if ((r = fgetc(fp)) == 'x') {
+					char sign[] = "  \0";
+					if (! strchr(hex_accepted, (sign[0] = fgetc(fp)))) {
+						/* FIXME: we should check 'r' now. */
+						continue;
+					}
+					if (! strchr(hex_accepted, (sign[1] = fgetc(fp)))) {
+						/* FIXME: we should check 'r' now. */
+						continue;
+					}
+					buf_v[x++] = (char)strtol(sign, (char**)NULL, 16);
+					continue;
+				} else
+				if ((r == '\n') || (r == EOF)) {
+					buf_v[x++] = '\\';
+					if (stage == 3) {
+						buf_v[x] = '\0';
+						cfg_set(buf, buf_v);
+					}
+					stage = 0;
+					x = 0;
+					continue;				
+				} else
+				if (x >= 1022) {
+					fprintf(stderr, "Too long value. Maximum is 1023.\n");
+					return 1;
+				} else {
+					buf_v[x++] = '\\';
+					buf_v[x++] = r;
+					continue;
+				}	
 			}
 		
 			buf_v[x++] = r;
