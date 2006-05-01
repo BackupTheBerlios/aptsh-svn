@@ -3,8 +3,9 @@ aptsh (0.0.6) unstable; urgency=low
   * Fixed *.deb completion for dpkg --install command.
   * Fixed bug with --execute and commands that require initialization of
     libapt-pkg.
+  * "orphans" and "orphans-all" are now pipeable. 
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Wed,  7 Dec 2005 11:56:33 +0100
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Mon,  1 May 2006 18:15:00 +0200
 
 aptsh (0.0.5) unstable; urgency=low
 

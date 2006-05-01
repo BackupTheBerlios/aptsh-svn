@@ -500,6 +500,18 @@ int apt_orphans()
 	e = Cache->PkgBegin();
 	i = 0;
 
+	/* FIXME: This probably causues a memleak (we lose control
+	 * on whitespaces before aptcmd_t).
+	 */
+	char *aptcmd_t = trimleft(aptcmd);
+	char *fw = first_word(aptcmd_t);
+	aptcmd_t += strlen(fw);
+	//aptcmd_t = trimleft(aptcmd_t);
+	char *tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
+	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", aptcmd_t, '\0');
+	free(fw);
+	FILE *pipe = popen(tmp, "w");
+
 	while (e.end() == false) {
 		if (e->CurrentVer != 0) {
 			const char * section = e.Section();
@@ -521,7 +533,7 @@ int apt_orphans()
 					}
 				}
 				if (! found)
-					printf("%s\n", e.Name());
+					fprintf(pipe, "%s\n", e.Name());
 			}
 		}
 		/*if (! strncmp(e.Name(), text, len)) {
@@ -533,6 +545,9 @@ int apt_orphans()
 		e++;
 	}
 
+	pclose(pipe);
+	free(tmp);
+	
 	return 0;
 }
 
@@ -547,7 +562,19 @@ int apt_orphans_all()
 	e = Cache->PkgBegin();
 	i = 0;
 
-	column_display * view = new column_display(2, ' ');
+	/* FIXME: This probably causues a memleak (we lose control
+	* on whitespaces before aptcmd_t).
+	*/
+	char *aptcmd_t = trimleft(aptcmd);
+	char *fw = first_word(aptcmd_t);
+	aptcmd_t += strlen(fw);
+	//aptcmd_t = trimleft(aptcmd_t);
+	char *tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
+	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", aptcmd_t, '\0');
+	free(fw);
+	FILE *pipe = popen(tmp, "w");
+
+	column_display * view = new column_display(2, ' ', pipe);
 
 	while (e.end() == false) {
 		if (e->CurrentVer != 0) {
@@ -569,6 +596,9 @@ int apt_orphans_all()
 
 	view->dump();
 
+	pclose(pipe);
+	free(tmp);
+	
 	delete view;
 
 	return 0;
