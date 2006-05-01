@@ -45,14 +45,15 @@
 #include "config_parse.h"
 #include "dpkg_complete.h"
 
-// These variables are used to store commit log.
-struct commit_item * commitlog; // last item in list
-struct commit_item * first; // first item in list
+/* These variables are used to store commit log. */
+struct commit_item * commitlog; /* Last item on list. */
+struct commit_item * first;     /* First item on list. */
 
 
-// Completion of names of all packages
-/* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
-/* packages completion */
+/* All available packages completion.
+ * It's executed until it returns NULL. Returns a new name for readline
+ * completion if found any, and not returned it before packages completion.
+ */
 char * cpl_pkg(const char * text, int state)
 {
 	static int len;
@@ -79,7 +80,7 @@ char * cpl_pkg(const char * text, int state)
 	return (char*)NULL;
 }
 
-// Completion of names of the installed packages
+/* Installed packages completion. */
 char * cpl_pkg_i(const char * text, int state)
 {
 	static int len;
@@ -114,8 +115,9 @@ char * cpl_pkg_i(const char * text, int state)
 
 struct command extern cmds[];
 
-/* it's executed until it returns NULL, returns a new name for readline completion if found any and not returned it before */
-/* commands completion */
+/* It's executed until it returns NULL, returns a new name for readline
+ * completion if found any and not returned it before commands completion.
+ */
 char * cpl_main(const char * text, int state)
 {
 	static int index, index_slaves, len;
@@ -126,7 +128,7 @@ char * cpl_main(const char * text, int state)
 	
 	static bool alone = true;
 	
-	// Re-initialize, new completion needed
+	/* Re-initialize, new completion needed. */
 	if (!state) {
 		index = 0;
 		index_slaves = 0;
@@ -146,7 +148,7 @@ char * cpl_main(const char * text, int state)
 			if (!strncmp(text, cmds[i].name, len) && cmds[i].master == NULL) {
 				_found++;
 				
-				// We're interested only about whether it's not a single command
+				/* We're interested only whether it's not a single command. */
 				if (_found > 1) {
 					alone = false;
 					break;
@@ -155,14 +157,14 @@ char * cpl_main(const char * text, int state)
 		}
 	}
 
-	// Don't waste time and search for master commands only if we need master commands.
+	/* Don't waste time and search for master commands only if we need master commands. */
 	if (! slaves)
 		while (index < CMD_NUM) {
 			name = cmds[index].name;
 			struct command * now = &cmds[index];
 			index++;
 			if (! strncmp(text, name, len)) {
-				// If master command already fits, then push slaves
+				/* If master command already fits, then push slaves. */
 				if (now->master != NULL) {
 					if (strstr(text, now->master)) {
 						return strdup(name);
@@ -186,7 +188,7 @@ char * cpl_main(const char * text, int state)
 			}
 		}
 
-	// If we find only one command, then we search for slave commands
+	/* If we find only one command, then we search for slave commands. */
 	if ((found == 1) || slaves) {
 		slaves = true;
 		while (index_slaves < CMD_NUM) {
@@ -222,7 +224,7 @@ enum completion check_command()
 	return cmds[i].cpl;
 }
 
-/* text completing function, its pointer is in readline's rl_attempted_completion_function variable */
+/* Text completing function, its pointer is in readline's rl_attempted_completion_function. */
 char ** completion(const char * text, int start, int end)
 {
 	char ** m = (char**)NULL;
@@ -249,7 +251,10 @@ char ** completion(const char * text, int start, int end)
 	char * tmpword;
 	dpkg_complete * dpkg;
 	
-	// check if we're completing first word
+	/* Check if we're completing the first word, if so then use the cpl_main completion
+	 * to complete commands available in Aptsh. Otherwise, check which completion we
+	 * should use.
+	 */
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
 		m = rl_completion_matches(text, cpl_main);
 	}else {
@@ -277,7 +282,7 @@ char ** completion(const char * text, int start, int end)
 	return m;
 }
 
-/* initializes the GNU readline library */
+/* Initializes the GNU readline library. */
 void initialize_rl()
 {
 	rl_readline_name = "aptsh";
@@ -294,7 +299,7 @@ struct option arg_opts[] =
 	{0, 0, 0, 0}
 };
 
-// Number of steps
+/* Number of steps. */
 extern int commit_count;
 extern char ** commitz;
 extern char storing;
@@ -307,7 +312,7 @@ static void user_abort(int ignore)
 
 static void libapt(bool be_silent = false)
 {
-	// Initialize libapt-pkg
+	/* Initialize libapt-pkg. */
 	if (pkgInitConfig(*_config) == false ||
 	pkgInitSystem(*_config, _system) == false)
 	{
@@ -341,7 +346,7 @@ int main(int argc, char ** argv)
 	storing = 0;
 	use_realcmd = 0;
 
-	// Handle ctrl + c
+	/* Handle ctrl+c. */
 	signal(SIGINT, user_abort);
 	
 	cfg_defaults();
@@ -360,22 +365,25 @@ int main(int argc, char ** argv)
 				return 0;
 			case 'x':
 #if 0
-				// We need to set both CFG_REFRESH_INDEXES and
-				// CFG_REFRESH_INDEXES_ALL to 0, because we haven't
-				// made libapt-pkg initialization yet, so it will
-				// crush when refreshing the indexes.
+				/* We need to set both CFG_REFRESH_INDEXES and
+				 * CFG_REFRESH_INDEXES_ALL to 0, because we haven't
+				 * made libapt-pkg initialization yet, so it will
+				 * crush when refreshing the indexes.
+				 */
 				
-				// Since CFG_REFRESH_INDEXES is (int)options[3].value
-				// we can't use the macro, and that's why we address
-				// it directly.
+				/* Since CFG_REFRESH_INDEXES is (int)options[3].value
+				 * we can't use the macro, and that's why we address
+				 * it directly.
+				 */
 				options[3].value = 0;
 				
-				// Read comment above.
-				// This is CFG_REFRESH_INDEXES_ALL
+				/* Read comment above.
+				 * This is CFG_REFRESH_INDEXES_ALL
+				 */
 				options[4].value = 0;
 #endif
 
-				// Initialize libapt-pkg and don't display any additional info
+				/* Initialize libapt-pkg and don't display any additional info. */
 				libapt(true);
 				
 				execute(optarg, 0);
@@ -401,7 +409,7 @@ int main(int argc, char ** argv)
 		cfg_parse();
 	}
 
-	// Initialize libreadline
+	/* Initialize libreadline. */
 	initialize_rl();
 
 	if (getuid() > 0)
@@ -413,7 +421,7 @@ int main(int argc, char ** argv)
 		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
 	}
 
-	// Initialize libapt-pkg
+	/* Initialize libapt-pkg. */
 	libapt();
 	
 	for (;;) {
@@ -423,7 +431,7 @@ int main(int argc, char ** argv)
 			line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
 		if (line == NULL)
-			// Probably user pressed ctrl + d
+			/* Probably user pressed ctrl+d. */
 			user_abort(0);
 
 		if (! strcmp(trimleft(line), "")) {

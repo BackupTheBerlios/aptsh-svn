@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
 	char in [1024];
 	char * wildcard = argv[1];
 
-	/* it's commented because it should behave as a normal ls command
+	/* It's commented because it should behave as a normal ls command
 	 * and list all items when no arguments.
 	 */
 	/*if (argc == 1) {

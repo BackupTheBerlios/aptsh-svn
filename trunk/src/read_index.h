@@ -41,8 +41,8 @@ void pkg_next(struct package * pkg);
 extern int hm;
 extern int hm_i;
 
-extern char ** pkgs; /* all packages */
-extern char ** pkgs_i; /* installed packages */
+extern char ** pkgs; /* All packages. */
+extern char ** pkgs_i; /* Only installed packages. */
 
 #ifdef __cplusplus
 }

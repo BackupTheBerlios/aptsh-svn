@@ -55,7 +55,7 @@ bool use_realcmd;
 
 char * yes;
 
-// Number of steps in commitlog
+/* Number of steps in commitlog. */
 int commit_count;
 char ** commitz;
 
@@ -80,7 +80,7 @@ void realizecmd(char * sth) {
 
 long tmpdate;
 
-// Checks whether cache file has been changed since last reading (stored in tmpdate)
+/* Checks whether cache file has been changed since last reading (stored in tmpdate). */
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
@@ -147,10 +147,11 @@ struct command cmds[] = {
 	{ "quit", NULL, NONE, false, NULL, false, false },
 };
 
-// Check whether package exists
-// ex decides which packages ought to be checked:
-//   AVAILABLE - all packages (default)
-//   INSTALLED  - only installed packages
+/* Check whether package exists.
+ * 'ex' decides which packages ought to be checked:
+ *   AVAILABLE - all packages (default)
+ *   INSTALLED - only installed packages.
+ */
 bool package_exists(char * name, enum completion ex = AVAILABLE)
 {
 	static pkgCache * Cache;
@@ -161,7 +162,7 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 	for (e = Cache->PkgBegin(); e.end() == false; e++) {
 		if (ex == INSTALLED) {
 			pkgCache::Package * ppk = (pkgCache::Package *)e;
-			// 6 means installed
+			/* 6 means installed. */
 			if (ppk->CurrentState == 6) {
 				if (! strcmp(e.Name(), name)) {
 					return true;
@@ -178,16 +179,19 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 	return false;
 }
 
-// Validates aptsh command
-// You can't give a command with ';' at the begining, if so it will throw up a warning
-// Also, command must be already trimmed
+/* Validates Aptsh command. */
+/* Command must be already trimmed. */
 int validate(char * cmd)
 {
-	//cmd = trimleft(cmd); <- it should be trimmed in execute()
+#if 0
+	/* It should be already trimmed in execute().
+	//cmd = trimleft(cmd);
+#endif
 
-	// Well, we don't try to validate shell commands
+	/* Well, we don't try to validate shell commands. */
 	if (cmd[0] == '.')
 		return 0;
+
 	char * tmp = first_word(cmd);
 	char ok = 0;
 	enum completion sort = NONE;
@@ -218,7 +222,7 @@ int validate(char * cmd)
 			if (! strcmp(tmp, ""))
 				break;
 
-			// it may be a parameter for apt, not a pkg's name
+			/* It may be a parameter for apt, not a pkg's name. */
 			if (tmp[0] == '-') {
 				cmd2 = cmd2+strlen(tmp);
 				continue;
@@ -238,7 +242,7 @@ int validate(char * cmd)
 			if (! strcmp(tmp, ""))
 				break;
 			
-			// it may be a parameter for apt, not a pkg's name
+			/* It may be a parameter for apt, not a pkg's name. */
 			if (tmp[0] == '-') {
 				cmd2 = cmd2+strlen(tmp);
 				continue;
@@ -255,7 +259,9 @@ int validate(char * cmd)
 	return 0;
 }
 
-// This macro executes aptcmd command (ie. install aptsh), preceding it with shell command - WW (ie. apt-get)
+/* This macro executes aptcmd command (ie. install aptsh),
+ * preceding it with shell command - WW (ie. apt-get).
+ */
 void newcmd(char *exec)
 {
 	char * tmp;
@@ -264,13 +270,14 @@ void newcmd(char *exec)
 	realizecmd(tmp);
 }
 
-// Returns >0 when user wants to exit
+/* Returns >0 when user wants to exit. */
 int execute(char * line, char addhistory)
 {
 	if (CFG_USE_HISTORY && addhistory)
 		if (line && strcmp("", trimleft(line)) &&
-		/* below it check whether history is empty, if so it allows to add new entry, else it checks
-		   whether this line was added recently - if not, it allows to add n.e. */
+		/* Below it checks whether history is empty, if so it allows to add new entry,
+		 * else it checks whether this line was added recently - if not, it allows to add n.e.
+		 */
 		( history_list() == NULL ? 1 : strcmp(history_list()[history_length-1]->line, line) )){
 			add_history(line);
 			if (CFG_HISTORY_COUNT)
@@ -345,7 +352,7 @@ int execute(char * line, char addhistory)
 }
 
 
-/* aptsh */
+/* Aptsh's specific commands. */
 
 int apt_dump_cfg()
 {
@@ -393,7 +400,7 @@ void i_setsig()
 	}
 }
 
-// This is used by apt_regex() and apt_ls().
+/* This is used by apt_regex() and apt_ls(). */
 #define LIBEXEC_PREFIX "aptsh_"
 
 int apt_regex()
@@ -406,7 +413,7 @@ int apt_regex()
 
 	i_setsig();
 
-	// prevents from situation when user prefixes cmd with whitespaces
+	/* Prevent from situation when user prefixes cmd with whitespaces. */
 	char * aptcmd_t = trimleft(aptcmd);
 	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+5);
 	sprintf(tmp, "%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
@@ -433,7 +440,7 @@ int apt_ls()
 
 	i_setsig();
 	
-	// prevents from situation when user prefixes cmd with whitespaces
+	/* Prevents from situation when user prefixes cmd with whitespaces. */
 	char * aptcmd_t = trimleft(aptcmd);
 	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+4);
 	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
@@ -482,7 +489,7 @@ int apt_listfiles()
 	return 0;
 }
 
-// Display orphaned libraries in the system
+/* Display orphaned libraries in the system. */
 int apt_orphans()
 {
 	static pkgCache * Cache;
@@ -496,7 +503,7 @@ int apt_orphans()
 	while (e.end() == false) {
 		if (e->CurrentVer != 0) {
 			const char * section = e.Section();
-			if (section == NULL) // it can't be library, since it doesn't belong to any section. :)
+			if (section == NULL) /* It can't be library, since it doesn't belong to any section. */
 				continue;
 			if (strstr(section, "libs") || strstr(section, "libdevel")) {
 				//printf("%s\n", e.Name());
@@ -529,7 +536,7 @@ int apt_orphans()
 	return 0;
 }
 
-// Display all orphaned (without any reverse dependencies installed) packages in the system
+/* Display all orphaned (without any reverse dependencies installed) packages in the system. */
 int apt_orphans_all()
 {
 	static pkgCache * Cache;
@@ -609,7 +616,7 @@ int apt_queue_clear()
 	return 0;
 }
 
-// removes item from commitz
+/* Removes item from 'commitz'. */
 void real_remove(int num)
 {
 	int hm = num;
@@ -632,8 +639,9 @@ int compare_ints(const void *a, const void *b)
 
 
 
-// Function below is used internally by apt_commit_remove() to add items to 
-// internal array of items to remove from command-queue
+/* Function below is used internally by apt_commit_remove() to add items to 
+ * internal array of items to remove from command-queue.
+ */
 inline void add_item(const int value, int * (&arr), int & arrlen)
 {
 	if ((value > 0) && (value <= commit_count)) {
@@ -641,8 +649,9 @@ inline void add_item(const int value, int * (&arr), int & arrlen)
 		bool exists = false;
 		for (int j = 0; j < arrlen; j++) {
 			if (arr[j] == value) {
-				/*It produces too much unnecessary mess, thus it's commented\
-				  fprintf(stderr, "Hey, you can't remove item %d twice!\n", value); */
+				/* It produces too much unnecessary mess, thus it's commented
+				 * fprintf(stderr, "Hey, you can't remove item %d twice!\n", value);
+				 */
 				exists = true;
 			}
 		}
@@ -675,7 +684,7 @@ int apt_queue_remove()
 			char * begin = (char*)malloc(len+1);
 			strncpy(begin, tmp, len);
 			begin[len] = '\0';
-			end++; // It contants '-', so we omit it...
+			end++; /* It contants '-', so we omit it. */
 			int _begin;
 			if (! strcmp(begin, "last")) {
 				_begin = commit_count;
@@ -700,7 +709,7 @@ int apt_queue_remove()
 				}
 			free(begin);
 		} else {
-			// add_item is a macro, so it would be converted MANY times without this
+			/* add_item is a macro, so it would be converted MANY times without this. */
 			int _tmp;
 			if (! strcmp(tmp, "last")) {
 				_tmp = commit_count;
@@ -730,7 +739,7 @@ int apt_queue()
 	return 0;
 }
 
-/* apt-get */
+/* Apt-get specific commands. */
 
 int apt_install()
 {
@@ -827,7 +836,7 @@ int apt_autoclean()
 	return 0;
 }
 
-/* apt-cache */
+/* Apt-cache specific commands. */
 
 int apt_show()
 {

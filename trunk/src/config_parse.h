@@ -19,9 +19,11 @@ extern "C" {
 #endif
 
 struct config_option {
-        char * name; /* name of option */
+        char * name; /* Option's name. */
         void * value;
-        char is_int; /* is this option an integer? if so, use value as a area for integer. else, use as char* */
+        char is_int; /* Is this option an integer? If so, use value as a area 
+	              * for an integer, else, use as char*.
+	              */
 };
 
 extern struct config_option options[];

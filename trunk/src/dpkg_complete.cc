@@ -29,8 +29,8 @@ enum importance {
 	NOT_IMPORTANT,
 	AVAILABLE,
 	INSTALLED,
-	FS,     // filesystem
-	FS_DEB, // filesystem - but only .deb files
+	FS,     /* Filesystem completion. */
+	FS_DEB, /* Filesystem completion - but only files with .deb extension. */
 };
 
 enum arg_type {
@@ -41,7 +41,9 @@ enum arg_type {
 #define DPKG_OPTS_COUNT 41
 struct dpkg_opion {
 	char * name;
+/* Which type of completion we should use. */
 	enum importance cpl_decide;
+/* Long/short dpkg argument. */
 	enum arg_type type;
 } dpkg_opts[] = {
 /* short */
@@ -94,9 +96,10 @@ struct dpkg_opion {
 	{ "--print-avail", INSTALLED, LONG },
 };
 
-// These are declarations of functions from main.cc
-// They are used here to complete installed packages
-// and available packages
+/* These are declarations of functions from main.cc.
+ * They are used here to complete installed packages
+ * and available packages.
+ */
 extern char * cpl_pkg(const char * text, int state);
 extern char * cpl_pkg_i(const char * text, int state);
 
@@ -120,7 +123,7 @@ dpkg_complete::dpkg_complete(char * word, char * text, int index)
 						case AVAILABLE: completion = &cpl_pkg; decided = true; break;
 						case INSTALLED: completion = &cpl_pkg_i; decided = true; break;
 						case FS: completion = NULL; decided = true; break;
-						case FS_DEB: completion = &fs_deb; decided = true; break; // FIXME: function for fs_deb needs to be written!!
+						case FS_DEB: completion = &fs_deb; decided = true; break;
 						default: break;
 					}
 		}
@@ -155,15 +158,18 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 {
 	static DIR *dp;
 	static struct dirent *dinfo;
-	static char * real_name; // this is the last part of path, for example
-	                         // when text is '/a/b/c', then real_name is 'c'
-	static char * real_path; // real_path is the string before real_name
-	                         // (when text is '/a/b/c', then real_path is '/a/b/'
+	static char * real_name; /* This is the last part of path, for example
+	                          * if text is '/a/b/c', then real_name is 'c'.
+				  */
+	
+	static char * real_path; /* real_path is the string before real_name
+	                          * (if text is '/a/b/c', then real_path is '/a/b/'.
+				  */
 	
 	if (! state) {
 		//int len = strlen(text);
 
-		// FIXME: this can be done without found variable
+		// FIXME: This can be done without 'found'.
 		bool found = false;
 		for (real_name = (char*)text+strlen(text)-1; real_name >= text; real_name--) {
 			if (*real_name == '/') {
@@ -204,8 +210,7 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 		sprintf(full_name, "%s%s", real_path, name);
 		stat(full_name, fdesc);
 	
-		// Yeah, this condition is UGLY.
-		// But it's also fast...
+		/* This is ugly, but it's quite fast. */
 		if ( (((name[len] == 'B' || name[len] == 'b') &&
 		    (name[len-1] == 'E' || name[len-1] == 'e') &&
 		    (name[len-2] == 'D' || name[len-2] == 'd') &&

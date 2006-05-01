@@ -17,7 +17,7 @@
 
 #include "string_utils.h"
 
-/* returns a pointer to _new_ string contaning the first word of *cmd */
+/* Returns pointer to a _new_ string contaning the first word of *cmd. */
 char * first_word(const char * cmd)
 {
 	int i = 0;
@@ -36,7 +36,7 @@ char * first_word(const char * cmd)
 	return tmp;
 }
 
-/* returns a pointer to a left-trimmed cmd string. it doesn't make a new copy of it! */
+/* Returns pointer to a left-trimmed cmd string. It doesn't make a new copy of it! */
 char * trimleft(char * cmd)
 {
 	char * tmp = cmd;
@@ -69,7 +69,7 @@ long update_date(char * fn)
 	return st.st_mtime;
 }
 
-/* returns a word which contains the char at 'point' position */
+/* Returns a word which contains the char at 'point' position. */
 char * word_at_point(char *text, int point)
 {
 	int front = point;
