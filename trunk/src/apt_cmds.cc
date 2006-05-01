@@ -47,20 +47,48 @@
 
 #include "column.h"
 
-char storing;
-
-char * aptcmd;
+/* Command that's actually being executed. */
+char * actual_command;
 
 bool use_realcmd;
 
+/* Input for commands executed from realizecmd(). */
 char * yes;
 
-/* Number of steps in commitlog. */
-int commit_count;
-char ** commitz;
+/* Command queue mode - just saving commands to command queue. */
+bool command_queue_mode;
+/* Size of command queue. */
+int command_queue_count;
+/* Items in command queue. */
+char ** command_queue_items;
 
-extern void i_setsig();
 
+/* We should ignore SIGPIPE.
+ * If we don't, aptsh is going to terminate when user creates a bad pipe. 
+ * Example:
+ * rls | less
+ * and user terminates 'less' before it reaches end of output.
+ */
+void i_setsig()
+{
+	static char set = 0;
+	struct sigaction act;
+	if (! set) {
+		act.sa_handler = SIG_IGN;
+		act.sa_flags = 0;
+		sigaction(SIGPIPE, &act, NULL);
+		set = 1;
+	}
+}
+
+/* Prefix of executables in libexec directory (aptsh_{ls,rls,printer}). */
+#define LIBEXEC_PREFIX "aptsh_"
+
+
+/* Little helper for commands that execute external command.
+ * If 'use_realcmd' is true, intput of executed command will be feeded by 
+ * content of 'yes'. Otherwise, command will be just executed from system().
+ */
 void realizecmd(char * sth) {
 	if (use_realcmd) {
 		i_setsig();
@@ -78,9 +106,23 @@ void realizecmd(char * sth) {
 	}
 }
 
+
+/* This function executes actual_command command (ie. install aptsh),
+ * preceding it with shell command - 'exec' (ie. apt-get).
+ */
+void newcmd(char *exec)
+{
+	char * tmp;
+	tmp = (char*)malloc(strlen(actual_command)+strlen(exec)+2);
+	sprintf(tmp, "%s %s", exec, actual_command);
+	realizecmd(tmp);
+	free(tmp);
+}
+
 long tmpdate;
 
 /* Checks whether cache file has been changed since last reading (stored in tmpdate). */
+/* TODO: It's possible that it's not needed any more, needs checking. */
 void check_a()
 {
 	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
@@ -259,17 +301,6 @@ int validate(char * cmd)
 	return 0;
 }
 
-/* This macro executes aptcmd command (ie. install aptsh),
- * preceding it with shell command - WW (ie. apt-get).
- */
-void newcmd(char *exec)
-{
-	char * tmp;
-	tmp = (char*)malloc(strlen(aptcmd)+strlen(exec)+2);
-	sprintf(tmp, "%s %s", exec, aptcmd);
-	realizecmd(tmp);
-}
-
 /* Returns >0 when user wants to exit. */
 int execute(char * line, char addhistory)
 {
@@ -288,11 +319,11 @@ int execute(char * line, char addhistory)
 		}
 	
 	if (trimleft(line)[0] == '`') {
-		storing = !storing;
+		command_queue_mode = !command_queue_mode;
 		return 0;
 	}
 
-	if (storing) {
+	if (command_queue_mode) {
 		char * line_t = trimleft(trimleft(line));
 		
 		if (CFG_QUEUE_SIMULATE) {
@@ -311,12 +342,12 @@ int execute(char * line, char addhistory)
 			free(fword);
 		}
 		
-		commit_count++;
-		commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
+		command_queue_count++;
+		command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
 
 		validate(line_t);
 		
-		commitz[commit_count-1] = strdup(line_t);
+		command_queue_items[command_queue_count-1] = strdup(line_t);
 		return 0;
 	}
 
@@ -332,7 +363,7 @@ int execute(char * line, char addhistory)
 		return 1;
 		
 	
-	aptcmd = line;
+	actual_command = line;
 	char help = 0;
 	for (int i = 0; i < CMD_NUM; i++) {
 		if (! strcmp(execmd, cmds[i].name)) {
@@ -371,37 +402,16 @@ int apt_help()
 
 int apt_help_howto()
 {
-	char * cmdtmp = aptcmd;
-	aptcmd = trimleft(aptcmd)+strlen("help-howto");
+	char * cmdtmp = actual_command;
+	actual_command = trimleft(actual_command)+strlen("help-howto");
 	newcmd("zcat /usr/share/doc/aptsh/HOWTO.gz");
-	aptcmd = cmdtmp;
+	actual_command = cmdtmp;
 
 //	system("zcat /usr/share/doc/aptsh/howto.gz");
 //	realizecmd("man aptsh");
 
 	return 0;
 }
-
-/* We should ignore SIGPIPE.
- * If we don't, aptsh is going to terminate when user creates a bad pipe. 
- * Example:
- * rls | less
- * and user escapes from less before it reaches end of list.
- */
-void i_setsig()
-{
-	static char set = 0;
-	struct sigaction act;
-	if (! set) {
-		act.sa_handler = SIG_IGN;
-		act.sa_flags = 0;
-		sigaction(SIGPIPE, &act, NULL);
-		set = 1;
-	}
-}
-
-/* This is used by apt_regex() and apt_ls(). */
-#define LIBEXEC_PREFIX "aptsh_"
 
 int apt_regex()
 {
@@ -414,9 +424,9 @@ int apt_regex()
 	i_setsig();
 
 	/* Prevent from situation when user prefixes cmd with whitespaces. */
-	char * aptcmd_t = trimleft(aptcmd);
-	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+5);
-	sprintf(tmp, "%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
+	char * actual_command_t = trimleft(actual_command);
+	tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+5);
+	sprintf(tmp, "%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, actual_command_t, '\0');
 	pipe = popen(tmp, "w");
 	
 	while (e.end() == false) {
@@ -441,9 +451,9 @@ int apt_ls()
 	i_setsig();
 	
 	/* Prevents from situation when user prefixes cmd with whitespaces. */
-	char * aptcmd_t = trimleft(aptcmd);
-	tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+4);
-	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, aptcmd_t, '\0');
+	char * actual_command_t = trimleft(actual_command);
+	tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+4);
+	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, actual_command_t, '\0');
 	pipe = popen(tmp, "w");
 
 	while (e.end() == false) {
@@ -471,20 +481,20 @@ int apt_dpkg_reconfigure()
 
 int apt_whichpkg()
 {
-	char * cmdtmp = aptcmd;
-	aptcmd = trimleft(aptcmd)+strlen("whichpkg");
+	char * cmdtmp = actual_command;
+	actual_command = trimleft(actual_command)+strlen("whichpkg");
 	newcmd("dpkg -S");
-	aptcmd = cmdtmp;
+	actual_command = cmdtmp;
 	
 	return 0;
 }
 
 int apt_listfiles()
 {
-	char * cmdtmp = aptcmd;
-	aptcmd = trimleft(aptcmd)+strlen("listfiles");
+	char * cmdtmp = actual_command;
+	actual_command = trimleft(actual_command)+strlen("listfiles");
 	newcmd("dpkg -L");
-	aptcmd = cmdtmp;
+	actual_command = cmdtmp;
 
 	return 0;
 }
@@ -501,14 +511,14 @@ int apt_orphans()
 	i = 0;
 
 	/* FIXME: This probably causues a memleak (we lose control
-	 * on whitespaces before aptcmd_t).
+	 * on whitespaces before actual_command_t).
 	 */
-	char *aptcmd_t = trimleft(aptcmd);
-	char *fw = first_word(aptcmd_t);
-	aptcmd_t += strlen(fw);
-	//aptcmd_t = trimleft(aptcmd_t);
-	char *tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
-	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", aptcmd_t, '\0');
+	char *actual_command_t = trimleft(actual_command);
+	char *fw = first_word(actual_command_t);
+	actual_command_t += strlen(fw);
+	//actual_command_t = trimleft(actual_command_t);
+	char *tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
+	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", actual_command_t, '\0');
 	free(fw);
 	FILE *pipe = popen(tmp, "w");
 
@@ -563,14 +573,14 @@ int apt_orphans_all()
 	i = 0;
 
 	/* FIXME: This probably causues a memleak (we lose control
-	* on whitespaces before aptcmd_t).
+	* on whitespaces before actual_command_t).
 	*/
-	char *aptcmd_t = trimleft(aptcmd);
-	char *fw = first_word(aptcmd_t);
-	aptcmd_t += strlen(fw);
-	//aptcmd_t = trimleft(aptcmd_t);
-	char *tmp = (char*)malloc(strlen(aptcmd_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
-	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", aptcmd_t, '\0');
+	char *actual_command_t = trimleft(actual_command);
+	char *fw = first_word(actual_command_t);
+	actual_command_t += strlen(fw);
+	//actual_command_t = trimleft(actual_command_t);
+	char *tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
+	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", actual_command_t, '\0');
 	free(fw);
 	FILE *pipe = popen(tmp, "w");
 
@@ -608,9 +618,9 @@ int apt_queue_commit()
 {
 	use_realcmd = 0;
 
-	for (int i = 0; i < commit_count; i++) {
-		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
-		execute(commitz[i], 0);
+	for (int i = 0; i < command_queue_count; i++) {
+		printf(" >>> Doing step %d of %d...\n", i+1, command_queue_count);
+		execute(command_queue_items[i], 0);
 	}
 
 	return 0;
@@ -619,15 +629,15 @@ int apt_queue_commit()
 int apt_queue_commit_say()
 {
 	
-	yes = trimleft(trimleft(aptcmd)+strlen("queue-commit-say"));
+	yes = trimleft(trimleft(actual_command)+strlen("queue-commit-say"));
 	
 	use_realcmd = 1;
 
 	i_setsig();
 
-	for (int i = 0; i < commit_count; i++) {
-		printf(" >>> Doing step %d of %d...\n", i+1, commit_count);
-		execute(commitz[i], 0);
+	for (int i = 0; i < command_queue_count; i++) {
+		printf(" >>> Doing step %d of %d...\n", i+1, command_queue_count);
+		execute(command_queue_items[i], 0);
 	}
 
 	use_realcmd = 0;
@@ -637,26 +647,26 @@ int apt_queue_commit_say()
 
 int apt_queue_clear()
 {
-	for (int i = 0; i < commit_count; i++) {
-		free(commitz[i]);
+	for (int i = 0; i < command_queue_count; i++) {
+		free(command_queue_items[i]);
 	}
-	free(commitz);
-	commitz = NULL;
-	commit_count = 0;
+	free(command_queue_items);
+	command_queue_items = NULL;
+	command_queue_count = 0;
 	return 0;
 }
 
-/* Removes item from 'commitz'. */
+/* Removes item from 'command_queue_items'. */
 void real_remove(int num)
 {
 	int hm = num;
-	free(commitz[hm]);
-	while (hm < (commit_count-1)) {
-		commitz[hm] = commitz[hm+1];
+	free(command_queue_items[hm]);
+	while (hm < (command_queue_count-1)) {
+		command_queue_items[hm] = command_queue_items[hm+1];
 		hm++;
 	}
- 	commit_count--;
-	commitz = (char**)realloc(commitz, commit_count*sizeof(char*));
+ 	command_queue_count--;
+	command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
 }
 
 int compare_ints(const void *a, const void *b)
@@ -674,7 +684,7 @@ int compare_ints(const void *a, const void *b)
  */
 inline void add_item(const int value, int * (&arr), int & arrlen)
 {
-	if ((value > 0) && (value <= commit_count)) {
+	if ((value > 0) && (value <= command_queue_count)) {
 		/* Check whether item already exist */
 		bool exists = false;
 		for (int j = 0; j < arrlen; j++) {
@@ -696,7 +706,7 @@ inline void add_item(const int value, int * (&arr), int & arrlen)
 
 int apt_queue_remove()
 {
-	char * cmd = trimleft(aptcmd);
+	char * cmd = trimleft(actual_command);
 	char * tmp = first_word(cmd);
 	cmd = cmd+strlen(tmp);
 	int arrlen = 0;
@@ -717,14 +727,14 @@ int apt_queue_remove()
 			end++; /* It contants '-', so we omit it. */
 			int _begin;
 			if (! strcmp(begin, "last")) {
-				_begin = commit_count;
+				_begin = command_queue_count;
 			} else {
 				_begin = atoi(begin);
 			}
 			
 			int _end;
 			if (! strcmp(end, "last")) {
-				_end = commit_count;
+				_end = command_queue_count;
 			} else {
 				_end = atoi(end);
 			}
@@ -742,7 +752,7 @@ int apt_queue_remove()
 			/* add_item is a macro, so it would be converted MANY times without this. */
 			int _tmp;
 			if (! strcmp(tmp, "last")) {
-				_tmp = commit_count;
+				_tmp = command_queue_count;
 			} else {
 				_tmp = atoi(tmp);
 			}
@@ -763,8 +773,8 @@ int apt_queue_remove()
 
 int apt_queue()
 {
-	for (int i = 0; i < commit_count; i++) {
-		printf("%d: %s\n", i+1, commitz[i]);
+	for (int i = 0; i < command_queue_count; i++) {
+		printf("%d: %s\n", i+1, command_queue_items[i]);
 	}
 	return 0;
 }
@@ -961,8 +971,8 @@ int apt_madison()
 int apt_whatis()
 {
 	static char *whatis_shell_command = "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'";
-	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(whatis_shell_command));
-	sprintf(tmp, whatis_shell_command, (char*)(trimleft(aptcmd)+strlen("whatis ")));
+	char * tmp = (char*)malloc(strlen(actual_command)+strlen(whatis_shell_command));
+	sprintf(tmp, whatis_shell_command, (char*)(trimleft(actual_command)+strlen("whatis ")));
 	//system(tmp);
 	realizecmd(tmp);
 	free(tmp);

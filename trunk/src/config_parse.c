@@ -29,7 +29,7 @@ const char *defaults[] = {
 	(void*) 1, /* refresh_indexes_all */
 	"/tmp/.aptsh_history", /* history_file */     /* <- Default could be dangerous! */
 	(void*) 0, /* history_count */
-	"* apt> ", /* ps1_storing */
+	"* apt> ", /* ps1_cq_mode */
 	(void*) 1, /* queue_simulate */
 };
 

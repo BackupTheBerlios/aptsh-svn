@@ -37,7 +37,7 @@ extern struct config_option options[];
 #define CFG_REFRESH_INDEXES_ALL     (unsigned long int)options[4].value
 #define CFG_HISTORY_FILE            (char*)options[5].value
 #define CFG_HISTORY_COUNT           (unsigned long int)options[6].value
-#define CFG_PS1_STORING             (char*)options[7].value
+#define CFG_PS1_CQ_MODE             (char*)options[7].value
 #define CFG_QUEUE_SIMULATE          (char*)options[8].value
 
 extern char * config_file;

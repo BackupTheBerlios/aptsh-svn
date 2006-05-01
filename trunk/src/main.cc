@@ -292,7 +292,7 @@ void initialize_rl()
 struct option arg_opts[] =
 {
 	{"help", no_argument, 0, '?' },
-	{"storing", no_argument, 0, 's' },
+	{"command_queue_mode", no_argument, 0, 's' },
 	{"version", no_argument, 0, 'v' },
 	{"config-file", required_argument, 0, 'c' },
 	{"execute", required_argument, 0, 'x' },
@@ -300,9 +300,9 @@ struct option arg_opts[] =
 };
 
 /* Number of steps. */
-extern int commit_count;
-extern char ** commitz;
-extern char storing;
+extern int command_queue_count;
+extern char ** command_queue_items;
+extern char command_queue_mode;
 
 static void user_abort(int ignore)
 {
@@ -341,9 +341,9 @@ int main(int argc, char ** argv)
 	commitlog = NULL;
 	first = NULL;
 	
-	commit_count = 0;
-	commitz = NULL;
-	storing = 0;
+	command_queue_count = 0;
+	command_queue_items = NULL;
+	command_queue_mode = 0;
 	use_realcmd = 0;
 
 	/* Handle ctrl+c. */
@@ -358,7 +358,7 @@ int main(int argc, char ** argv)
 				cfg_parse();
 				break;
 			case 's':
-				storing = 1;
+				command_queue_mode = 1;
 				break;
 			case 'v':
 				puts(VERSION);
@@ -393,7 +393,7 @@ int main(int argc, char ** argv)
 				puts("Usage: aptsh [OPTION]...\n"
 				     "\n"
 				     "-c, --config-file FILE   Use config file different than /etc/aptsh.conf\n"
-				     "-s, --storing            Run in queue mode\n"
+				     "-s, --command_queue_mode            Run in queue mode\n"
 				     "-v, --version            Display version and exit\n"
 				     "-x, --execute COMMAND    Execute COMMAND and exit\n"
 				     "-?, --help               Display this text\n"
@@ -425,8 +425,8 @@ int main(int argc, char ** argv)
 	libapt();
 	
 	for (;;) {
-		if (storing)
-			line = readline(CFG_PS1_STORING);
+		if (command_queue_mode)
+			line = readline(CFG_PS1_CQ_MODE);
 		else
 			line = readline(CFG_PS1); /* options[0] contains ps1 from configuration file */
 		
