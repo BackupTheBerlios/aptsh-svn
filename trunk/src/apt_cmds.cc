@@ -184,7 +184,7 @@ bool package_exists(char * name, enum completion ex = AVAILABLE)
 int validate(char * cmd)
 {
 #if 0
-	/* It should be already trimmed in execute().
+	/* It should be already trimmed in execute(). */
 	//cmd = trimleft(cmd);
 #endif
 
@@ -930,8 +930,9 @@ int apt_madison()
 
 int apt_whatis()
 {
-	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(WHATIS_CMD));
-	sprintf(tmp, "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'", (char*)(trimleft(aptcmd)+strlen("whatis ")));
+	static char *whatis_shell_command = "apt-cache show %s | grep ^Description | head -n 1 | sed 's/Description://'";
+	char * tmp = (char*)malloc(strlen(aptcmd)+strlen(whatis_shell_command));
+	sprintf(tmp, whatis_shell_command, (char*)(trimleft(aptcmd)+strlen("whatis ")));
 	//system(tmp);
 	realizecmd(tmp);
 	free(tmp);
