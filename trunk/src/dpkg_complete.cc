@@ -211,7 +211,7 @@ char * dpkg_complete::fs_deb(const char * text, int state)
 		stat(full_name, fdesc);
 	
 		/* This is ugly, but it's quite fast. */
-		if ( (((name[len] == 'B' || name[len] == 'b') &&
+		if ( ((len >= 4) && ((name[len] == 'B' || name[len] == 'b') &&
 		    (name[len-1] == 'E' || name[len-1] == 'e') &&
 		    (name[len-2] == 'D' || name[len-2] == 'd') &&
 		    (name[len-3] == '.')) || S_ISDIR(fdesc->st_mode)) && name[0] != '.') {
