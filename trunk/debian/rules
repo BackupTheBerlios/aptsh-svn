@@ -47,6 +47,7 @@ install: build
 	mkdir -p $(CURDIR)/debian/aptsh/usr/lib/aptsh/
 	mv $(CURDIR)/debian/aptsh/usr/libexec/aptsh_ls $(CURDIR)/debian/aptsh/usr/lib/aptsh/
 	mv $(CURDIR)/debian/aptsh/usr/libexec/aptsh_rls $(CURDIR)/debian/aptsh/usr/lib/aptsh/
+	mv $(CURDIR)/debian/aptsh/usr/libexec/aptsh_printer $(CURDIR)/debian/aptsh/usr/lib/aptsh/
 	rm -rf $(CURDIR)/debian/aptsh/usr/libexec
 
 binary-indep: build install
