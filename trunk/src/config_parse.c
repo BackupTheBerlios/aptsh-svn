@@ -106,7 +106,7 @@ int cfg_parse()
 	char buf[1024] = "";
 	char buf_v[1024] = "";
 	int x = 0;
-	char r;
+	signed int r;
 
 	/* Stages:
 	 * 0 - nothing started yet
