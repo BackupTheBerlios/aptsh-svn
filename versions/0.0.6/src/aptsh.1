@@ -1,0 +1,137 @@
+.TH aptsh 1 "20 Mar 2005" "version 0.0.6"
+.SH NAME
+aptsh \- interactive APT shell
+.SH SYNOPSIS
+aptsh [-?, --help] [-c, --config-file
+.I configuration_file
+] [-s, --storing] [-v, --version] [-x, --execute
+.I aptsh_command
+]
+.SH DESCRIPTION
+.B aptsh
+is a tool which makes using APT much easier. It gives you an interactive shell with all those sweet features like tab-completion (which you can use to complete name of a package), simpler access to apt commands and easier package searching (ls, rls). Although it's not necessary, it just tries to make life easier.
+.SH USAGE
+We'll try to do some ordinary administration tasks - install/remove/search few packages.
+As a root, type 'aptsh' and press return. Then type 'ins', and press Tab - 'ins' should change into 'install' followed by a whitespace. Now write down 'kde', and press Tab twice - if you're using Debian or other large distro, it should ask you whether you want to see all packages which begin with 'kde'. As you should have noticed - it works exactly like a good shell. You can also play with 'remove' - then aptsh will prompt only installed packages. And remember, that you can pipe results of commands (ie. dump | grep ^Package | cut -d\  -f 2 | grep ^kde ).
+You can execute a normal shell command by preceding it with ".".
+.SH COMMANDS
+.PP
+aptsh commands:
+.RS
+.TP
+.B dump-cfg
+Dump all aptsh options.
+.TP
+.B dpkg
+Query dpkg.
+.TP
+.B ls
+Search for packages by matching names to a wildcard. Remember that in some enviroments you have to put the expression between " " or preced special chars with \\.
+.TP
+.B rls
+Search for packages by matching names to a regular expression. Read note about special chars above!
+.TP
+.B whatis
+Display a short description of a package.
+.TP
+.B whichpkg
+Find the package that supplies the given command or file.
+.TP
+.B listfiles
+List all files owned by a package.
+.TP
+.B `
+Change mode.
+.TP
+.B queue-commit
+Commit stored commands. User answers to all prompts.
+.TP
+.B queue-commit-say
+Commit commands kept in command queue, automatically answering to all prompts. It should be followed by the answer, if not, it answers \\n (then usually program's behaviour is default). Proper usage of commit-say would be "commit-say y" - then Aptsh answers 'y' to all prompts.
+.TP
+.B queue
+Display currently stored commands.
+.TP
+.B queue-remove
+Remove stored commands from list. It should be followed by list or section of numbers of items to remove. Proper usage of this command would be: "commit-remove 1 3 10-15 21" - it will remove items numbered as 1, 3, 10, 11, 12, 13, 14, 15, 21. You can use alias 'last' which refers to the last item.
+.TP
+.B queue-clear
+Clear list of stored commands
+.TP
+.B orphans
+Find orphaned libraries on your system.
+.TP
+.B orphans-all
+Find all orphaned packages on your system, not only libraries. It's output is other than the orphans' one - it's splitted into two columns, first one contains packages' Section, second Name.
+.TP
+.B help
+Executes 'man aptsh'.
+.TP
+.B help-howto
+Displays HOWTO. You can pipe it to a browser ("more" or "less") or grep it.
+.TP
+.B quit
+Erm... quit? :)
+.RE
+.PP
+apt-get querying commands (see man apt-get):
+.RS
+.TP
+.B install
+.TP
+.B update
+.TP
+.B upgrade
+.TP
+.B dselect-upgrade
+.TP
+.B dist-upgrade
+.TP
+.B remove
+.TP
+.B source
+.TP
+.B build-dep
+.TP
+.B check
+.TP
+.B clean
+.TP
+.B autoclean
+.RE
+.PP
+apt-cache querying commands (see man apt-cache):
+.RS
+.TP
+.B show
+.TP
+.B dump
+.TP
+.B add
+.TP
+.B showpkg
+.TP
+.B stats
+.TP
+.B showsrc
+.TP
+.B dumpavail
+.TP
+.B unmet
+.TP
+.B search
+.TP
+.B depends
+.TP
+.B rdepends
+.TP
+.B pkgnames
+.TP
+.B dotty
+.TP
+.B policy
+.TP
+.B madison
+.RE
+.SH AUTHOR
+Marcin Wrochniak (wrochniak@gmail.com)

@@ -1,0 +1,32 @@
+aptsh (0.0.6) unstable; urgency=low
+
+  * Fixed *.deb completion for dpkg --install command.
+  * Fixed bug affecting --execute and commands that require initialization of
+    libapt-pkg.
+  * "orphans" and "orphans-all" are now pipeable.
+  * Rewritten configuration file parser. Closes: #356770.
+  * Fixed bashism in debian/rules. Closes: #374444.
+  * Folded HOWTO. Closes: #344624. 
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Wed, 21 Jun 2006 10:22:50 +0200
+
+aptsh (0.0.5) unstable; urgency=low
+
+  * Aptsh used to crash when line was NULL (now exits). Closes: #333550.
+  * Fixed PS1 in default configuration file which had been causing libreadline
+    to mess up the screen when line was too long. Closes: #334130.
+  * Added --help option and fixed bug with not recognized arguments.
+    Closes: #335172.
+  * Should build on 64-bit architectures now. Closes: #334109.
+  * Changed libreadline4 to libreadline5. 
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sat,  3 Dec 2005 11:01:35 +0100
+
+aptsh (0.0.4) unstable; urgency=low
+
+  * Initial Release.
+  * This is the first release with packages not generated automatically.
+  * ITP. Closes: #330342.
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Tue, 27 Sep 2005 18:53:59 +0200
+

@@ -1,0 +1,15 @@
+Source: aptsh
+Section: admin
+Priority: optional
+Maintainer: Marcin Wrochniak <wrochniak@gmail.com>
+Build-Depends: debhelper (>= 4.0.0), libreadline5-dev, libapt-pkg-dev (>= 0.5.28.6)
+Standards-Version: 3.7.2
+
+Package: aptsh
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: apt interactive shell
+ Aptsh helps in managing packages by providing nice pseudo-shell,
+ with commands completion and simplified access to Apt's commands.
+ Additional features, like command-queue and orphaned packages 
+ searcher are also included.

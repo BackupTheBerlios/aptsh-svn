@@ -1,0 +1,1 @@
+shlibs:Depends=libapt-pkg-libc6.3-5-3.9, libc6 (>= 2.3.2.ds1-4), libgcc1 (>= 1:4.0.0-7), libreadline5, libstdc++5 (>= 1:3.3.4-1)

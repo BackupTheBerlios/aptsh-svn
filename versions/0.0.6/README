@@ -1,0 +1,2 @@
+The only reason why this file is here is to satisfy Automake.
+Please install Aptsh from a package (type dpkg-buildpackage in this directory to build it by yourself).
