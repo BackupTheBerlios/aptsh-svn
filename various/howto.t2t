@@ -361,7 +361,7 @@ aptsh>
 
 ++Orphaned packages++
 +++Orphaned package?+++
-Orphaned package is a package without any reverse dependencies (packages that require the orphaned package) installed on the system.
+Orphaned package is a package without any reverse dependencies (packages that require the orphaned package) installed in the system.
 
 +++Orphans commands group+++
 The ``orphans`` commands group contains two commands: ``orphans`` and ``orphans-all``. They both serve to locate orphaned packages on your system. They work similarily to the ``deborphans`` program, though they are a little bit poorer (deborphans' source code couldn't have been acquired by Aptsh, because it's completely different).
