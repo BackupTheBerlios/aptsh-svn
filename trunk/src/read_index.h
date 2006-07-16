@@ -25,6 +25,9 @@ int gen_indexes(bool load = true);
 
 int read_indexes();
 
+bool package_exists(char *name);
+bool package_installed(char *name);
+
 struct package
 {
 	char * name;

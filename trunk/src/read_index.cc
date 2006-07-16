@@ -85,4 +85,37 @@ int read_indexes()
 	return 0;
 }
 
+/* Check whether a package exists. */
+bool package_exists(char *name)
+{
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
 
+	Cache = new pkgCache(m);
+
+	for (e = Cache->PkgBegin(); e.end() == false; e++) {
+		if (! strcmp(e.Name(), name)) {
+			//e++;
+			return true;
+		}
+	}
+	return false;
+}
+
+/* Check whether a package is installed. */
+bool package_installed(char *name)
+{
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+
+	Cache = new pkgCache(m);
+
+	for (e = Cache->PkgBegin(); e.end() == false; e++) {
+		pkgCache::Package * ppk = (pkgCache::Package *)e;
+		/* 6 means installed. */
+		if ((ppk->CurrentState == 6) && (! strcmp(e.Name(), name))) {
+			return true;
+		}
+	}
+	return false;
+}

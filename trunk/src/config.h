@@ -44,7 +44,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Name of package */
-#define PACKAGE ""
+#define PACKAGE "aptsh"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "http://aptsh.berlios.de"
@@ -62,7 +62,7 @@
 #define PACKAGE_VERSION "0.4"
 
 /* Aptsh libexec directory */
-#define SHARED_DIR "/usr/local/libexec/"
+#define SHARED_DIR "/usr/local/lib/aptsh/"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1

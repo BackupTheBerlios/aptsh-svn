@@ -44,8 +44,10 @@
 #include "config_parse.h"
 #include "read_index.h"
 #include "string_utils.h"
-
+#include "command.h"
 #include "column.h"
+
+//extern vector<command*> commands;
 
 /* Command that's actually being executed. */
 char * actual_command;
@@ -139,7 +141,7 @@ void check_a()
 	}
 }
 
-struct command cmds[] = {
+struct _command cmds[] = {
 	/* apt-get */
 	{ "install", apt_install, AVAILABLE, true, NULL, false, true },
 	{ "update", apt_update, AVAILABLE, false, NULL, false, true },
@@ -189,117 +191,6 @@ struct command cmds[] = {
 	{ "quit", NULL, NONE, false, NULL, false, false },
 };
 
-/* Check whether package exists.
- * 'ex' decides which packages ought to be checked:
- *   AVAILABLE - all packages (default)
- *   INSTALLED - only installed packages.
- */
-bool package_exists(char * name, enum completion ex = AVAILABLE)
-{
-	static pkgCache * Cache;
-	static pkgCache::PkgIterator e;
-
-	Cache = new pkgCache(m);
-
-	for (e = Cache->PkgBegin(); e.end() == false; e++) {
-		if (ex == INSTALLED) {
-			pkgCache::Package * ppk = (pkgCache::Package *)e;
-			/* 6 means installed. */
-			if (ppk->CurrentState == 6) {
-				if (! strcmp(e.Name(), name)) {
-					return true;
-				}
-			}else {
-				continue;
-			}
-		}
-		if (! strcmp(e.Name(), name)) {
-			//e++;
-			return true;
-		}
-	}
-	return false;
-}
-
-/* Validates Aptsh command. */
-/* Command must be already trimmed. */
-int validate(char * cmd)
-{
-#if 0
-	/* It should be already trimmed in execute(). */
-	//cmd = trimleft(cmd);
-#endif
-
-	/* Well, we don't try to validate shell commands. */
-	if (cmd[0] == '.')
-		return 0;
-
-	char * tmp = first_word(cmd);
-	char ok = 0;
-	enum completion sort = NONE;
-	char do_validation = 0;
-	for (int i = 0; i < CMD_NUM; i++) {
-		if (! strcmp(tmp, cmds[i].name)) {
-			ok = 1;
-			sort = cmds[i].cpl;
-			do_validation = cmds[i].do_validation;
-			break;
-		}
-	}
-	if (! ok) {
-		fprintf(stderr, "Warning: Unknown command: %s\n", tmp);
-		free(tmp);
-		return 1;
-	}
-	ok = 0;
-
-	char *cmd2 = cmd+strlen(tmp);
-
-	if (do_validation)
-	if (sort == AVAILABLE) {
-		while (1) {
-			free(tmp);
-			cmd2 = trimleft(cmd2);
-			tmp = first_word(cmd2);
-			if (! strcmp(tmp, ""))
-				break;
-
-			/* It may be a parameter for apt, not a pkg's name. */
-			if (tmp[0] == '-') {
-				cmd2 = cmd2+strlen(tmp);
-				continue;
-			}
-
-			if (! package_exists(tmp)) {
-				fprintf(stderr, "Warning: Package doesn't exist: %s\n", tmp);
-			}
-			cmd2 = cmd2+strlen(tmp);
-		}
-	} else
-	if (sort == INSTALLED) {
-		while (1) {
-			free(tmp);
-			cmd2 = trimleft(cmd2);
-			tmp = first_word(cmd2);
-			if (! strcmp(tmp, ""))
-				break;
-			
-			/* It may be a parameter for apt, not a pkg's name. */
-			if (tmp[0] == '-') {
-				cmd2 = cmd2+strlen(tmp);
-				continue;
-			}
-
-			if (! package_exists(tmp, INSTALLED)) {
-				fprintf(stderr, "Warning: Package is not installed: %s\n", tmp);
-			}
-			cmd2 = cmd2+strlen(tmp);
-		}
-	}
-
-	free(tmp);
-	return 0;
-}
 
 /* Returns >0 when user wants to exit. */
 int execute(char * line, char addhistory)
@@ -324,8 +215,11 @@ int execute(char * line, char addhistory)
 	}
 
 	if (command_queue_mode) {
-		char * line_t = trimleft(trimleft(line));
+		char *line_t = trimleft(line);
+		char *fword = first_word(line_t);
 		
+		/* TODO: Simulations don't work now!
+		 * We should do something with this.
 		if (CFG_QUEUE_SIMULATE) {
 			char * fword = first_word(line_t);
 			use_realcmd = 0;
@@ -340,16 +234,21 @@ int execute(char * line, char addhistory)
 				}
 			}
 			free(fword);
-		}
+		} */
+
+		command *cmd = commands.locate_by_name(string(fword));
+		static_cast<cmd_aptize*>(cmd)->validate(trimleft(line_t + strlen(fword)));
 		
 		command_queue_count++;
 		command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
 
-		validate(line_t);
+		//validate(line_t);
 		
 		command_queue_items[command_queue_count-1] = strdup(line_t);
 		return 0;
 	}
+
+	i_setsig();
 
 	if (line[0] == '.') {
 		realizecmd((char*)(line+1));
@@ -364,19 +263,17 @@ int execute(char * line, char addhistory)
 		
 	
 	actual_command = line;
-	char help = 0;
-	for (int i = 0; i < CMD_NUM; i++) {
-		if (! strcmp(execmd, cmds[i].name)) {
-			if (cmds[i].funct != NULL)
-				(*(cmds[i].funct))();
-			help = 1;
-			break;
-		}
+	bool help = false;
+
+	command *found = commands.locate_by_name(execmd);
+	if (found) {
+		static_cast<cmd_aptize*>(found)->execute(trimleft(actual_command+strlen(execmd)));
+		return 0;
 	}
 	if (!help) {
 		fprintf(stderr, "No such command! See 'help'.\n");
 	}
-	
+
 	free(execmd);
 	
 	return 0;
@@ -564,6 +461,7 @@ int apt_orphans()
 /* Display all orphaned (without any reverse dependencies installed) packages in the system. */
 int apt_orphans_all()
 {
+#if 0
 	static pkgCache * Cache;
 	static pkgCache::PkgIterator e;
 	static int i;
@@ -612,6 +510,7 @@ int apt_orphans_all()
 	delete view;
 
 	return 0;
+#endif
 }
 
 int apt_queue_commit()

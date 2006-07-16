@@ -31,7 +31,7 @@ struct commit_item {
 extern struct commit_item * commitlog;
 extern struct commit_item * first;
 
-struct command
+struct _command
 {
 	char * name;
 	int (*funct)();

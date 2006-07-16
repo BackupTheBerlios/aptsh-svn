@@ -44,165 +44,15 @@
 #include "string_utils.h"
 #include "config_parse.h"
 #include "dpkg_complete.h"
+#include "command.h"
+#include "completions.h"
 
 /* These variables are used to store commit log. */
 struct commit_item * commitlog; /* Last item on list. */
 struct commit_item * first;     /* First item on list. */
 
+struct _command extern cmds[];
 
-/* All available packages completion.
- * It's executed until it returns NULL. Returns a new name for readline
- * completion if found any, and not returned it before packages completion.
- */
-char * cpl_pkg(const char * text, int state)
-{
-	static int len;
-	static pkgCache * Cache;
-	static pkgCache::PkgIterator e;
-	static int i;
-	
-	if (! state) {
-		Cache = new pkgCache(m);
-		e = Cache->PkgBegin();
-		len = strlen(text);
-		i = 0;
-	}
-
-	while (e.end() == false) {
-		if (! strncmp(e.Name(), text, len)) {
-			char * tmp = (char*)malloc(strlen(e.Name())+1);
-			strcpy(tmp, e.Name());
-			e++;
-			return tmp;
-		}
-		e++;
-	}	
-	return (char*)NULL;
-}
-
-/* Installed packages completion. */
-char * cpl_pkg_i(const char * text, int state)
-{
-	static int len;
-	static pkgCache * Cache;
-	static pkgCache::PkgIterator e;
-	static int i;
-	
-	if (! state) {
-		Cache = new pkgCache(m);
-		e = Cache->PkgBegin();
-		len = strlen(text);
-		i = 0;
-	}
-
-	while (e.end() == false) {
-		pkgCache::Package * ppk = (pkgCache::Package *)e;
-		if (ppk->CurrentState != 6) {
-			e++;
-			continue;
-		}
-		if (! strncmp(e.Name(), text, len)) {
-			// TODO: convert to strdup()
-			char * tmp = (char*)malloc(strlen(e.Name())+1);
-			strcpy(tmp, e.Name());
-			e++;
-			return tmp;
-		}
-		e++;
-	}	
-	return (char*)NULL;
-}
-
-struct command extern cmds[];
-
-/* It's executed until it returns NULL, returns a new name for readline
- * completion if found any and not returned it before commands completion.
- */
-char * cpl_main(const char * text, int state)
-{
-	static int index, index_slaves, len;
-	static bool slaves = false;
-	static int found = 0;
-	
-	char * name;
-	
-	static bool alone = true;
-	
-	/* Re-initialize, new completion needed. */
-	if (!state) {
-		index = 0;
-		index_slaves = 0;
-		len = strlen(text);
-		slaves = false;
-		found = 0;
-		alone = true;
-
-		/* Since it's the first launch of this function,
-		 * it's the best place to check whether only one
-		 * master command matches to our pattern - if not,
-		 * then we add '*' sign after every master command
-		 * with slaves.
-		 */
-		int _found = 0;
-		for (int i = 0; i < CMD_NUM; i++) {
-			if (!strncmp(text, cmds[i].name, len) && cmds[i].master == NULL) {
-				_found++;
-				
-				/* We're interested only whether it's not a single command. */
-				if (_found > 1) {
-					alone = false;
-					break;
-				}
-			}
-		}
-	}
-
-	/* Don't waste time and search for master commands only if we need master commands. */
-	if (! slaves)
-		while (index < CMD_NUM) {
-			name = cmds[index].name;
-			struct command * now = &cmds[index];
-			index++;
-			if (! strncmp(text, name, len)) {
-				/* If master command already fits, then push slaves. */
-				if (now->master != NULL) {
-					if (strstr(text, now->master)) {
-						return strdup(name);
-					}
-				} else {
-					found++;
-					/* If it's an alone master command with slaves (we've checked it earlier),
-					 * then we display a '*' sign after it.
-					 */
-					if (now->has_slaves && !alone) {
-						int tmp_len = strlen(name);
-						char * tmp_cmd = (char*)malloc(tmp_len+2);
-						strcpy(tmp_cmd, name);
-						tmp_cmd[tmp_len] = '*';
-						tmp_cmd[tmp_len+1] = '\0';
-						return tmp_cmd;
-						
-					} else
-						return strdup(name);
-				}
-			}
-		}
-
-	/* If we find only one command, then we search for slave commands. */
-	if ((found == 1) || slaves) {
-		slaves = true;
-		while (index_slaves < CMD_NUM) {
-			name = cmds[index_slaves].name;
-			//struct command * now = &cmds[index_slaves];
-			index_slaves++;
-			if (! strncmp(text, name, len) && cmds[index_slaves-1].master != NULL) {
-				return strdup(name);
-			}
-		}
-	}
-	
-	return (char*)NULL;
-}
 
 enum completion check_command()
 {
@@ -234,19 +84,6 @@ char ** completion(const char * text, int start, int end)
 	char * tmp = trimleft(rl_line_buffer);
 	int diff = tmp - rl_line_buffer;
 	//rl_delete_text(0, (tmp-rl_line_buffer));
-	if (tmp[0] == ';') {
-		char toobad = 0;
-		for (int i = 1; i < (start-diff); i++) {
-			if ((tmp[i] != ' ')&&(tmp[i] != '\0')) {
-				toobad = 1;
-				break;
-			}
-		}
-		if (! toobad) {
-			m = rl_completion_matches(text, cpl_main);
-			return m;
-		}
-	}
 
 	char * tmpword;
 	dpkg_complete * dpkg;
@@ -258,7 +95,20 @@ char ** completion(const char * text, int start, int end)
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
 		m = rl_completion_matches(text, cpl_main);
 	}else {
-		switch (check_command()) {
+		char *typed_command = trimleft(first_word(trimleft(rl_line_buffer)));
+		command *found = commands.locate_by_name(typed_command);
+		if (found) {
+			found->refresh_completion();
+			m = rl_completion_matches(text, found->completion);
+		}
+/*		for (vector<command*>::iterator i = commands.begin(); i != commands.end(); i++) {
+			if (! strcmp((*i)->name.c_str(), typed_command)) {
+				(*i)->refresh_completion();
+				m = rl_completion_matches(text, (*i)->completion);
+				break;
+			}
+		}*/
+/*		switch (check_command()) {
 			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
 			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
 			case DPKG :
@@ -276,6 +126,7 @@ char ** completion(const char * text, int start, int end)
 			     
 			default: break;
 		}
+*/
 	}
 
 	
@@ -345,6 +196,48 @@ int main(int argc, char ** argv)
 	command_queue_items = NULL;
 	command_queue_mode = 0;
 	use_realcmd = 0;
+
+	/* apt-get commands */
+	commands.push_back(new cmd_aptize("install", "apt-get", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("update", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("upgrade", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("dselect-upgrade", "apt-get", cpl_pkg, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("dist-upgrade", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("remove", "apt-get", cpl_pkg_i, cmd_aptize::INSTALLED));
+	commands.push_back(new cmd_aptize("source", "apt-get", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("build-dep", "apt-get", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("check", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("clean", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("autoclean", "apt-get", cpl_none, cmd_aptize::NONE));
+
+	/* apt-cache commands */
+	commands.push_back(new cmd_aptize("show", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("dump", "apt-cache", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("add", "apt-cache", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("showpkg", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("stats", "apt-cache", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("showsrc", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("dumpavail", "apt-cache", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("unmet", "apt-cache", cpl_pkg, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("search", "apt-cache", cpl_pkg, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("depends", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("rdepends", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("pkgnames", "apt-cache", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("dotty", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("policy", "apt-cache", cpl_pkg, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("madison", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+
+	commands.push_back(new cmd_systemize("help", "man aptsh", true, NULL, true));
+	commands.push_back(new cmd_systemize("help-howto", "zcat /usr/share/doc/aptsh/HOWTO.gz", false, commands.back()));
+	commands.push_back(new cmd_whatis());
+	commands.push_back(new cmd_orphans());
+	commands.push_back(new cmd_orphans_all(commands.back()));
+	commands.push_back(new cmd_ls());
+	commands.push_back(new cmd_rls());
+	commands.push_back(new cmd_dpkg());
+	commands.push_back(new cmd_systemize("dpkg-reconfigure", "dpkg-reconfigure", cpl_pkg_i, false, commands.back()));
+	commands.push_back(new cmd_dump_cfg());
+
 
 	/* Handle ctrl+c. */
 	signal(SIGINT, user_abort);

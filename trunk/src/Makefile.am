@@ -35,6 +35,12 @@ aptsh_SOURCES = \
 	string_utils.h\
 	config_parse.c\
 	config_parse.h\
+	command.cc\
+	command.h\
+	command_queue.cc\
+	command_queue.h\
+	completions.cc\
+	completions.h\
 	main.cc
 
 aptsh_LDFLAGS = \
