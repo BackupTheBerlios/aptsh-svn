@@ -15,14 +15,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <getopt.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <list>
+#include <string>
+
+using namespace std;
 
 #include <apt-pkg/error.h>
 #include <apt-pkg/pkgcachegen.h>
@@ -39,12 +44,16 @@
 #include <apt-pkg/algorithms.h>
 #include <apt-pkg/sptr.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "read_index.h"
 #include "apt_cmds.h"
 #include "string_utils.h"
 #include "config_parse.h"
 #include "dpkg_complete.h"
 #include "command.h"
+#include "command_queue.h"
 #include "completions.h"
 
 /* These variables are used to store commit log. */
@@ -238,9 +247,12 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_systemize("dpkg-reconfigure", "dpkg-reconfigure", cpl_pkg_i, false, commands.back()));
 	commands.push_back(new cmd_dump_cfg());
 
+	commands.push_back(new cmd_queue());
+	commands.push_back(new cmd_queue_remove(commands.back()));
+
 
 	/* Handle ctrl+c. */
-	signal(SIGINT, user_abort);
+//	signal(SIGINT, user_abort);
 	
 	cfg_defaults();
 	config_file = NULL;

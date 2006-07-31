@@ -12,15 +12,15 @@
 
 class column_display
 {
-	public:
-		column_display(int columns, char separator, FILE *out = stdout);
-		void add(char * text, int column = 0);
-		void dump();
-		void clear();
-		const int cols;
-		const char sep;
-		const FILE *out;
-	private:
-		vector<string> flesh[5];
+public:
+	column_display(int columns, char separator, FILE *out = stdout);
+	void add(char * text, int column = 0);
+	void dump();
+	void clear();
+	const int cols;
+	const char sep;
+	const FILE *out;
+private:
+	vector<string> flesh[5];
 };
 

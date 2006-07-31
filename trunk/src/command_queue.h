@@ -1,17 +1,17 @@
-#include <vector>
-#include <string>
 
-using namespace std;
-
-#include "command.h"
+#ifndef COMMAND_QUEUE_H
+#define COMMAND_QUEUE_H
 
 /* This is the base class for all commands in the 'queue' group.
  * It declares some static variables, shared by the whole group.
  */
 class queue_base : public command
 {
+public:
+	/* Add new command to the queue. */
+	static void add(string &cmd_text);
 protected:
-	static vector<string*> queue;
+	static list<string> queue;
 };
 
 
@@ -23,4 +23,16 @@ public:
 	int validate(char *args);
 	void refresh_completion();
 };
+
+
+class cmd_queue_remove : public queue_base
+{
+public:
+	cmd_queue_remove(command *master);
+	int execute(char *args);
+	int validate(char *args);
+	void refresh_completion();
+};
+
+#endif
 

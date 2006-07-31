@@ -1,4 +1,6 @@
 
+#ifndef COMMAND_H
+#define COMMAND_H
 
 /* The interface for all commands */
 class command
@@ -160,4 +162,7 @@ public:
 	int validate(char *args);
 	void refresh_completion();
 };
+
+
+#endif
 

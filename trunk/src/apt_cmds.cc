@@ -22,6 +22,12 @@
 #include <string.h>
 #include <signal.h>
 
+#include <iostream>
+#include <vector>
+#include <list>
+#include <string>
+using namespace std;
+
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -45,6 +51,7 @@
 #include "read_index.h"
 #include "string_utils.h"
 #include "command.h"
+#include "command_queue.h"
 #include "column.h"
 
 //extern vector<command*> commands;
@@ -236,15 +243,15 @@ int execute(char * line, char addhistory)
 			free(fword);
 		} */
 
-		command *cmd = commands.locate_by_name(string(fword));
-		static_cast<cmd_aptize*>(cmd)->validate(trimleft(line_t + strlen(fword)));
+		if (command *cmd = commands.locate_by_name(string(fword)))
+			static_cast<cmd_aptize*>(cmd)->validate(trimleft(line_t + strlen(fword)));
 		
-		command_queue_count++;
-		command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
+		//command_queue_count++;
+		//command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
 
 		//validate(line_t);
-		
-		command_queue_items[command_queue_count-1] = strdup(line_t);
+		queue_base::add(*(new string(line_t)));
+		//command_queue_items[command_queue_count-1] = strdup(line_t);
 		return 0;
 	}
 
