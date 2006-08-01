@@ -56,32 +56,26 @@ using namespace std;
 #include "command_queue.h"
 #include "completions.h"
 
-/* These variables are used to store commit log. */
-struct commit_item * commitlog; /* Last item on list. */
-struct commit_item * first;     /* First item on list. */
+extern bool command_queue_mode;
 
-struct _command extern cmds[];
-
-
-enum completion check_command()
+/* We should ignore SIGPIPE.
+ * If we don't, aptsh is going to terminate when user creates a bad pipe. 
+ * Example:
+ * rls | less
+ * and user terminates 'less' before it reaches end of output.
+ */
+void i_setsig()
 {
-	char * line = trimleft(rl_line_buffer);
-#if 0
-	if (line[0] == ';') {
-		line++;
-		line = trimleft(line);
+	static char set = 0;
+	struct sigaction act;
+	if (! set) {
+		act.sa_handler = SIG_IGN;
+		act.sa_flags = 0;
+		sigaction(SIGPIPE, &act, NULL);
+		set = 1;
 	}
-#endif
-	char * to_check = trimleft(first_word(line));
-	int i = 0;
-	for (; i < CMD_NUM; i++) {
-		if (! strcmp(to_check, cmds[i].name)) {
-			break;
-		}
-	}
-	free(to_check);
-	return cmds[i].cpl;
 }
+
 
 /* Text completing function, its pointer is in readline's rl_attempted_completion_function. */
 char ** completion(const char * text, int start, int end)
@@ -92,7 +86,6 @@ char ** completion(const char * text, int start, int end)
 	}
 	char * tmp = trimleft(rl_line_buffer);
 	int diff = tmp - rl_line_buffer;
-	//rl_delete_text(0, (tmp-rl_line_buffer));
 
 	char * tmpword;
 	dpkg_complete * dpkg;
@@ -103,44 +96,18 @@ char ** completion(const char * text, int start, int end)
 	 */
 	if (trimleft(rl_line_buffer) == (rl_line_buffer+start)) {
 		m = rl_completion_matches(text, cpl_main);
-	}else {
+	} else {
 		char *typed_command = trimleft(first_word(trimleft(rl_line_buffer)));
 		command *found = commands.locate_by_name(typed_command);
 		if (found) {
 			found->refresh_completion();
 			m = rl_completion_matches(text, found->completion);
 		}
-/*		for (vector<command*>::iterator i = commands.begin(); i != commands.end(); i++) {
-			if (! strcmp((*i)->name.c_str(), typed_command)) {
-				(*i)->refresh_completion();
-				m = rl_completion_matches(text, (*i)->completion);
-				break;
-			}
-		}*/
-/*		switch (check_command()) {
-			case AVAILABLE : m = rl_completion_matches(text, cpl_pkg); break;
-			case INSTALLED : m = rl_completion_matches(text, cpl_pkg_i); break;
-			case DPKG :
-			     //printf("%d: %s\n", rl_point, rl_line_buffer);
-			     tmpword = word_at_point(rl_line_buffer, rl_point);
-			     dpkg = new dpkg_complete(tmpword, rl_line_buffer, rl_point);
-
-			     if (dpkg->completion != NULL)
-			     	m = rl_completion_matches(text, dpkg->completion); 
-
-			     free(tmpword);
-			     delete dpkg;
-
-			     break;
-			     
-			default: break;
-		}
-*/
 	}
-
 	
 	return m;
 }
+
 
 /* Initializes the GNU readline library. */
 void initialize_rl()
@@ -148,6 +115,7 @@ void initialize_rl()
 	rl_readline_name = "aptsh";
 	rl_attempted_completion_function = completion;
 }
+
 
 struct option arg_opts[] =
 {
@@ -159,16 +127,13 @@ struct option arg_opts[] =
 	{0, 0, 0, 0}
 };
 
-/* Number of steps. */
-extern int command_queue_count;
-extern char ** command_queue_items;
-extern char command_queue_mode;
 
 static void user_abort(int ignore)
 {
 	puts("bye!");
 	exit(0);
 }
+
 
 static void libapt(bool be_silent = false)
 {
@@ -192,18 +157,15 @@ static void libapt(bool be_silent = false)
 	}
 }
 
+
 int main(int argc, char ** argv)
 {
 	int c;
 	int option_index = 0;
 	char * line;
 
-	commitlog = NULL;
-	first = NULL;
-	
-	command_queue_count = 0;
-	command_queue_items = NULL;
-	command_queue_mode = 0;
+	command_queue_mode = false;
+
 	use_realcmd = 0;
 
 	/* apt-get commands */
@@ -249,6 +211,8 @@ int main(int argc, char ** argv)
 
 	commands.push_back(new cmd_queue());
 	commands.push_back(new cmd_queue_remove(commands.back()));
+	commands.push_back(new cmd_queue_clear(commands.back()->master));
+	commands.push_back(new cmd_queue_commit(commands.back()->master));
 
 
 	/* Handle ctrl+c. */
@@ -263,7 +227,7 @@ int main(int argc, char ** argv)
 				cfg_parse();
 				break;
 			case 's':
-				command_queue_mode = 1;
+				command_queue_mode = true;
 				break;
 			case 'v':
 				puts(VERSION);
@@ -328,6 +292,8 @@ int main(int argc, char ** argv)
 
 	/* Initialize libapt-pkg. */
 	libapt();
+
+	i_setsig();
 	
 	for (;;) {
 		if (command_queue_mode)

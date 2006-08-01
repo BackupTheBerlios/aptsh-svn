@@ -139,3 +139,88 @@ void cmd_queue_remove::refresh_completion()
 {
 }
 
+
+
+
+
+cmd_queue_clear::cmd_queue_clear(command *master)
+{
+	name = "queue-clear";
+	has_slaves = false;
+	this->master = master;
+}
+
+int cmd_queue_clear::execute(char *args)
+{
+	queue.clear();
+	return 0;
+}
+
+int cmd_queue_clear::validate(char *args)
+{
+	return 0;
+}
+
+void cmd_queue_clear::refresh_completion()
+{
+	return;
+}
+
+
+
+
+
+cmd_queue_commit::cmd_queue_commit(command *master)
+{
+	name = "queue-commit";
+	has_slaves = false;
+	this->master = master;
+}
+
+int cmd_queue_commit::execute(char *args)
+{
+	int x = 0;
+	for (list<string>::iterator i = queue.begin(); i != queue.end(); i++) {
+		cout << " >>> Doing step " << ++x << " of " << queue.size() << "..." << endl;
+		// execute(*i);
+	}
+}
+
+int cmd_queue_commit::validate(char *args)
+{
+	return true;
+}
+
+void cmd_queue_commit::refresh_completion()
+{
+}
+
+
+
+
+cmd_queue_commit_say::cmd_queue_commit_say(command *master)
+{
+	name = "queue-commit-say";
+	this->master = master;
+	has_slaves = false;
+}
+
+int cmd_queue_commit_say::execute(char *args)
+{
+	int x = 0;
+	command::set_answer(string(args));
+	for (list<string>::iterator i = queue.begin(); i != queue.end(); i++) {
+		cout << " >>< Doing step " << ++x << " of " << queue.size() << "..." << endl;
+		// execute(*i);
+	}
+	command::set_answer("");
+}
+
+int cmd_queue_commit_say::validate(char *args)
+{
+	return 0;
+}
+
+void cmd_queue_commit_say::refresh_completion()
+{
+}

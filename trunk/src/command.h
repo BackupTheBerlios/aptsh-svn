@@ -34,23 +34,37 @@ public:
 	 */
 	virtual int validate(char *args) = 0;
 
+	/* Text that's displayed when run
+	 * help command_name
+	 */
+	string help_text;
+
+	/* Set string that will (repeately) feed command's
+	 * input. If it's clear (""), then commands
+	 * will be just system()-ized.
+	 */
+	static void set_answer(string answer);
+
 	command();
 	virtual ~command();
+
+protected:
+	static string command_answer;
 };
 
 //extern vector<command*> commands;
 
-class commands_vector : public vector<command*>
+class command_vector : public vector<command*>
 {
 public:
 	command* locate_by_name(string name);
 };
 
 /* Here we keep all commands. */
-extern commands_vector commands;
+extern command_vector commands;
 
 /* Some basic apt-get/apt-cache commands. */
-class cmd_aptize: public command
+class cmd_aptize : public command
 {
 public:
 	typedef enum validations {

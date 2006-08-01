@@ -72,24 +72,6 @@ int command_queue_count;
 char ** command_queue_items;
 
 
-/* We should ignore SIGPIPE.
- * If we don't, aptsh is going to terminate when user creates a bad pipe. 
- * Example:
- * rls | less
- * and user terminates 'less' before it reaches end of output.
- */
-void i_setsig()
-{
-	static char set = 0;
-	struct sigaction act;
-	if (! set) {
-		act.sa_handler = SIG_IGN;
-		act.sa_flags = 0;
-		sigaction(SIGPIPE, &act, NULL);
-		set = 1;
-	}
-}
-
 /* Prefix of executables in libexec directory (aptsh_{ls,rls,printer}). */
 #define LIBEXEC_PREFIX "aptsh_"
 
@@ -100,8 +82,6 @@ void i_setsig()
  */
 void realizecmd(char * sth) {
 	if (use_realcmd) {
-		i_setsig();
-
 		FILE * fp = popen(sth, "w");
 		int len = strlen(yes);
 		char * tmp = (char*)malloc(len+2);
@@ -246,16 +226,9 @@ int execute(char * line, char addhistory)
 		if (command *cmd = commands.locate_by_name(string(fword)))
 			static_cast<cmd_aptize*>(cmd)->validate(trimleft(line_t + strlen(fword)));
 		
-		//command_queue_count++;
-		//command_queue_items = (char**)realloc(command_queue_items, command_queue_count*sizeof(char*));
-
-		//validate(line_t);
 		queue_base::add(*(new string(line_t)));
-		//command_queue_items[command_queue_count-1] = strdup(line_t);
 		return 0;
 	}
-
-	i_setsig();
 
 	if (line[0] == '.') {
 		realizecmd((char*)(line+1));
@@ -325,8 +298,6 @@ int apt_regex()
 	pkgCache Cache(m);
 	pkgCache::PkgIterator e = Cache.PkgBegin();
 
-	i_setsig();
-
 	/* Prevent from situation when user prefixes cmd with whitespaces. */
 	char * actual_command_t = trimleft(actual_command);
 	tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+5);
@@ -352,8 +323,6 @@ int apt_ls()
 	pkgCache Cache(m);
 	pkgCache::PkgIterator e = Cache.PkgBegin();
 
-	i_setsig();
-	
 	/* Prevents from situation when user prefixes cmd with whitespaces. */
 	char * actual_command_t = trimleft(actual_command);
 	tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+4);
@@ -538,8 +507,6 @@ int apt_queue_commit_say()
 	yes = trimleft(trimleft(actual_command)+strlen("queue-commit-say"));
 	
 	use_realcmd = 1;
-
-	i_setsig();
 
 	for (int i = 0; i < command_queue_count; i++) {
 		printf(" >>> Doing step %d of %d...\n", i+1, command_queue_count);

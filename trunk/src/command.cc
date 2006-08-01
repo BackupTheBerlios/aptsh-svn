@@ -36,18 +36,30 @@ using namespace std;
 
 #include "command.h"
 
-commands_vector commands;
+command_vector commands;
+
+string command::command_answer = "";
+
+void command::set_answer(string answer)
+{
+	command_answer = answer;
+}
 
 command::command()
 {
 	completion = cpl_none;
+	help_text = "undocumented, sorry";
 }
 
 command::~command()
 {
 }
 
-command *commands_vector::locate_by_name(string name)
+
+
+
+
+command *command_vector::locate_by_name(string name)
 {
 	for (iterator i = begin(); i != end(); i++) {
 		if ((*i)->name == name) {
@@ -57,6 +69,7 @@ command *commands_vector::locate_by_name(string name)
 
 	return NULL;
 }
+
 
 
 
@@ -85,7 +98,13 @@ cmd_aptize::~cmd_aptize()
 int cmd_aptize::execute(char *args)
 {
 	string cmd = sh_command + " " + name + " " + args;
-	return system(cmd.c_str());
+	if (command_answer != "")
+		return system(cmd.c_str());
+	else {
+		FILE *fp = popen(cmd.c_str(), "w");
+		while ((fputs(command_answer.c_str(), fp)) != EOF);
+		pclose(fp);
+	}
 }
 
 void cmd_aptize::refresh_completion()

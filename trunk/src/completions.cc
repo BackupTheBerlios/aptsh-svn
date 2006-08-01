@@ -119,7 +119,7 @@ char *cpl_main(const char * text, int state)
 
 	if (! state) {
 		len = strlen(text);
-		commands_vector::iterator j;
+		command_vector::iterator j;
 		char c = 0;
 		for (j = commands.begin(); j != commands.end(); j++) {
 			if (!strncmp(text, (*j)->name.c_str(), len) && !(*j)->master) {
