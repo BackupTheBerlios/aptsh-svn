@@ -36,11 +36,11 @@ const char *defaults[] = {
 struct config_option options[] = {
 #define INT 1
 #define STR 0
-        { "ps1", NULL, STR },
-        { "use_history", NULL, INT },
-        { "update_file", NULL, STR },
-        { "refresh_indexes", NULL, INT },
-        { "refresh_indexes_all", NULL, INT },
+	{ "ps1", NULL, STR },
+	{ "use_history", NULL, INT },
+	{ "update_file", NULL, STR },
+	{ "refresh_indexes", NULL, INT },
+	{ "refresh_indexes_all", NULL, INT },
 	{ "history_file", NULL, STR },
 	{ "history_count", NULL, INT },
 	{ "ps1_s", NULL, STR },
