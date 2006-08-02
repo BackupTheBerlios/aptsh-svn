@@ -57,8 +57,6 @@ extern char * aptcmd;
 extern bool use_realcmd;
 extern char * realcmd;
 
-int execute(char * line, char addhistory = 1);
-
 /* Aptsh specific commands. */
 int apt_dump_cfg();
 int apt_dpkg();

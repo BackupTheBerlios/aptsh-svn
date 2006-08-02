@@ -41,7 +41,8 @@ aptsh_SOURCES = \
 	command_queue.h\
 	completions.cc\
 	completions.h\
-	main.cc
+	main.cc\
+	main.h
 
 aptsh_LDFLAGS = \
 	-avoid-version

@@ -46,6 +46,7 @@ using namespace std;
 #include <apt-pkg/algorithms.h>
 #include <apt-pkg/sptr.h>
 
+#include "main.h"
 #include "apt_cmds.h"
 #include "config_parse.h"
 #include "read_index.h"
@@ -64,8 +65,6 @@ bool use_realcmd;
 /* Input for commands executed from realizecmd(). */
 char * yes;
 
-/* Command queue mode - just saving commands to command queue. */
-bool command_queue_mode;
 /* Size of command queue. */
 int command_queue_count;
 /* Items in command queue. */
@@ -179,85 +178,6 @@ struct _command cmds[] = {
 };
 
 
-/* Returns >0 when user wants to exit. */
-int execute(char * line, char addhistory)
-{
-	if (CFG_USE_HISTORY && addhistory)
-		if (line && strcmp("", trimleft(line)) &&
-		/* Below it checks whether history is empty, if so it allows to add new entry,
-		 * else it checks whether this line was added recently - if not, it allows to add n.e.
-		 */
-		( history_list() == NULL ? 1 : strcmp(history_list()[history_length-1]->line, line) )){
-			add_history(line);
-			if (CFG_HISTORY_COUNT)
-				if ((access(CFG_HISTORY_FILE, F_OK) == -1))
-					write_history(CFG_HISTORY_FILE);
-				else
-					append_history(1, CFG_HISTORY_FILE);
-		}
-	
-	if (trimleft(line)[0] == '`') {
-		command_queue_mode = !command_queue_mode;
-		return 0;
-	}
-
-	if (command_queue_mode) {
-		char *line_t = trimleft(line);
-		char *fword = first_word(line_t);
-		
-		/* TODO: Simulations don't work now!
-		 * We should do something with this.
-		if (CFG_QUEUE_SIMULATE) {
-			char * fword = first_word(line_t);
-			use_realcmd = 0;
-			for (int i = 0; i < CMD_NUM; i++) {
-				if (!strcmp(fword, cmds[i].name) && cmds[i].apt_get) {
-					const char * simulator = "apt-get --simulate";
-					char *tmp = (char*)malloc(strlen(line)+strlen(simulator)+2);
-					sprintf(tmp, "%s %s", simulator, line);
-					system(tmp);
-					free(tmp);
-					break;
-				}
-			}
-			free(fword);
-		} */
-
-		if (command *cmd = commands.locate_by_name(string(fword)))
-			static_cast<cmd_aptize*>(cmd)->validate(trimleft(line_t + strlen(fword)));
-		
-		queue_base::add(*(new string(line_t)));
-		return 0;
-	}
-
-	if (line[0] == '.') {
-		realizecmd((char*)(line+1));
-		
-		return 0;
-	}
-
-	char * execmd = first_word(trimleft(line));
-	
-	if ((! strcmp(execmd, "quit")) || (!strcmp(execmd, "exit")) || (!strcmp(execmd, "bye")))
-		return 1;
-		
-	
-	actual_command = line;
-	bool help = false;
-
-	command *found = commands.locate_by_name(execmd);
-	if (found) {
-		static_cast<cmd_aptize*>(found)->execute(trimleft(actual_command+strlen(execmd)));
-		return 0;
-	}
-	if (!help) {
-		fprintf(stderr, "No such command! See 'help'.\n");
-	}
-
-	free(execmd);
-	
-	return 0;
-}
 
 
 /* Aptsh's specific commands. */
