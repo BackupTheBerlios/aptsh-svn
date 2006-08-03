@@ -23,8 +23,6 @@ aptsh_printer_SOURCES = printer.c
 aptsh_printer_CFLAGS = -Wall @CFLAGS@
 
 aptsh_SOURCES = \
-	apt_cmds.cc\
-	apt_cmds.h\
 	column.cc\
 	column.h\
 	dpkg_complete.cc\

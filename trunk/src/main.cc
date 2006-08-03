@@ -49,7 +49,6 @@ using namespace std;
 
 #include "main.h"
 #include "read_index.h"
-#include "apt_cmds.h"
 #include "string_utils.h"
 #include "config_parse.h"
 #include "dpkg_complete.h"
@@ -112,7 +111,6 @@ int execute_line(char *line, char addhistory)
 	}
 
 	if (line[0] == '.') {
-		//realizecmd((char*)(line+1));
 		system(line+1);
 		
 		return 0;
@@ -248,8 +246,6 @@ int main(int argc, char ** argv)
 	char * line;
 
 	command_queue_mode = false;
-
-	use_realcmd = 0;
 
 	/* apt-get commands */
 	commands.push_back(new cmd_aptize("install", "apt-get", cpl_pkg, cmd_aptize::ALL, "Install (or upgrade) one or more packages or .deb files"));

@@ -249,16 +249,8 @@ int cmd_orphans::execute(char *args)
 	e = Cache->PkgBegin();
 	i = 0;
 
-	/* FIXME: This probably causues a memleak (we lose control
-	 * on whitespaces before actual_command_t).
-	 */
-	//char *actual_command_t = trimleft(actual_command);
-	//char *fw = first_word(actual_command_t);
-	//actual_command_t += strlen(fw);
-	//actual_command_t = trimleft(actual_command_t);
 	char *tmp = (char*)malloc(strlen(args)+strlen(SHARED_DIR)+strlen("aptsh_printer ")+4);
 	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, "aptsh_printer ", args, '\0');
-//	free(fw);
 	FILE *pipe = popen(tmp, "w");
 
 	while (e.end() == false) {
@@ -267,12 +259,6 @@ int cmd_orphans::execute(char *args)
 			if (section == NULL) /* It can't be library, since it doesn't belong to any section. */
 				continue;
 			if (strstr(section, "libs") || strstr(section, "libdevel")) {
-				//printf("%s\n", e.Name());
-				//pkgCache::DepIterator D = e.RevDependsList();
-				//if (D.end()) {
-				//	printf("%s\n", e.Name());
-				//	continue;
-				//}
 				bool found = false;
 				for (pkgCache::DepIterator D = e.RevDependsList(); D.end() == false; D++ ) {
 					pkgCache::PkgIterator tmp = D.ParentPkg();
@@ -285,12 +271,6 @@ int cmd_orphans::execute(char *args)
 					fprintf(pipe, "%s\n", e.Name());
 			}
 		}
-		/*if (! strncmp(e.Name(), text, len)) {
-			char * tmp = (char*)malloc(strlen(e.Name())+1);
-			strcpy(tmp, e.Name());
-			e++;
-			return tmp;
-		}*/
 		e++;
 	}
 
@@ -330,18 +310,6 @@ int cmd_orphans_all::execute(char *args)
 	e = Cache->PkgBegin();
 	i = 0;
 
-	/* FIXME: This probably causues a memleak (we lose control
-	* on whitespaces before actual_command_t).
-	*/
-#if 0
-	char *actual_command_t = trimleft(actual_command);
-	char *fw = first_word(actual_command_t);
-	actual_command_t += strlen(fw);
-	//actual_command_t = trimleft(actual_command_t);
-	char *tmp = (char*)malloc(strlen(actual_command_t)+strlen(SHARED_DIR)+strlen(LIBEXEC_PREFIX)+strlen("printer ")+4);
-	sprintf(tmp, "\%s%s%s%s%c", SHARED_DIR, LIBEXEC_PREFIX, "printer ", actual_command_t, '\0');
-	free(fw);
-#endif
 	char *tmp = (char*)malloc(strlen(args)+strlen(SHARED_DIR)+strlen("aptsh_printer ")+4);
 	sprintf(tmp, "\%s%s%s%c", SHARED_DIR, "aptsh_printer ", args, '\0');
 	
