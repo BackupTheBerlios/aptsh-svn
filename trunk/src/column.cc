@@ -29,12 +29,17 @@ column_display::column_display(int columns, char separator, FILE *out) : cols(co
 
 void column_display::add (char* text, int column)
 {
+	add(string(text), column);
+}
+
+void column_display::add(string text, int column)
+{
 	if (column > cols) {
 		fprintf(stderr, "Such column does not exist!\n");
 		return;
 	}
 
-	flesh[column].push_back(string(text));
+	flesh[column].push_back(text);
 }
 
 void column_display::dump()

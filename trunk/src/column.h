@@ -14,7 +14,8 @@ class column_display
 {
 public:
 	column_display(int columns, char separator, FILE *out = stdout);
-	void add(char * text, int column = 0);
+	void add(char *text, int column = 0);
+	void add(string text, int column = 0);
 	void dump();
 	void clear();
 	const int cols;

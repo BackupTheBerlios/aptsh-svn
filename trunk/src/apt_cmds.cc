@@ -415,7 +415,7 @@ int apt_queue_commit()
 
 	for (int i = 0; i < command_queue_count; i++) {
 		printf(" >>> Doing step %d of %d...\n", i+1, command_queue_count);
-		execute(command_queue_items[i], 0);
+		execute_line(command_queue_items[i], 0);
 	}
 
 	return 0;
@@ -430,7 +430,7 @@ int apt_queue_commit_say()
 
 	for (int i = 0; i < command_queue_count; i++) {
 		printf(" >>> Doing step %d of %d...\n", i+1, command_queue_count);
-		execute(command_queue_items[i], 0);
+		execute_line(command_queue_items[i], 0);
 	}
 
 	use_realcmd = 0;

@@ -73,22 +73,24 @@ command *command_vector::locate_by_name(string name)
 
 
 
-cmd_aptize::cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation)
+cmd_aptize::cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation, string help_text)
 : sh_command(sh_command)
 {
 	this->name = name;
 	this->completion = completion;
 	this->validation = validation;
+	if (help_text != "")
+		this->help_text = help_text;
 
 	has_slaves = false;
 	master = NULL;
 }
 
-cmd_aptize::cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation)
+cmd_aptize::cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation, string help_text)
 : sh_command(sh_command)
 {
 	this->aliases = aliases;
-	cmd_aptize(name, sh_command, completion, validation);
+	cmd_aptize(name, sh_command, completion, validation, help_text);
 }
 
 cmd_aptize::~cmd_aptize()
@@ -98,13 +100,15 @@ cmd_aptize::~cmd_aptize()
 int cmd_aptize::execute(char *args)
 {
 	string cmd = sh_command + " " + name + " " + args;
-	if (command_answer != "")
+	if (command_answer == "")
 		return system(cmd.c_str());
 	else {
 		FILE *fp = popen(cmd.c_str(), "w");
 		while ((fputs(command_answer.c_str(), fp)) != EOF);
 		pclose(fp);
 	}
+
+	return 0;
 }
 
 void cmd_aptize::refresh_completion()
@@ -153,6 +157,15 @@ cmd_systemize::cmd_systemize(string name, string sh_cmd, bool ignore_args, comma
 	this->has_slaves = has_slaves;
 }
 
+cmd_systemize::cmd_systemize(string name, string sh_cmd, string help_text)
+{
+	this->name = name;
+	this->sh_cmd = sh_cmd;
+	this->help_text = help_text;
+	master = NULL;
+	has_slaves = false;
+}
+
 cmd_systemize::cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int),  bool ignore_args, command *master, bool has_slaves)
 : sh_cmd(sh_cmd), ignore_args(ignore_args)
 {
@@ -193,6 +206,7 @@ cmd_whatis::cmd_whatis()
 	has_slaves = false;
 	master = NULL;
 	completion = cpl_pkg;
+	help_text = "One line description of packages";
 }
 
 int cmd_whatis::execute(char *args)
@@ -507,3 +521,74 @@ void cmd_dump_cfg::refresh_completion()
 {
 }
 
+
+
+
+cmd_help::cmd_help()
+{
+	name = "help";
+	has_slaves = true;
+	master = NULL;
+	help_text = "Display short info about given commands, or Aptsh's manpage (if no arguments)";
+	completion = cpl_main;
+}
+
+int cmd_help::execute(char *args)
+{
+	if (strlen(args)) {
+		word_iterator i(args);
+		char *cmd_name;
+		command *cmd;
+
+		column_display display(2, ' ');
+
+		while ((cmd_name = ++i)) {
+			if ((cmd = commands.locate_by_name(string(cmd_name)))) {
+				display.add(cmd_name, 0);
+				display.add(cmd->help_text, 1);
+				//cout << cmd_name << ": " << cmd->help_text << endl;
+			} else {
+				cerr << "No such command: " << cmd_name << endl;
+			}
+		}
+
+		display.dump();
+	} else {
+		return system("man aptsh");
+	}
+
+	return 0;
+}
+
+int cmd_help::validate(char *args)
+{
+	return 0;
+}
+
+void cmd_help::refresh_completion()
+{
+}
+
+
+
+
+cmd_quit::cmd_quit()
+{
+	name = "quit";
+	has_slaves = false;
+	master = NULL;
+}
+
+int cmd_quit::execute(char *args)
+{
+	return 0;
+}
+
+int cmd_quit::validate(char *args)
+{
+	return 0;
+}
+
+void cmd_quit::refresh_completion()
+{
+}

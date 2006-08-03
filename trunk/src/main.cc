@@ -61,7 +61,7 @@ bool command_queue_mode;
 
 
 /* Returns >0 when user wants to exit. */
-int execute(char * line, char addhistory)
+int execute_line(char *line, char addhistory)
 {
 	if (CFG_USE_HISTORY && addhistory)
 		if (line && strcmp("", trimleft(line)) &&
@@ -252,20 +252,20 @@ int main(int argc, char ** argv)
 	use_realcmd = 0;
 
 	/* apt-get commands */
-	commands.push_back(new cmd_aptize("install", "apt-get", cpl_pkg, cmd_aptize::ALL));
-	commands.push_back(new cmd_aptize("update", "apt-get", cpl_none, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("upgrade", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("install", "apt-get", cpl_pkg, cmd_aptize::ALL, "Install (or upgrade) one or more packages or .deb files"));
+	commands.push_back(new cmd_aptize("update", "apt-get", cpl_none, cmd_aptize::NONE, "Update the list of down-loadable packages"));
+	commands.push_back(new cmd_aptize("upgrade", "apt-get", cpl_none, cmd_aptize::NONE, "Upgrade all of the installed packages or just those listed"));
 	commands.push_back(new cmd_aptize("dselect-upgrade", "apt-get", cpl_pkg, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("dist-upgrade", "apt-get", cpl_none, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("remove", "apt-get", cpl_pkg_i, cmd_aptize::INSTALLED));
-	commands.push_back(new cmd_aptize("source", "apt-get", cpl_pkg, cmd_aptize::ALL));
-	commands.push_back(new cmd_aptize("build-dep", "apt-get", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("dist-upgrade", "apt-get", cpl_none, cmd_aptize::NONE, "Upgrade to new distribution (installed and new rqd packages)"));
+	commands.push_back(new cmd_aptize("remove", "apt-get", cpl_pkg_i, cmd_aptize::INSTALLED, "Remove one or more packages (see also purge)"));
+	commands.push_back(new cmd_aptize("source", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve and unpack sources for the named packages"));
+	commands.push_back(new cmd_aptize("build-dep", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve packages required to build listed packages"));
 	commands.push_back(new cmd_aptize("check", "apt-get", cpl_none, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("clean", "apt-get", cpl_none, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("autoclean", "apt-get", cpl_none, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("clean", "apt-get", cpl_none, cmd_aptize::NONE, "Remove all deb files from the download cache"));
+	commands.push_back(new cmd_aptize("autoclean", "apt-get", cpl_none, cmd_aptize::NONE, "Remove superseded deb files from the download cache"));
 
 	/* apt-cache commands */
-	commands.push_back(new cmd_aptize("show", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("show", "apt-cache", cpl_pkg, cmd_aptize::ALL, "Provide a detailed description of package"));
 	commands.push_back(new cmd_aptize("dump", "apt-cache", cpl_none, cmd_aptize::NONE));
 	commands.push_back(new cmd_aptize("add", "apt-cache", cpl_none, cmd_aptize::NONE));
 	commands.push_back(new cmd_aptize("showpkg", "apt-cache", cpl_pkg, cmd_aptize::ALL));
@@ -274,15 +274,17 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_aptize("dumpavail", "apt-cache", cpl_none, cmd_aptize::NONE));
 	commands.push_back(new cmd_aptize("unmet", "apt-cache", cpl_pkg, cmd_aptize::NONE));
 	commands.push_back(new cmd_aptize("search", "apt-cache", cpl_pkg, cmd_aptize::NONE));
-	commands.push_back(new cmd_aptize("depends", "apt-cache", cpl_pkg, cmd_aptize::ALL));
-	commands.push_back(new cmd_aptize("rdepends", "apt-cache", cpl_pkg, cmd_aptize::ALL));
+	commands.push_back(new cmd_aptize("depends", "apt-cache", cpl_pkg, cmd_aptize::ALL, "List of packages on which the given package depends"));
+	commands.push_back(new cmd_aptize("rdepends", "apt-cache", cpl_pkg, cmd_aptize::ALL, "List of packages which depend/recommend/suggest the package"));
 	commands.push_back(new cmd_aptize("pkgnames", "apt-cache", cpl_none, cmd_aptize::NONE));
 	commands.push_back(new cmd_aptize("dotty", "apt-cache", cpl_pkg, cmd_aptize::ALL));
-	commands.push_back(new cmd_aptize("policy", "apt-cache", cpl_pkg, cmd_aptize::NONE));
+	commands.push_back(new cmd_aptize("policy", "apt-cache", cpl_pkg, cmd_aptize::NONE, "From preferences file show priorities/policy (available)"));
 	commands.push_back(new cmd_aptize("madison", "apt-cache", cpl_pkg, cmd_aptize::ALL));
 
-	commands.push_back(new cmd_systemize("help", "man aptsh", true, NULL, true));
+	commands.push_back(new cmd_help());
 	commands.push_back(new cmd_systemize("help-howto", "zcat /usr/share/doc/aptsh/HOWTO.gz", false, commands.back()));
+	commands.push_back(new cmd_systemize("whichpkg", "dpkg -S", string("Find the package that supplies the given command or file")));
+	commands.push_back(new cmd_systemize("listfiles", "dpkg -L", string("List the files that are supplied by the named package")));
 	commands.push_back(new cmd_whatis());
 	commands.push_back(new cmd_orphans());
 	commands.push_back(new cmd_orphans_all(commands.back()));
@@ -296,6 +298,9 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_queue_remove(commands.back()));
 	commands.push_back(new cmd_queue_clear(commands.back()->master));
 	commands.push_back(new cmd_queue_commit(commands.back()->master));
+	commands.push_back(new cmd_queue_commit_say(commands.back()->master));
+
+	commands.push_back(new cmd_quit());
 
 
 	/* Handle ctrl+c. */
@@ -338,7 +343,7 @@ int main(int argc, char ** argv)
 				/* Initialize libapt-pkg and don't display any additional info. */
 				libapt(true);
 				
-				execute(optarg, 0);
+				execute_line(optarg, 0);
 				return 0;
 			case '?':
 				/* --help and not recognized arguments should go here */
@@ -393,7 +398,7 @@ int main(int argc, char ** argv)
 			continue;
 		}
 
-		if (execute(line))
+		if (execute_line(line))
 			break;
 
 		free(line);

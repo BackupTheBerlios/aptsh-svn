@@ -73,8 +73,8 @@ public:
 		NONE
 	};
 
-	cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation);
-	cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation);
+	cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation, string help_text = "");
+	cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation, string help_text = "");
 	 
 	int execute(char *args);
 
@@ -96,6 +96,7 @@ class cmd_systemize : public command
 {
 public:
 	cmd_systemize(string name, string sh_cmd, bool ignore_args = false, command *master = NULL, bool has_slaves = false);
+	cmd_systemize(string name, string sh_cmd, string help_text);
 	cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int), bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	int execute(char *args);
 	int validate(char *args);
@@ -172,6 +173,24 @@ class cmd_dump_cfg : public command
 {
 public:
 	cmd_dump_cfg();
+	int execute(char *args);
+	int validate(char *args);
+	void refresh_completion();
+};
+
+class cmd_help : public command
+{
+public:
+	cmd_help();
+	int execute(char *args);
+	int validate(char *args);
+	void refresh_completion();
+};
+
+class cmd_quit : public command
+{
+public:
+	cmd_quit();
 	int execute(char *args);
 	int validate(char *args);
 	void refresh_completion();

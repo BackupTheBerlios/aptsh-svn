@@ -8,6 +8,7 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 
+#include "main.h"
 #include "string_utils.h"
 #include "command.h"
 
@@ -182,7 +183,7 @@ int cmd_queue_commit::execute(char *args)
 	int x = 0;
 	for (list<string>::iterator i = queue.begin(); i != queue.end(); i++) {
 		cout << " >>> Doing step " << ++x << " of " << queue.size() << "..." << endl;
-		// execute(*i);
+		execute_line((char*)i->c_str());
 	}
 }
 
@@ -211,7 +212,7 @@ int cmd_queue_commit_say::execute(char *args)
 	command::set_answer(string(args));
 	for (list<string>::iterator i = queue.begin(); i != queue.end(); i++) {
 		cout << " >>< Doing step " << ++x << " of " << queue.size() << "..." << endl;
-		// execute(*i);
+		execute_line((char*)i->c_str());
 	}
 	command::set_answer("");
 }

@@ -3,7 +3,7 @@
 
 extern bool command_queue_mode;
 
-int execute(char * line, char addhistory = 1);
+int execute_line(char *line, char addhistory = 1);
 
 
 #endif
