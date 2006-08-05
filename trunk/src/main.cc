@@ -165,12 +165,7 @@ char **completion(const char * text, int start, int end)
 	if (rl_line_buffer[0] == '.') {
 		return m;
 	}
-	char * tmp = trimleft(rl_line_buffer);
-	int diff = tmp - rl_line_buffer;
 
-	char * tmpword;
-	dpkg_complete * dpkg;
-	
 	/* Check if we're completing the first word, if so then use the cpl_main completion
 	 * to complete commands available in Aptsh. Otherwise, check which completion we
 	 * should use.

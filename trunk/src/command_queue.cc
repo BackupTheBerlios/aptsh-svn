@@ -157,6 +157,7 @@ int cmd_queue_commit::execute(char *args)
 		cout << " >>> Doing step " << ++x << " of " << queue.size() << "..." << endl;
 		execute_line((char*)i->c_str());
 	}
+	return 0;
 }
 
 
@@ -178,5 +179,6 @@ int cmd_queue_commit_say::execute(char *args)
 		execute_line((char*)i->c_str());
 	}
 	command::set_answer("");
+	return 0;
 }
 
