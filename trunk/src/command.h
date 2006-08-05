@@ -9,6 +9,9 @@ public:
 	string name;
 	/* Extra names for command. */
 	vector<string> aliases;
+	/* Please note, that you must override this function - it's 
+	 * pure virtual (well, we don't need commands that do nothing).
+	 */
 	virtual int execute(char *args) = 0;
 	/* Update pointer referring to a completing function for librealine.
 	 * May use libreadline's interface directly for deciding,
@@ -32,7 +35,7 @@ public:
 	 * If don't want to provide validations, please don't
 	 * put any code in this.
 	 */
-	virtual int validate(char *args) = 0;
+	virtual int validate(char *args);
 
 	/* Text that's displayed when run
 	 * help command_name
@@ -97,7 +100,6 @@ public:
 	cmd_systemize(string name, string sh_cmd, string help_text);
 	cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int), bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	int execute(char *args);
-	int validate(char *args);
 private:
 	string sh_cmd;
 	bool ignore_args;
@@ -109,8 +111,6 @@ class cmd_whatis : public command
 public:
 	cmd_whatis();
 	int execute(char *args);
-
-	int validate(char *args);
 };
 
 
@@ -119,8 +119,6 @@ class cmd_orphans : public command
 public:
 	cmd_orphans();
 	int execute(char *args);
-
-	int validate(char *args);
 };
 
 
@@ -130,7 +128,6 @@ public:
 	/* Give pointer to 'orphans' command. */
 	cmd_orphans_all(command *master);
 	int execute(char *args);
-	int validate(char *args);
 };
 
 class cmd_ls : public command
@@ -138,7 +135,6 @@ class cmd_ls : public command
 public:
 	cmd_ls();
 	int execute(char *args);
-	int validate(char *args);
 };
 
 
@@ -147,7 +143,6 @@ class cmd_rls : public command
 public:
 	cmd_rls();
 	int execute(char *args);
-	int validate(char *args);
 };
 
 class cmd_dpkg : public command
@@ -155,7 +150,6 @@ class cmd_dpkg : public command
 public:
 	cmd_dpkg();
 	int execute(char *args);
-	int validate(char *args);
 	void refresh_completion();
 };
 
@@ -164,7 +158,6 @@ class cmd_dump_cfg : public command
 public:
 	cmd_dump_cfg();
 	int execute(char *args);
-	int validate(char *args);
 };
 
 class cmd_help : public command
@@ -172,7 +165,6 @@ class cmd_help : public command
 public:
 	cmd_help();
 	int execute(char *args);
-	int validate(char *args);
 };
 
 class cmd_quit : public command
@@ -180,7 +172,6 @@ class cmd_quit : public command
 public:
 	cmd_quit();
 	int execute(char *args);
-	int validate(char *args);
 };
 
 

@@ -41,11 +41,6 @@ int cmd_queue::execute(char *args)
 	return 0;
 }
 
-int cmd_queue::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -127,11 +122,6 @@ int cmd_queue_remove::execute(char *args)
 	return 0;
 }
 
-int cmd_queue_remove::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -146,11 +136,6 @@ cmd_queue_clear::cmd_queue_clear(command *master)
 int cmd_queue_clear::execute(char *args)
 {
 	queue.clear();
-	return 0;
-}
-
-int cmd_queue_clear::validate(char *args)
-{
 	return 0;
 }
 
@@ -174,11 +159,6 @@ int cmd_queue_commit::execute(char *args)
 	}
 }
 
-int cmd_queue_commit::validate(char *args)
-{
-	return true;
-}
-
 
 
 
@@ -198,10 +178,5 @@ int cmd_queue_commit_say::execute(char *args)
 		execute_line((char*)i->c_str());
 	}
 	command::set_answer("");
-}
-
-int cmd_queue_commit_say::validate(char *args)
-{
-	return 0;
 }
 

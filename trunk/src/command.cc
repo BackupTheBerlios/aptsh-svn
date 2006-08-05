@@ -45,6 +45,11 @@ void command::set_answer(string answer)
 	command_answer = answer;
 }
 
+int command::validate(char *args)
+{
+	return 0;
+}
+
 void command::refresh_completion()
 {
 }
@@ -186,11 +191,6 @@ int cmd_systemize::execute(char *args)
 	return system(cmd.c_str());
 }
 
-int cmd_systemize::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -208,11 +208,6 @@ int cmd_whatis::execute(char *args)
 //	string cmd = string("apt-cache show ") + args + " | grep ^Description | cut -d\\: -f 2 | head -n 1";
 	string cmd = string("apt-cache show ") + args + " | grep '^\\(Package\\|Description\\)' | cut -d\\: -f 2 | awk 'BEGIN{z=1}{if (z) {printf(\"%s:\", $_); z = 0; }else{printf(\"%s\\n\", $_); z = 1;}  }' | uniq | cut --complement -c 1";
 	return system(cmd.c_str());
-}
-
-int cmd_whatis::validate(char *args)
-{
-	return 0;
 }
 
 
@@ -267,11 +262,6 @@ int cmd_orphans::execute(char *args)
 	
 	return 0;
 
-}
-
-int cmd_orphans::validate(char *args)
-{
-	return 0;
 }
 
 
@@ -329,11 +319,6 @@ int cmd_orphans_all::execute(char *args)
 	return 0;
 }
 
-int cmd_orphans_all::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -363,11 +348,6 @@ int cmd_ls::execute(char *args)
 	fprintf(pipe, "-\n");
 	pclose(pipe);
 
-	return 0;
-}
-
-int cmd_ls::validate(char *args)
-{
 	return 0;
 }
 
@@ -403,11 +383,6 @@ int cmd_rls::execute(char *args)
 	return 0;
 }
 
-int cmd_rls::validate(char *args)
-{
-	return 0;
-}
-
 
 
 cmd_dpkg::cmd_dpkg()
@@ -420,11 +395,6 @@ cmd_dpkg::cmd_dpkg()
 int cmd_dpkg::execute(char *args)
 {
 	return system(args);
-}
-
-int cmd_dpkg::validate(char *args)
-{
-	return 0;
 }
 
 void cmd_dpkg::refresh_completion()
@@ -455,12 +425,6 @@ int cmd_dump_cfg::execute(char *args)
 	cfg_dump();
 	return 0;
 }
-
-int cmd_dump_cfg::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -501,11 +465,6 @@ int cmd_help::execute(char *args)
 	return 0;
 }
 
-int cmd_help::validate(char *args)
-{
-	return 0;
-}
-
 
 
 
@@ -517,11 +476,6 @@ cmd_quit::cmd_quit()
 }
 
 int cmd_quit::execute(char *args)
-{
-	return 0;
-}
-
-int cmd_quit::validate(char *args)
 {
 	return 0;
 }
