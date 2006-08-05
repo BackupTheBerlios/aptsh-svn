@@ -14,7 +14,7 @@ public:
 	 * May use libreadline's interface directly for deciding,
 	 * as well as some ready-to-use completing functions (see below).
 	 */
-	virtual void refresh_completion() = 0;
+	virtual void refresh_completion();
 	/* Pointer referrring to a completing function for libreadline,
 	 * that should be used for this command. If the completion may vary,
 	 * please override refresh_completion() with proper code (it is executed
@@ -78,8 +78,6 @@ public:
 	 
 	int execute(char *args);
 
-	void refresh_completion();
-
 	int validate(char *args);
 
 	~cmd_aptize();
@@ -100,7 +98,6 @@ public:
 	cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int), bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 private:
 	string sh_cmd;
 	bool ignore_args;
@@ -114,8 +111,6 @@ public:
 	int execute(char *args);
 
 	int validate(char *args);
-
-	void refresh_completion();
 };
 
 
@@ -126,8 +121,6 @@ public:
 	int execute(char *args);
 
 	int validate(char *args);
-
-	void refresh_completion();
 };
 
 
@@ -138,7 +131,6 @@ public:
 	cmd_orphans_all(command *master);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_ls : public command
@@ -147,7 +139,6 @@ public:
 	cmd_ls();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 
@@ -157,7 +148,6 @@ public:
 	cmd_rls();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_dpkg : public command
@@ -175,7 +165,6 @@ public:
 	cmd_dump_cfg();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_help : public command
@@ -184,7 +173,6 @@ public:
 	cmd_help();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_quit : public command
@@ -193,7 +181,6 @@ public:
 	cmd_quit();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 

@@ -46,10 +46,6 @@ int cmd_queue::validate(char *args)
 	return 0;
 }
 
-void cmd_queue::refresh_completion()
-{
-}
-
 
 
 
@@ -136,10 +132,6 @@ int cmd_queue_remove::validate(char *args)
 	return 0;
 }
 
-void cmd_queue_remove::refresh_completion()
-{
-}
-
 
 
 
@@ -160,11 +152,6 @@ int cmd_queue_clear::execute(char *args)
 int cmd_queue_clear::validate(char *args)
 {
 	return 0;
-}
-
-void cmd_queue_clear::refresh_completion()
-{
-	return;
 }
 
 
@@ -190,10 +177,6 @@ int cmd_queue_commit::execute(char *args)
 int cmd_queue_commit::validate(char *args)
 {
 	return true;
-}
-
-void cmd_queue_commit::refresh_completion()
-{
 }
 
 
@@ -222,6 +205,3 @@ int cmd_queue_commit_say::validate(char *args)
 	return 0;
 }
 
-void cmd_queue_commit_say::refresh_completion()
-{
-}

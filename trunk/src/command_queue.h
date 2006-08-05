@@ -21,7 +21,6 @@ public:
 	cmd_queue();
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 
@@ -31,7 +30,6 @@ public:
 	cmd_queue_remove(command *master);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_queue_clear : public queue_base
@@ -40,7 +38,6 @@ public:
 	cmd_queue_clear(command *master);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_queue_commit : public queue_base
@@ -49,7 +46,6 @@ public:
 	cmd_queue_commit(command *master);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 class cmd_queue_commit_say : public queue_base
@@ -58,7 +54,6 @@ public:
 	cmd_queue_commit_say(command *master);
 	int execute(char *args);
 	int validate(char *args);
-	void refresh_completion();
 };
 
 #endif

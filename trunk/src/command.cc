@@ -45,6 +45,10 @@ void command::set_answer(string answer)
 	command_answer = answer;
 }
 
+void command::refresh_completion()
+{
+}
+
 command::command()
 {
 	completion = cpl_none;
@@ -109,11 +113,6 @@ int cmd_aptize::execute(char *args)
 	}
 
 	return 0;
-}
-
-void cmd_aptize::refresh_completion()
-{
-	return;
 }
 
 int cmd_aptize::validate(char *args)
@@ -192,11 +191,6 @@ int cmd_systemize::validate(char *args)
 	return 0;
 }
 
-void cmd_systemize::refresh_completion()
-{
-	return;
-}
-
 
 
 
@@ -214,12 +208,6 @@ int cmd_whatis::execute(char *args)
 //	string cmd = string("apt-cache show ") + args + " | grep ^Description | cut -d\\: -f 2 | head -n 1";
 	string cmd = string("apt-cache show ") + args + " | grep '^\\(Package\\|Description\\)' | cut -d\\: -f 2 | awk 'BEGIN{z=1}{if (z) {printf(\"%s:\", $_); z = 0; }else{printf(\"%s\\n\", $_); z = 1;}  }' | uniq | cut --complement -c 1";
 	return system(cmd.c_str());
-}
-
-void cmd_whatis::refresh_completion()
-{
-//	completion = cpl_pkg;
-	return;
 }
 
 int cmd_whatis::validate(char *args)
@@ -286,10 +274,6 @@ int cmd_orphans::validate(char *args)
 	return 0;
 }
 
-void cmd_orphans::refresh_completion()
-{
-}
-
 
 
 
@@ -350,10 +334,6 @@ int cmd_orphans_all::validate(char *args)
 	return 0;
 }
 
-void cmd_orphans_all::refresh_completion()
-{
-}
-
 
 
 
@@ -391,10 +371,6 @@ int cmd_ls::validate(char *args)
 	return 0;
 }
 
-void cmd_ls::refresh_completion()
-{
-}
-
 
 
 
@@ -430,10 +406,6 @@ int cmd_rls::execute(char *args)
 int cmd_rls::validate(char *args)
 {
 	return 0;
-}
-
-void cmd_rls::refresh_completion()
-{
 }
 
 
@@ -489,9 +461,6 @@ int cmd_dump_cfg::validate(char *args)
 	return 0;
 }
 
-void cmd_dump_cfg::refresh_completion()
-{
-}
 
 
 
@@ -537,10 +506,6 @@ int cmd_help::validate(char *args)
 	return 0;
 }
 
-void cmd_help::refresh_completion()
-{
-}
-
 
 
 
@@ -561,6 +526,3 @@ int cmd_quit::validate(char *args)
 	return 0;
 }
 
-void cmd_quit::refresh_completion()
-{
-}
