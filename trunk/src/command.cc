@@ -361,6 +361,8 @@ cmd_ls::cmd_ls()
 {
 	name = "ls";
 	completion = cpl_pkg;
+	has_slaves = false;
+	master = NULL;
 }
 
 int cmd_ls::execute(char *args)
@@ -400,6 +402,8 @@ cmd_rls::cmd_rls()
 {
 	name = "rls";
 	completion = cpl_pkg;
+	has_slaves = false;
+	master = NULL;
 }
 
 int cmd_rls::execute(char *args)
