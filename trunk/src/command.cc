@@ -82,7 +82,7 @@ command *command_vector::locate_by_name(string name)
 
 
 
-cmd_aptize::cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation, string help_text)
+cmd_aptize::cmd_aptize(string name, string sh_command, compl_funct_type completion, validations validation, string help_text)
 : sh_command(sh_command)
 {
 	this->name = name;
@@ -95,7 +95,7 @@ cmd_aptize::cmd_aptize(string name, string sh_command, char* (*completion)(const
 	master = NULL;
 }
 
-cmd_aptize::cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation, string help_text)
+cmd_aptize::cmd_aptize(string name, string sh_command, vector<string> &aliases, compl_funct_type completion, validations validation, string help_text)
 : sh_command(sh_command)
 {
 	this->aliases = aliases;
@@ -170,7 +170,7 @@ cmd_systemize::cmd_systemize(string name, string sh_cmd, string help_text)
 	has_slaves = false;
 }
 
-cmd_systemize::cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int),  bool ignore_args, command *master, bool has_slaves)
+cmd_systemize::cmd_systemize(string name, string sh_cmd, compl_funct_type completion,  bool ignore_args, command *master, bool has_slaves)
 : sh_cmd(sh_cmd), ignore_args(ignore_args)
 {
 	this->name = name;

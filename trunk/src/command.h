@@ -2,22 +2,31 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+/* Specifies completing function pointer type.
+ */
+typedef char* (*compl_funct_type)(const char*, int);
+
+
 /* The interface for all commands */
 class command
 {
 public:
 	string name;
+
 	/* Extra names for command. */
 	vector<string> aliases;
+
 	/* Please note, that you must override this function - it's 
 	 * pure virtual (well, we don't need commands that do nothing).
 	 */
 	virtual int execute(char *args) = 0;
+
 	/* Update pointer referring to a completing function for librealine.
 	 * May use libreadline's interface directly for deciding,
 	 * as well as some ready-to-use completing functions (see below).
 	 */
 	virtual void refresh_completion();
+
 	/* Pointer referrring to a completing function for libreadline,
 	 * that should be used for this command. If the completion may vary,
 	 * please override refresh_completion() with proper code (it is executed
@@ -25,10 +34,13 @@ public:
 	 * Actually, in C++ a function can't return a pointer to another function,
 	 * that's why things are that crazy.
 	 */
-	char* (*completion)(const char*, int);
+	compl_funct_type completion;
+
+
 	/* If it's a root command, then master == NULL. */
 	command *master;
-	/* Does this command have any slave-functions? */
+
+	/* Does this command have any slave functions? */
 	bool has_slaves;
 
 	/* Return 1 if any errors, 0 if clear.
@@ -76,8 +88,8 @@ public:
 		NONE
 	};
 
-	cmd_aptize(string name, string sh_command, char* (*completion)(const char*, int), validations validation, string help_text = "");
-	cmd_aptize(string name, string sh_command, vector<string> &aliases, char* (*completion)(const char*, int), validations validation, string help_text = "");
+	cmd_aptize(string name, string sh_command, compl_funct_type completion, validations validation, string help_text = "");
+	cmd_aptize(string name, string sh_command, vector<string> &aliases, compl_funct_type completion, validations validation, string help_text = "");
 	 
 	int execute(char *args);
 
@@ -98,7 +110,7 @@ class cmd_systemize : public command
 public:
 	cmd_systemize(string name, string sh_cmd, bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	cmd_systemize(string name, string sh_cmd, string help_text);
-	cmd_systemize(string name, string sh_cmd, char* (*completion)(const char*, int), bool ignore_args = false, command *master = NULL, bool has_slaves = false);
+	cmd_systemize(string name, string sh_cmd, compl_funct_type completion, bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	int execute(char *args);
 private:
 	string sh_cmd;
