@@ -31,16 +31,29 @@ char * word_at_point(char *text, int point);
 #ifdef __cplusplus
 class word_iterator
 {
-	public:
-		word_iterator(char * _text);
-		char * next_word();
-		char * operator++();
-	private:
-		const char * text;
-		int len;
-		char * cur;
+public:
+	word_iterator(char *_text);
+	char *next_word();
+	char *operator++();
+private:
+	const char *text;
+	int len;
+	char *cur;
 };
+
+class backward_word_iterator
+{
+public:
+	backward_word_iterator(char *_text);
+	char *prev_word();
+	char *operator--();
+private:
+	const char *text;
+	char *cur;
+};
+
 #endif
+
 #ifdef __cplusplus
 }
 #endif

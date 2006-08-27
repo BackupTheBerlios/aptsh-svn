@@ -113,3 +113,40 @@ char * word_iterator::operator++()
 {
 	return next_word();
 }
+
+backward_word_iterator::backward_word_iterator(char *_text) : text(_text)
+{
+	cur = &((char*)text)[strlen(text)-1];
+	while ((cur >= text) && strchr(" \t", *cur)) {
+		cur--;
+	}
+}
+
+char *backward_word_iterator::prev_word()
+{
+	if (cur <= text)
+		return NULL;
+
+	char *begin = cur;
+	while ((begin >= text) && !strchr(" \t", *begin)) {
+		begin--;
+	}
+	
+	char *ret = (char*)malloc(cur-begin+1);
+	strncpy(ret, begin+1, cur-begin);
+	ret[cur-begin] = '\0';
+	
+	cur = begin;
+	while ((cur >= text) && strchr(" \t", *cur)) {
+		cur--;
+	}
+
+	return ret;
+}
+
+char *backward_word_iterator::operator--()
+{
+	return prev_word();
+}
+
+
