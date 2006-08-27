@@ -31,11 +31,8 @@ public:
 	 * that should be used for this command. If the completion may vary,
 	 * please override refresh_completion() with proper code (it is executed
 	 * before every usage of 'completion').
-	 * Actually, in C++ a function can't return a pointer to another function,
-	 * that's why things are that crazy.
 	 */
 	compl_funct_type completion;
-
 
 	/* If it's a root command, then master == NULL. */
 	command *master;
