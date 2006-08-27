@@ -45,6 +45,9 @@ class backward_word_iterator
 {
 public:
 	backward_word_iterator(char *_text);
+
+	/* Start from the word that precedes the word that owns _text[start_point] */
+	backward_word_iterator(char *_text, int start_point);
 	char *prev_word();
 	char *operator--();
 private:

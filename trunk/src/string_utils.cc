@@ -122,6 +122,20 @@ backward_word_iterator::backward_word_iterator(char *_text) : text(_text)
 	}
 }
 
+backward_word_iterator::backward_word_iterator(char *_text, int start_point) : text(_text)
+{
+	int len = strlen(text);
+	while ((start_point > 0) && (!strchr(" \t", text[start_point]))) {
+		start_point--;
+	}
+	
+	while ((start_point > 0) && (strchr(" \t", text[start_point]))) {
+		start_point--;
+	}
+
+	cur = &((char*)text)[start_point];
+}
+
 char *backward_word_iterator::prev_word()
 {
 	if (cur <= text)
