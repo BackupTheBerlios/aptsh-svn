@@ -1,7 +1,7 @@
 aptsh (0.0.7) unstable; urgency=low
 
   * Fixed bug in printer.c. May had caused strange behaviour of orphans-*
-    commands. Closes: #383875.
+    commands on some architectures (ie. ppc). Closes: #383875.
 
  -- Marcin Wrochniak <wrochniak@gmail.com>  Sat,  9 Dec 2006 13:16:48 +0100
 
