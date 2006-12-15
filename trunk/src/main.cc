@@ -51,10 +51,10 @@ using namespace std;
 #include "read_index.h"
 #include "string_utils.h"
 #include "config_parse.h"
-#include "dpkg_complete.h"
 #include "command.h"
 #include "command_queue.h"
 #include "completions.h"
+#include "full_completion.h"
 
 bool command_queue_mode;
 
@@ -238,7 +238,7 @@ int main(int argc, char ** argv)
 {
 	int c;
 	int option_index = 0;
-	char * line;
+	char *line;
 
 	command_queue_mode = false;
 
@@ -360,17 +360,54 @@ int main(int argc, char ** argv)
 	/* Initialize libreadline. */
 	initialize_rl();
 
-	if (getuid() > 0)
-		fprintf(stderr, "Warning: Aptsh is not running as root!\n");
+
 	
+
+
+
+	/* Parse direct commands */
+	int i;
+	for (i = 1; i < argc; i++) {
+		if (argv[i][0] == '-') {
+			break;
+		}
+	}
+
+	if (i > 1) {
+		libapt(true);
+
+		command *cmd;
+		if ((cmd = commands.locate_by_name(string(argv[1]))) != NULL) {
+			string args = "";
+			for (int j = 2; j < i; j++) {
+				args += string(argv[j]) + ' ';
+			}
+			cmd->execute((char*)args.c_str());
+			return 0;
+		} else {
+			fprintf(stderr, "No such command: %s\n", argv[1]);
+			return 1;
+		}
+	} else {
+		/* Now we're certainly starting interactive mode, so there's
+		 * no need to be quiet.
+		 */
+
+		libapt(false);
+
+		if (getuid() > 0)
+			fprintf(stderr, "Warning: Aptsh is not running as root!\n");
+	
+	}
+
+
+
+
 	if (CFG_HISTORY_COUNT  && CFG_USE_HISTORY) {
 		printf("Reading commands history...\n");
 		history_truncate_file(CFG_HISTORY_FILE, CFG_HISTORY_COUNT);
 		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
 	}
-
-	/* Initialize libapt-pkg. */
-	libapt();
 
 	i_setsig();
 	

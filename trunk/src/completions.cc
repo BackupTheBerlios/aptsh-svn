@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <dirent.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -31,7 +32,6 @@
 #include "read_index.h"
 #include "string_utils.h"
 #include "config_parse.h"
-#include "dpkg_complete.h"
 #include "command.h"
 
 #include "completions.h"
@@ -181,4 +181,84 @@ char *cpl_main(const char * text, int state)
 	}
 	
 	return (char*)NULL;
+}
+
+char *cpl_fs_deb(const char * text, int state)
+{
+	static DIR *dp;
+	static struct dirent *dinfo;
+	static char * real_name; /* This is the last part of path, for example
+	                          * if text is '/a/b/c', then real_name is 'c'.
+				  */
+	
+	static char * real_path; /* real_path is the string before real_name
+	                          * (if text is '/a/b/c', then real_path is '/a/b/'.
+				  */
+	
+	if (! state) {
+		//int len = strlen(text);
+
+		// FIXME: This can be done without 'found'.
+		bool found = false;
+		for (real_name = (char*)text+strlen(text)-1; real_name >= text; real_name--) {
+			if (*real_name == '/') {
+				real_name++;
+				found = true;
+				break;
+			}
+		}
+		
+		if (!found)
+			real_name = (char*)text;
+		
+		real_path = strndup(text, strlen(text)-strlen(real_name));
+		if (! strcmp(trimleft(real_path), ""))
+			real_path = strdup("./");
+		
+		if (real_path[0] == '~') {
+			char * tmp = real_path;
+			real_path = tilde_expand(tmp);
+			free(tmp);
+		}
+		
+		if ((dp = opendir(real_path)) == NULL) {
+			perror("Completion error, couldn't open the directory");
+			return (char*)NULL;
+		}
+
+		rl_filename_completion_desired = 1;
+	}
+
+	struct stat *fdesc = (struct stat *)malloc(sizeof(struct stat));
+	
+	while ((dinfo = readdir(dp)) > 0) {
+		char * name = dinfo->d_name;
+		int len = strlen(name)-1;
+	
+		char * full_name = (char*)malloc(strlen(real_path)+strlen(name)+1);
+		sprintf(full_name, "%s%s", real_path, name);
+		stat(full_name, fdesc);
+	
+		/* This is ugly, but it's quite fast. */
+		if ( ((len >= 4) && ((name[len] == 'B' || name[len] == 'b') &&
+		    (name[len-1] == 'E' || name[len-1] == 'e') &&
+		    (name[len-2] == 'D' || name[len-2] == 'd') &&
+		    (name[len-3] == '.')) || S_ISDIR(fdesc->st_mode)) && name[0] != '.') {
+			if (! strncmp(real_name, name, strlen(real_name)))
+				if (strcmp(real_path, "./")) {
+					free(fdesc);
+					return full_name;
+				} else {
+					free(fdesc);
+					free(full_name);
+					return strdup(name);
+				}
+		}
+	}
+
+	closedir(dp);
+
+	free(real_path);
+	
+	return NULL;
 }

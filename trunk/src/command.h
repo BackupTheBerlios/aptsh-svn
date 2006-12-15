@@ -69,7 +69,7 @@ protected:
 class command_vector : public vector<command*>
 {
 public:
-	command* locate_by_name(string name);
+	command *locate_by_name(string name);
 };
 
 /* Here we keep all commands. */
@@ -152,14 +152,6 @@ class cmd_rls : public command
 public:
 	cmd_rls();
 	int execute(char *args);
-};
-
-class cmd_dpkg : public command
-{
-public:
-	cmd_dpkg();
-	int execute(char *args);
-	void refresh_completion();
 };
 
 class cmd_dump_cfg : public command

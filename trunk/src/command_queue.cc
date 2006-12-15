@@ -105,8 +105,12 @@ int cmd_queue_remove::execute(char *args)
 			}
 
 		} else
-		if ((x = atoi(arg)) > 0) {
+		if (((x = atoi(arg)) > 0) || !strcmp(arg, "last")) {
 			int j = 1;
+
+			if (!strcmp(arg, "last"))
+				x = queue.size();
+
 			for (list<string>::iterator i = queue.begin(); i != queue.end(); i++) {
 				/* The element we need to remove */
 				if (j == x) {
@@ -116,6 +120,7 @@ int cmd_queue_remove::execute(char *args)
 				j++;
 			}
 		}
+
 		free(arg);
 	}
 

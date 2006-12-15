@@ -1,5 +1,5 @@
 
-CPPFLAGS = -I/usr/include -Wall
+AM_CPPFLAGS = -I/usr/include -Wall
 
 
 
@@ -25,8 +25,6 @@ aptsh_printer_CFLAGS = -Wall @CFLAGS@
 aptsh_SOURCES = \
 	column.cc\
 	column.h\
-	dpkg_complete.cc\
-	dpkg_complete.h\
 	read_index.cc\
 	read_index.h\
 	string_utils.cc\
@@ -39,6 +37,8 @@ aptsh_SOURCES = \
 	command_queue.h\
 	completions.cc\
 	completions.h\
+	full_completion.cc\
+	full_completion.h\
 	main.cc\
 	main.h
 

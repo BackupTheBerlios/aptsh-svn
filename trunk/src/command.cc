@@ -31,7 +31,6 @@ using namespace std;
 #include "read_index.h"
 #include "completions.h"
 #include "column.h"
-#include "dpkg_complete.h"
 #include "config_parse.h"
 
 #include "command.h"
@@ -385,6 +384,7 @@ int cmd_rls::execute(char *args)
 
 
 
+#if 0
 cmd_dpkg::cmd_dpkg()
 {
 	name = "dpkg";
@@ -409,7 +409,7 @@ void cmd_dpkg::refresh_completion()
 	free(current_word);
 	delete actual_completion;
 }
-
+#endif
 
 
 
