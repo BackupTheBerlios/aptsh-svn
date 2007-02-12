@@ -15,6 +15,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <string>
+using namespace std;
+
 #include "string_utils.h"
 
 /* Returns pointer to a _new_ string contaning the first word of *cmd. */
@@ -96,6 +99,62 @@ char * word_at_point(char *text, int point)
 	return ret;
 }
 
+/* This is used in ls and rls commands.
+ * If the wildcard/regular expr. text you type contains special characters,
+ * like * or ?, and there are files which match given text in the directory
+ * where you are, the text will be transformed into names of these files.
+ * This function prevents it, by adding a \ character before every character
+ * which may be treated specially.
+ * Processing is stopped when found a > or | char.
+ */
+char *escape_params(const char *text)
+{
+	char *now = (char*)text;
+	string result = "";
+	static const char *specials = "*?";
+	bool d_quote_opened = false, quote_opened = false;
+
+	while (*now != '\0') {
+		if (*now == '\\') {
+			result += "\\";
+			if (*(++now) == '\0') {
+				break;
+			} else {
+				result += *now;
+				now++;
+				continue;
+			}
+		} else
+		if ((*now == '"') && !quote_opened) {
+			d_quote_opened = !d_quote_opened;
+			result += '"';
+		} else 
+		if ((*now == '\'') && !d_quote_opened) {
+			quote_opened = !quote_opened;
+			result += "'";
+		} else {
+			if (!d_quote_opened && !quote_opened) {
+				if (strchr(specials, *now)) {
+					result += string("\\") + *now;
+				} else
+				if ((*now == '|') || (*now == '>')) {
+				/* output will be piped... */
+					result += (char*)now;
+					break;
+				} else {
+					result += *now;
+				}
+			} else {
+				result += *now;
+			}
+		}
+		
+		now++;
+	}
+
+	return strdup(result.c_str());
+}
+
 word_iterator::word_iterator(char *_text) : text(_text)
 {
 	cur = trimleft((char*)_text);
@@ -124,7 +183,7 @@ backward_word_iterator::backward_word_iterator(char *_text) : text(_text)
 
 backward_word_iterator::backward_word_iterator(char *_text, int start_point) : text(_text)
 {
-	int len = strlen(text);
+	//int len = strlen(text);
 	while ((start_point > 0) && (!strchr(" \t", text[start_point]))) {
 		start_point--;
 	}

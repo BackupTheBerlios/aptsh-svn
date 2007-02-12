@@ -2,8 +2,11 @@ aptsh (0.0.7) unstable; urgency=low
 
   * Fixed bug in printer.c. May had caused strange behaviour of orphans-*
     commands on some architectures (ie. ppc). Closes: #383875.
+  * Fixed bug in rls and ls commands - if given argument matched files in
+    current directory (wildcard), in some shells names of these files were 
+    used instead of typed text.
 
- -- Marcin Wrochniak <wrochniak@gmail.com>  Sat,  9 Dec 2006 13:16:48 +0100
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sat, 10 Feb 2007 13:42:08 +0100
 
 aptsh (0.0.6) unstable; urgency=low
 

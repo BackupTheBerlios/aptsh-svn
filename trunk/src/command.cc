@@ -220,7 +220,7 @@ cmd_orphans::cmd_orphans()
 	completion = cpl_none;
 }
 
-/* TODO: Do something with that mess below. */
+/* hmm, looks quite messy */
 int cmd_orphans::execute(char *args)
 {
 	static pkgCache * Cache;
@@ -324,6 +324,7 @@ int cmd_orphans_all::execute(char *args)
 cmd_ls::cmd_ls()
 {
 	name = "ls";
+	help_text = "List packages matching given wildcard";
 	completion = cpl_pkg;
 	has_slaves = false;
 	master = NULL;
@@ -331,7 +332,7 @@ cmd_ls::cmd_ls()
 
 int cmd_ls::execute(char *args)
 {
-	string cmd = string(SHARED_DIR) + "aptsh_ls " + args;
+	string cmd = string(escape_params((string(SHARED_DIR) + "aptsh_ls " + args).c_str()));
 	FILE * pipe;
 
 	pkgCache Cache(m);
@@ -356,6 +357,7 @@ int cmd_ls::execute(char *args)
 cmd_rls::cmd_rls()
 {
 	name = "rls";
+	help_text = "List packages matching given regular expression";
 	completion = cpl_pkg;
 	has_slaves = false;
 	master = NULL;
@@ -363,7 +365,7 @@ cmd_rls::cmd_rls()
 
 int cmd_rls::execute(char *args)
 {
-	string cmd = string(SHARED_DIR) + "aptsh_rls " + args;
+	string cmd = string(escape_params((string(SHARED_DIR) + "aptsh_rls " + args).c_str()));
 	FILE * pipe;
 
 	pkgCache Cache(m);
@@ -383,33 +385,6 @@ int cmd_rls::execute(char *args)
 }
 
 
-
-#if 0
-cmd_dpkg::cmd_dpkg()
-{
-	name = "dpkg";
-	master = NULL;
-	has_slaves = true;
-}
-
-int cmd_dpkg::execute(char *args)
-{
-	return system(args);
-}
-
-void cmd_dpkg::refresh_completion()
-{
-	char *current_word = word_at_point(rl_line_buffer, rl_point);
-	dpkg_complete *actual_completion = new dpkg_complete(current_word, rl_line_buffer, rl_point);
-
-	if (actual_completion->completion != NULL) {
-		completion = actual_completion->completion;
-	}
-
-	free(current_word);
-	delete actual_completion;
-}
-#endif
 
 
 

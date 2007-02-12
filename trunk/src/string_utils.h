@@ -28,6 +28,8 @@ long update_date(char * fn);
 
 char * word_at_point(char *text, int point);
 
+char *escape_params(const char *text);
+
 #ifdef __cplusplus
 class word_iterator
 {
