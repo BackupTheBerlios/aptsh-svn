@@ -17,7 +17,7 @@ public:
 	static char *cpl_long_opts(const char *text, int state);
 	static char *cpl_short_opts(const char *text, int state);
 protected:
-	static vector<fc_option> options;
+	static list<fc_option> options;
 };
 
 
