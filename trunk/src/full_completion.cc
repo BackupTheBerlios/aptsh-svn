@@ -123,6 +123,7 @@ cmd_dpkg::cmd_dpkg()
 	name = "dpkg";
 	master = NULL;
 	has_slaves = true;
+	help_text = "package manager for Debian";
 
 	/* Options which modify behaviour of actions. */
 	options.push_back(fc_option("-R", "--recursive", cpl_none));

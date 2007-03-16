@@ -218,6 +218,7 @@ cmd_orphans::cmd_orphans()
 	has_slaves = true;
 	master = NULL;
 	completion = cpl_none;
+	help_text = "Search for libraries with no installed reverse dependencies";
 }
 
 /* hmm, looks quite messy */
@@ -271,6 +272,7 @@ cmd_orphans_all::cmd_orphans_all(command *master)
 	name = "orphans-all";
 	has_slaves = false;
 	this->master = master;
+	help_text = "Search for installed packages without any installed reverse dependencies";
 }
 
 int cmd_orphans_all::execute(char *args)
