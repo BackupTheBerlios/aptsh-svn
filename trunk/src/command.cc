@@ -108,15 +108,14 @@ cmd_aptize::~cmd_aptize()
 int cmd_aptize::execute(char *args)
 {
 	string cmd = sh_command + " " + name + " " + args;
-	if (command_answer == "")
-		return system(cmd.c_str());
-	else {
+	if (command_answer == "") {
+		int ret = system(cmd.c_str());
+		return WEXITSTATUS(ret);
+	} else {
 		FILE *fp = popen(cmd.c_str(), "w");
 		while ((fputs(command_answer.c_str(), fp)) != EOF);
-		pclose(fp);
+		return pclose(fp);
 	}
-
-	return 0;
 }
 
 int cmd_aptize::validate(char *args)
@@ -187,7 +186,8 @@ int cmd_systemize::execute(char *args)
 		cmd = sh_cmd + " " + args;
 	}
 	
-	return system(cmd.c_str());
+	int ret = system(cmd.c_str());
+	return WEXITSTATUS(ret);
 }
 
 

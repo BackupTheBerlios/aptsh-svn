@@ -382,8 +382,8 @@ int main(int argc, char ** argv)
 			for (int j = 2; j < i; j++) {
 				args += string(argv[j]) + ' ';
 			}
-			cmd->execute((char*)args.c_str());
-			return 0;
+			return cmd->execute((char*)args.c_str());
+			//return 0;
 		} else {
 			fprintf(stderr, "No such command: %s\n", argv[1]);
 			return 1;

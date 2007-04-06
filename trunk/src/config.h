@@ -53,13 +53,13 @@
 #define PACKAGE_NAME "aptsh"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "aptsh 0.4"
+#define PACKAGE_STRING "aptsh 0.0.7"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "aptsh"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.4"
+#define PACKAGE_VERSION "0.0.7"
 
 /* Aptsh libexec directory */
 #define SHARED_DIR "/usr/local/lib/aptsh/"
@@ -68,4 +68,4 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.4"
+#define VERSION "0.0.7"
