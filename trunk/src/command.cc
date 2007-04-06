@@ -329,6 +329,7 @@ cmd_toupgrade::cmd_toupgrade()
 	name = "toupgrade";
 	has_slaves = false;
 	master = NULL;
+	help_text = "List packages with newer versions available for upgrading";
 }
 
 int cmd_toupgrade::execute(char *args)
