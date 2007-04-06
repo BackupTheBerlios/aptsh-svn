@@ -11,9 +11,11 @@
 */
 #include "config.h"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <string>
 
 using namespace std;
@@ -30,7 +32,7 @@ using namespace std;
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/pkgrecords.h>
 #include <apt-pkg/srcrecords.h>
-#include <apt-pkg/version.h>
+#include <apt-pkg/debversion.h>
 #include <apt-pkg/policy.h>
 #include <apt-pkg/tagfile.h>
 #include <apt-pkg/algorithms.h>
@@ -119,3 +121,51 @@ bool package_installed(char *name)
 	}
 	return false;
 }
+
+struct PTU_cmp {
+	bool operator() (const pkg_to_upgrade &a, const pkg_to_upgrade &b) {
+		return b.name > a.name;
+	}
+};
+
+vector<pkg_to_upgrade> *get_to_upgrade()
+{
+	static vector<pkg_to_upgrade> list_to_upgrade;
+	/* Better copy the list somewhere if it's still necessary before calling this function again. */
+	list_to_upgrade.clear();
+
+	static pkgCache * Cache;
+	static pkgCache::PkgIterator e;
+
+	Cache = new pkgCache(m);
+
+	for (e = Cache->PkgBegin(); e.end() == false; e++) {
+		char *ver_inst = NULL, *ver_avail = NULL;
+
+		for (pkgCache::VerIterator Cur = e.CurrentVer(); Cur.end() != true; Cur++)
+		{
+			if ((ver_inst == NULL) || (debVS.CmpVersion((const char*)ver_inst, Cur.VerStr()))) {
+				ver_inst = (char*)Cur.VerStr();
+			}
+		}
+
+		if (ver_inst != NULL)
+		for (pkgCache::VerIterator Cur = e.VersionList(); Cur.end() != true; Cur++)
+		{
+			if ((ver_avail == NULL) || (debVS.CmpVersion((const char*)ver_inst, Cur.VerStr()))) {
+				ver_avail = (char*)Cur.VerStr();
+			}
+		}
+
+		if ((ver_inst != NULL) && (ver_avail != NULL)) {
+			if (debVS.CmpVersion((const char*)ver_inst, (const char*)ver_avail)) {
+				list_to_upgrade.push_back(*(new pkg_to_upgrade(e.Name(), ver_inst, ver_avail)));
+			}
+		}
+	}
+
+	sort(list_to_upgrade.begin(), list_to_upgrade.end(), PTU_cmp());
+
+	return &list_to_upgrade;
+}
+

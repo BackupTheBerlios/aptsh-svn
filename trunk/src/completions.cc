@@ -1,5 +1,4 @@
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -10,6 +9,11 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <dirent.h>
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
 
 #include <readline/readline.h>
 #include <readline/history.h>

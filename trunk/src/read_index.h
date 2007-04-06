@@ -47,6 +47,17 @@ extern int hm_i;
 extern char ** pkgs; /* All packages. */
 extern char ** pkgs_i; /* Only installed packages. */
 
+struct pkg_to_upgrade {
+	string name, inst_ver, avail_ver;
+
+	pkg_to_upgrade(string name, string inst_ver, string avail_ver)
+	: name(name), inst_ver(inst_ver), avail_ver(avail_ver)
+	{}
+};
+
+/* This list is actually a vector, uh... (it's because it needs to be sortable) */
+vector<pkg_to_upgrade> *get_to_upgrade();
+
 #ifdef __cplusplus
 }
 #endif

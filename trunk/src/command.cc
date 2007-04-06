@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <list>
 #include <iostream>
 
 #include "config.h"
@@ -316,6 +317,41 @@ int cmd_orphans_all::execute(char *args)
 	free(tmp);
 	
 	delete view;
+
+	return 0;
+}
+
+
+
+
+cmd_toupgrade::cmd_toupgrade()
+{
+	name = "toupgrade";
+	has_slaves = false;
+	master = NULL;
+}
+
+int cmd_toupgrade::execute(char *args)
+{
+	vector<pkg_to_upgrade> *pkgs = get_to_upgrade();
+	column_display *view = new column_display(3, ' ');
+	view->add("NAME", 0);
+	view->add("INSTALLED VER.", 1);
+	view->add("AVAILABLE VER.", 2);
+	view->add("", 0);
+	view->add("", 1);
+	view->add("", 2);
+
+	for (vector<pkg_to_upgrade>::iterator i = pkgs->begin(); i != pkgs->end(); i++) {
+		view->add(i->name, 0);
+		view->add(i->inst_ver, 1);
+		view->add(i->avail_ver, 2);
+	}
+
+	view->dump();
+
+	delete view;
+	pkgs->clear();
 
 	return 0;
 }

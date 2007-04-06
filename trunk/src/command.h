@@ -139,14 +139,14 @@ public:
 	int execute(char *args);
 };
 
-#if 0
+
 class cmd_toupgrade : public command
 {
 public:
 	cmd_toupgrade();
 	int execute(char *args);
 };
-#endif
+
 
 class cmd_ls : public command
 {

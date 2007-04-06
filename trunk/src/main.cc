@@ -279,6 +279,7 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_whatis());
 	commands.push_back(new cmd_orphans());
 	commands.push_back(new cmd_orphans_all(commands.back()));
+	commands.push_back(new cmd_toupgrade());
 	commands.push_back(new cmd_ls());
 	commands.push_back(new cmd_rls());
 	commands.push_back(new cmd_dpkg());
