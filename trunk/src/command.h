@@ -148,6 +148,14 @@ public:
 };
 
 
+class cmd_news : public command
+{
+public:
+	cmd_news();
+	int execute(char *args);
+};
+
+
 class cmd_ls : public command
 {
 public:

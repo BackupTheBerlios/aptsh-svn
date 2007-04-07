@@ -360,6 +360,44 @@ int cmd_toupgrade::execute(char *args)
 
 
 
+cmd_news::cmd_news()
+{
+	name = "news";
+	has_slaves = false;
+	master = NULL;
+	completion = cpl_pkg;
+	help_text = "Obtain the latest news about the package";
+}
+
+int cmd_news::execute(char *args)
+{
+	if (strlen(args)) {
+		word_iterator i(args);
+		char *pname;
+		while ((pname = ++i)) {
+			int ret = system("which wget >/dev/null");
+			if (WEXITSTATUS(ret) > 0) {
+				fprintf(stderr, "This command can't work without wget installed (use this to install: aptsh install wget)\n");
+				return 2;
+			} else {
+				ret = system(string(string("wget --timeout=60 --output-document=- http://packages.debian.org/changelog:")+pname+" 2>/dev/null | awk 'NR==1{print;next} /^[^ ]/{exit}{print;next}'").c_str());
+				if (WEXITSTATUS(ret) > 0) {
+					fprintf(stderr, "Some error occured during downloading and processing the changelog. Stopping.\n");
+					return WEXITSTATUS(ret);
+				}
+			}
+		}
+	} else {
+		fprintf(stderr, "Not enough parameters. You must give at least one package name.\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+
+
+
 cmd_ls::cmd_ls()
 {
 	name = "ls";
@@ -461,6 +499,7 @@ int cmd_help::execute(char *args)
 
 		column_display display(2, ' ');
 
+		/* Double parentheses due to gcc warning when compiling with wall */
 		while ((cmd_name = ++i)) {
 			if ((cmd = commands.locate_by_name(string(cmd_name)))) {
 				display.add(cmd_name, 0);
@@ -473,7 +512,8 @@ int cmd_help::execute(char *args)
 
 		display.dump();
 	} else {
-		return system("man aptsh");
+		int ret = system("man aptsh");
+		return WEXITSTATUS(ret);
 	}
 
 	return 0;
