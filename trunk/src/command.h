@@ -148,6 +148,14 @@ public:
 };
 
 
+class cmd_changelog : public command
+{
+public:
+	cmd_changelog();
+	int execute(char *args);
+};
+
+
 class cmd_news : public command
 {
 public:
