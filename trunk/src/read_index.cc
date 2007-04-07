@@ -122,15 +122,16 @@ bool package_installed(char *name)
 	return false;
 }
 
+// Package To Upgrade compare function, for sorting
 struct PTU_cmp {
-	bool operator() (const pkg_to_upgrade &a, const pkg_to_upgrade &b) {
-		return b.name > a.name;
+	bool operator() (const pkg_to_upgrade *a, const pkg_to_upgrade *b) {
+		return b->name > a->name;
 	}
 };
 
-vector<pkg_to_upgrade> *get_to_upgrade()
+vector<pkg_to_upgrade*> *get_to_upgrade()
 {
-	static vector<pkg_to_upgrade> list_to_upgrade;
+	static vector<pkg_to_upgrade*> list_to_upgrade;
 	/* Better copy the list somewhere if it's still necessary before calling this function again. */
 	list_to_upgrade.clear();
 
@@ -159,7 +160,7 @@ vector<pkg_to_upgrade> *get_to_upgrade()
 
 		if ((ver_inst != NULL) && (ver_avail != NULL)) {
 			if (debVS.CmpVersion((const char*)ver_inst, (const char*)ver_avail)) {
-				list_to_upgrade.push_back(*(new pkg_to_upgrade(e.Name(), ver_inst, ver_avail)));
+				list_to_upgrade.push_back(new pkg_to_upgrade(e.Name(), ver_inst, ver_avail));
 			}
 		}
 	}

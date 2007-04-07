@@ -56,7 +56,7 @@ struct pkg_to_upgrade {
 };
 
 /* This list is actually a vector, uh... (it's because it needs to be sortable) */
-vector<pkg_to_upgrade> *get_to_upgrade();
+vector<pkg_to_upgrade*> *get_to_upgrade();
 
 #ifdef __cplusplus
 }
