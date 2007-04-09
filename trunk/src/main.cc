@@ -249,7 +249,7 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_aptize("dselect-upgrade", "apt-get", cpl_pkg, cmd_aptize::NONE, "Follow dselect selections (see man apt-get for details)"));
 	commands.push_back(new cmd_aptize("dist-upgrade", "apt-get", cpl_none, cmd_aptize::NONE, "Upgrade to new distribution (installed and new rqd packages)"));
 	commands.push_back(new cmd_aptize("remove", "apt-get", cpl_pkg_i, cmd_aptize::INSTALLED, "Remove one or more packages (see also purge)"));
-	commands.push_back(new cmd_aptize("remove --purge", "apt-get", cpk_pkg_i, cmd_aptize::INSTALLED, "Remove one or more packages and configuration files"));
+	commands.push_back(new cmd_systemize("purge", "apt-get remove --purge", string("Remove one or more packages and configuration files"), cpl_pkg_i));
 	commands.push_back(new cmd_aptize("source", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve and unpack sources for the named packages"));
 	commands.push_back(new cmd_aptize("build-dep", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve packages required to build listed packages"));
 	commands.push_back(new cmd_aptize("check", "apt-get", cpl_none, cmd_aptize::NONE, "Update the package cache and check for broken dependencies"));
@@ -276,7 +276,7 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_help());
 	commands.push_back(new cmd_systemize("help-howto", "zcat /usr/share/doc/aptsh/HOWTO.gz", false, commands.back()));
 	commands.push_back(new cmd_systemize("whichpkg", "dpkg -S", string("Find the package that supplies the given command or file")));
-	commands.push_back(new cmd_systemize("listfiles", "dpkg -L", string("List the files that are supplied by the named package")));
+	commands.push_back(new cmd_systemize("listfiles", "dpkg -L", string("List the files that are supplied by the named package"), cpl_pkg_i));
 	commands.push_back(new cmd_whatis());
 	commands.push_back(new cmd_orphans());
 	commands.push_back(new cmd_orphans_all(commands.back()));

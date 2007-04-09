@@ -169,6 +169,17 @@ cmd_systemize::cmd_systemize(string name, string sh_cmd, string help_text)
 	has_slaves = false;
 }
 
+
+cmd_systemize::cmd_systemize(string name, string sh_cmd, string help_text, compl_funct_type completion)
+{
+	this->name = name;
+	this->sh_cmd = sh_cmd;
+	this->help_text = help_text;
+	this->completion = completion;
+	master = NULL;
+	has_slaves = false;
+}
+
 cmd_systemize::cmd_systemize(string name, string sh_cmd, compl_funct_type completion,  bool ignore_args, command *master, bool has_slaves)
 : sh_cmd(sh_cmd), ignore_args(ignore_args)
 {

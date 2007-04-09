@@ -107,6 +107,7 @@ class cmd_systemize : public command
 public:
 	cmd_systemize(string name, string sh_cmd, bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	cmd_systemize(string name, string sh_cmd, string help_text);
+	cmd_systemize(string name, string sh_cmd, string help_text, compl_funct_type completion);
 	cmd_systemize(string name, string sh_cmd, compl_funct_type completion, bool ignore_args = false, command *master = NULL, bool has_slaves = false);
 	int execute(char *args);
 private:
