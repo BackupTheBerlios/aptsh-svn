@@ -1,5 +1,5 @@
 
-AC_INIT(aptsh, 0.4, http://aptsh.berlios.de)
+AC_INIT(aptsh, 0.0.7, http://aptsh.berlios.de)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/main.cc)
 

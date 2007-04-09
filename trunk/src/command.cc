@@ -386,6 +386,8 @@ int cmd_changelog::execute(char *args)
 					return WEXITSTATUS(ret);
 				}
 			}
+
+			free(pname);
 		}
 	} else {
 		fprintf(stderr, "Not enough parameters. You must give at least one package name.\n");
@@ -423,6 +425,8 @@ int cmd_news::execute(char *args)
 					return WEXITSTATUS(ret);
 				}
 			}
+
+			free(pname);
 		}
 	} else {
 		fprintf(stderr, "Not enough parameters. You must give at least one package name.\n");
@@ -545,6 +549,8 @@ int cmd_help::execute(char *args)
 			} else {
 				cerr << "No such command: " << cmd_name << endl;
 			}
+
+			free(cmd_name);
 		}
 
 		display.dump();
