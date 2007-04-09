@@ -13,11 +13,11 @@ If you read this, then you probably know what Apt is. And I hope you like it; if
 So you're an Apt user. Your daily work doesn't require launching ``apt-get`` or ``apt-cache`` too often. But from time to time it does, and then in consumes much time... well, maybe not as much as it would take without Apt, but you know that it could be done faster. When you need to install some piece of software, you search for it with ``apt-cache``, copy package's name and paste it after ``apt-get install``. That's not good - it's better to use bash-completion. But it still may be not enough; if so, try Aptsh. Of course, Aptsh is not just bash-completion rewritten in a mixture of C and C++. Beside tab-completion it can speed up your work in many other ways - just read further. 
 
 ++Pseudo-shell++
-Aptsh is a pseudo shell. It means that usage of Aptsh is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like ``install``, ``remove`` or ``dist-upgrade`` - you know them from Apt.
+The center of Aptsh is its pseudo-shell. It means that usage of Aptsh in shell-mode is similar to a normal shell, though results differ. :) While you use Bash for everything, Aptsh is used only for managing software installed on your system. In Aptsh there are available commands like ``install``, ``remove`` or ``dist-upgrade`` - you know them from Apt.
 
 + Usage +
 ++Basics++
-If you want to see all commands available in Aptsh, they are in ``man aptsh``, or just ``help`` if you are in Apt (a clue: pressing ``Tab`` twice in Aptsh doesn't list them all, I'll explain it later - just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed in without 'apt-get' and 'apt-cache' before. And that's it - just typing Apt commands directly after prompt.
+If you want to see all commands available in Aptsh, they are in ``man aptsh``, or just ``help`` if you are in Aptsh's shell (a clue: pressing ``Tab`` twice in Aptsh doesn't list them all, I'll explain it later - just try to press Tab after typing 'queue' to see why). As you see, most of them are those old Apt commands, although they are typed in without 'apt-get' and 'apt-cache' before. And that's it - just typing Apt commands directly after prompt.
 Some examples:
 
 ```
@@ -53,6 +53,51 @@ vrok@ankh ~ $
 ```
 
 In example above you see how to launch Aptsh (with root privileges - that's the ``sudo`` thing), then you see effects of four Aptsh commands: ``remove``, ``install``, ``show`` and ``quit``.
+
++++Shell-mode is not a must+++
+Aptsh has a few features besides pseudo-shell which might appear usable to you, though you not necessarily must like the pseudo-shell (or you'd like to use these features in your script, etc.). Aptsh can be used as a typical console program - in this mode you would use it like ``apt-get`` or ``apt-cache``. Here's an example:
+
+```
+bash:~# aptsh search frozen bubble
+fb-music-high - High quality, large music files for Frozen-Bubble
+fb-music-low - Lower quality, small music files for Frozen-Bubble
+frozen-bubble - Pop out the bubbles !
+frozen-bubble-data - Data files for Frozen-Bubble
+junior-puzzle - Debian Jr. Puzzles
+
+bash:~# aptsh install frozen-bubble
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+frozen-bubble is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 143 not upgraded.
+
+bash:~# aptsh orphans
+libreadline5-dev
+gstreamer0.10-plugins-bad-multiverse
+gstreamer0.10-plugins-ugly-multiverse
+
+bash:~#
+```
+
++++Looking for help+++
+Help connected with Aptsh can be found, besides this document, in the Aptsh manpage and in ``help`` command. Since you probably know how to use the manpage, I will only explain how to use the help command.
+
+If you just run ``help`` command, then it will launch Aptsh manpage++Looking for help++
+Help connected with Aptsh can be found, besides this document, in the Aptsh manpage and in ``help`` command. Since you probably know how to use the manpage, I will only explain how to use the help command.
+
+If you just run ``help`` command, then it will launch Aptsh manpage. But if you launch it with names of some commands, then you will see short descriptions of these commands. Example:
+
+```
+aptsh> help orphans orphans-all install remove help
+orphans      List libraries not required by any installed package
+orphans-all  List packages not required by any other installed package
+install      Install (or upgrade) one or more packages or .deb files
+remove       Remove one or more packages (see also purge)
+help         Display short info about given commands, or Aptsh's manpage (if no arguments)
+
+aptsh>
+```
 
 ++TAB completion++
 Without Tab completion, Aptsh would be like a car without the engine - you actually can use in the Flinstone way, but it's simpler just to walk.
@@ -396,3 +441,28 @@ net              lftp
 
 aptsh>
 ```
+
+++Other commands++
++++changelog, news+++
+The ``changelog`` command retrieves changelogs for given packages from Debian servers, and dumps them to standard output (you can give many names). ``news`` command is similar, but it dumps only the latest entry from the changelog. Both these commands use external command (``wget``) to fetch files. Therefore, if you are behind a proxy server, you should configure ``wget`` to have this command working, BUT: ``wget`` connects through proxy if its address is given in ``http_proxy`` shell variable, as well as Apt does. Thus, if Apt works properly, these commands should work properly too.
+
++++whatis+++
+The ``whatis`` command lists short descriptions of given packages. You probably would use it to check quickly what a package is and what it does. Here's a short example:
+
+```
+aptsh> whatis aptsh
+aptsh: apt interactive shell
+
+aptsh> whatis apt dpkg kde
+apt: Advanced front-end for dpkg
+dpkg: package maintenance system for Debian
+kde: the K Desktop Environment official modules
+
+aptsh>
+```
+
++++toupgrade+++
+The ``toupgade`` dumps a list of packages installed on your system, which are available in newer versions. These are packages, which will be upgraded if you run the ``upgrade`` command.
+
++++Other other commands+++
+If a command is not described here, then try to use the ``help`` command to get some information. It also may appear that it is just a wrapper for a feature of an external program, then probably more detailed description will be available in documentation of the external program.
