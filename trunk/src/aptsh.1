@@ -1,22 +1,24 @@
 .TH aptsh 1 "20 Mar 2005" "version 0.0.6"
 .SH NAME
-aptsh \- interactive APT shell
+Aptsh \- interactive APT shell
 .SH SYNOPSIS
-aptsh [-?, --help] [-c, --config-file
+aptsh {install pkg | remove pkg | update | ... } [-?, --help] [-c, --config-file
 .I configuration_file
 ] [-s, --storing] [-v, --version] [-x, --execute
 .I aptsh_command
 ]
 .SH DESCRIPTION
-.B aptsh
+.B Aptsh
 is a tool which makes using APT much easier. It gives you an interactive shell with all those sweet features like tab-completion (which you can use to complete name of a package), simpler access to apt commands and easier package searching (ls, rls). Although it's not necessary, it just tries to make life easier.
+.TP
+Other way of using Aptsh is using it as a normal command-line tool, a replacement for apt-* commands.
 .SH USAGE
 We'll try to do some ordinary administration tasks - install/remove/search few packages.
 As a root, type 'aptsh' and press return. Then type 'ins', and press Tab - 'ins' should change into 'install' followed by a whitespace. Now write down 'kde', and press Tab twice - if you're using Debian or other large distro, it should ask you whether you want to see all packages which begin with 'kde'. As you should have noticed - it works exactly like a good shell. You can also play with 'remove' - then aptsh will prompt only installed packages. And remember, that you can pipe results of commands (ie. dump | grep ^Package | cut -d\  -f 2 | grep ^kde ).
 You can execute a normal shell command by preceding it with ".".
 .SH COMMANDS
 .PP
-aptsh commands:
+Aptsh commands:
 .RS
 .TP
 .B dump-cfg
@@ -39,6 +41,15 @@ Find the package that supplies the given command or file.
 .TP
 .B listfiles
 List all files owned by a package.
+.TP
+.B news
+Obtain the latest news about the package from Debian servers
+.TP
+.B changelog
+Retrieve latest changelog for the package from Debian servers
+.TP
+.B toupgrade
+List packages with newer versions available for upgrading
 .TP
 .B `
 Change mode.
