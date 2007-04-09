@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Marcin Wrochniak <wrochniak@gmail.com>
 Build-Depends: debhelper (>= 4.0.0), libreadline5-dev, libapt-pkg-dev (>= 0.5.28.6)
-Standards-Version: 3.7.2
+Standards-Version: 3.7.2.2
 
 Package: aptsh
 Architecture: any
