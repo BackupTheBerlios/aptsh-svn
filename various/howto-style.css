@@ -1,0 +1,30 @@
+body {
+	background: #efefef;
+	margin: 0;
+	font-family: Verdana, Helvetica;
+	font-size: 9pt;
+	padding: 1em;
+}
+
+h1 {
+	font-family: Georgia;
+	font-style: italic;
+}
+
+a {
+	text-decoration: none;
+	color: #0f0f0f;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+pre {
+	background: #000;
+	color: silver;
+	margin-left: 3em;
+	margin-right: 3em;
+	padding-bottom: 1em;
+
+}
