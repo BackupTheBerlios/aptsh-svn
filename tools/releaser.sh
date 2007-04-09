@@ -2,6 +2,11 @@
 
 # Usage: ./releaser.sh version
 
+if [ $# -lt 1 ]; then
+	echo Usage: ./releaser.sh version
+	exit 1
+fi
+
 mkdir $1
 cd $1
 
