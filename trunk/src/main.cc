@@ -249,6 +249,7 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_aptize("dselect-upgrade", "apt-get", cpl_pkg, cmd_aptize::NONE, "Follow dselect selections (see man apt-get for details)"));
 	commands.push_back(new cmd_aptize("dist-upgrade", "apt-get", cpl_none, cmd_aptize::NONE, "Upgrade to new distribution (installed and new rqd packages)"));
 	commands.push_back(new cmd_aptize("remove", "apt-get", cpl_pkg_i, cmd_aptize::INSTALLED, "Remove one or more packages (see also purge)"));
+	commands.push_back(new cmd_aptize("remove --purge", "apt-get", cpk_pkg_i, cmd_aptize::INSTALLED, "Remove one or more packages and configuration files"));
 	commands.push_back(new cmd_aptize("source", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve and unpack sources for the named packages"));
 	commands.push_back(new cmd_aptize("build-dep", "apt-get", cpl_pkg, cmd_aptize::ALL, "Retrieve packages required to build listed packages"));
 	commands.push_back(new cmd_aptize("check", "apt-get", cpl_none, cmd_aptize::NONE, "Update the package cache and check for broken dependencies"));
