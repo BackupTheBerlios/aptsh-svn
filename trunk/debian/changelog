@@ -1,3 +1,11 @@
+aptsh (0.0.8) unstable; urgency=low
+
+  * Applied Martin Michlmayr's patch. Closes: #419321.
+  * If SIGINT is received while executing an internal command now,
+    only the command is stopped, not the Aptsh.
+
+ -- Marcin Wrochniak <wrochniak@gmail.com>  Sat, 26 May 2007 17:07:07 +0200
+
 aptsh (0.0.7) unstable; urgency=low
 
   * Fixed bug in printer.c. May had caused strange behaviour of orphans-*
