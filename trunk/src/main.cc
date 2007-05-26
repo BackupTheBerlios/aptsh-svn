@@ -58,6 +58,22 @@ using namespace std;
 
 bool command_queue_mode;
 
+// This var shouldn't be used anywhere outside this file.
+bool executing_now;
+
+static void user_abort(int ignore)
+{
+	/* By ignoring SIGINT while executing a command, we gain the effect of stopping only the command, not the Aptsh.
+	 * The most common situation happens, when a user runs "ls" or "rls" (which are not external commands), which
+	 * dump a giant list of all available packages. The user will probably press ctrl+c immidiately. This way, just
+	 * the dumping will be stopped, not Aptsh.
+	 */
+	if (! executing_now) {
+		puts("bye!");
+		exit(0);
+	}
+}
+
 
 /* Returns >0 when user wants to exit. */
 int execute_line(char *line, char addhistory)
@@ -204,13 +220,6 @@ struct option arg_opts[] =
 };
 
 
-static void user_abort(int ignore)
-{
-	puts("bye!");
-	exit(0);
-}
-
-
 static void libapt(bool be_silent = false)
 {
 	/* Initialize libapt-pkg. */
@@ -298,9 +307,6 @@ int main(int argc, char ** argv)
 	commands.push_back(new cmd_quit());
 
 
-	/* Handle ctrl+c. */
-//	signal(SIGINT, user_abort);
-	
 	cfg_defaults();
 	config_file = NULL;
 	while ((c = getopt_long(argc, argv, "?svc:x:", arg_opts, &option_index)) != -1) {
@@ -415,6 +421,11 @@ int main(int argc, char ** argv)
 
 	i_setsig();
 	
+	/* Handle ctrl+c
+	 * See the user_abort() definition for a more detailed comment 
+	 */
+	signal(SIGINT, user_abort);
+	
 	for (;;) {
 		if (command_queue_mode)
 			line = readline(CFG_PS1_CQ_MODE);
@@ -430,8 +441,10 @@ int main(int argc, char ** argv)
 			continue;
 		}
 
+		executing_now = true;
 		if (execute_line(line))
 			break;
+		executing_now = false;
 
 		free(line);
 
