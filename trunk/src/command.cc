@@ -347,12 +347,12 @@ int cmd_toupgrade::execute(char *args)
 {
 	vector<pkg_to_upgrade*> *pkgs = get_to_upgrade();
 	column_display *view = new column_display(3, ' ');
-	view->add("NAME", 0);
-	view->add("INSTALLED VER.", 1);
-	view->add("AVAILABLE VER.", 2);
-	view->add("", 0);
-	view->add("", 1);
-	view->add("", 2);
+	view->add((char*)"NAME", 0);
+	view->add((char*)"INSTALLED VER.", 1);
+	view->add((char*)"AVAILABLE VER.", 2);
+	view->add((char*)"", 0);
+	view->add((char*)"", 1);
+	view->add((char*)"", 2);
 
 	for (vector<pkg_to_upgrade*>::iterator i = pkgs->begin(); i != pkgs->end(); i++) {
 		view->add((*i)->name, 0);

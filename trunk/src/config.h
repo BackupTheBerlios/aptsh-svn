@@ -62,7 +62,7 @@
 #define PACKAGE_VERSION "0.0.7"
 
 /* Aptsh libexec directory */
-#define SHARED_DIR "/usr/local/lib/aptsh/"
+#define SHARED_DIR "/usr/lib/aptsh/"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1

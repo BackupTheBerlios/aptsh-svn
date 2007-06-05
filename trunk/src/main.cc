@@ -155,24 +155,6 @@ int execute_line(char *line, char addhistory)
 	return 0;
 }
 
-/* We should ignore SIGPIPE.
- * If we don't, aptsh is going to terminate when user creates a bad pipe. 
- * Example:
- * rls | less
- * and user terminates 'less' before it reaches end of output.
- */
-void i_setsig()
-{
-	static char set = 0;
-	struct sigaction act;
-	if (! set) {
-		act.sa_handler = SIG_IGN;
-		act.sa_flags = 0;
-		sigaction(SIGPIPE, &act, NULL);
-		set = 1;
-	}
-}
-
 
 /* Text completing function, its pointer is in readline's rl_attempted_completion_function. */
 char **completion(const char * text, int start, int end)
@@ -363,16 +345,12 @@ int main(int argc, char ** argv)
 		}
 	}
 	if (config_file == NULL) {
-		config_file = CONFIG_FILE;
+		config_file = (char*)CONFIG_FILE;
 		cfg_parse();
 	}
 
 	/* Initialize libreadline. */
 	initialize_rl();
-
-
-	
-
 
 
 	/* Parse direct commands */
@@ -412,19 +390,25 @@ int main(int argc, char ** argv)
 
 
 
-
 	if (CFG_HISTORY_COUNT  && CFG_USE_HISTORY) {
 		printf("Reading commands history...\n");
 		history_truncate_file(CFG_HISTORY_FILE, CFG_HISTORY_COUNT);
 		read_history_range(CFG_HISTORY_FILE, 0, CFG_HISTORY_COUNT);
 	}
 
-	i_setsig();
-	
+
+	/* We should ignore SIGPIPE.
+	 * If we don't, aptsh is going to terminate when user creates a bad pipe. 
+	 * Example:
+	 * rls | less
+	 * and user terminates 'less' before it reaches end of output.
+	 */
+	signal(SIGPIPE, SIG_IGN);
 	/* Handle ctrl+c
 	 * See the user_abort() definition for a more detailed comment 
 	 */
 	signal(SIGINT, user_abort);
+
 	
 	for (;;) {
 		if (command_queue_mode)
