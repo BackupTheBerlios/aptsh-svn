@@ -12,6 +12,7 @@ using namespace std;
 #include "string_utils.h"
 #include "command.h"
 #include "completions.h"
+#include "read_index.h"
 
 #include "full_completion.h"
 
@@ -186,6 +187,8 @@ cmd_dpkg::cmd_dpkg()
 
 int cmd_dpkg::execute(char *args)
 {
-	return system(args);
+	int ret = system(args);
+	check_cache();
+	return WEXITSTATUS(ret);
 }
 

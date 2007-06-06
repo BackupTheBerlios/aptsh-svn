@@ -25,6 +25,8 @@ int gen_indexes(bool load = true);
 
 int read_indexes();
 
+void check_cache();
+
 bool package_exists(char *name);
 bool package_installed(char *name);
 

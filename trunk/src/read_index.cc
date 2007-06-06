@@ -87,6 +87,24 @@ int read_indexes()
 	return 0;
 }
 
+/* Checks whether cache file has been changed since last reading (stored in tmpdate). */
+/* TODO: It's possible that it's not needed any more, needs checking. */
+void check_cache()
+{
+	if (!CFG_REFRESH_INDEXES && !CFG_REFRESH_INDEXES_ALL)
+		return;
+	
+	free_indexes();
+
+	if (_config->FindB("APT::Cache::Generate", true)) {
+		puts("Generating and mapping caches...");
+		gen_indexes();
+	} else {
+		puts("Mapping caches...");
+		read_indexes();
+	}
+}
+
 /* Check whether a package exists. */
 bool package_exists(char *name)
 {

@@ -111,10 +111,12 @@ int cmd_aptize::execute(char *args)
 	string cmd = sh_command + " " + name + " " + args;
 	if (command_answer == "") {
 		int ret = system(cmd.c_str());
+		check_cache();
 		return WEXITSTATUS(ret);
 	} else {
 		FILE *fp = popen(cmd.c_str(), "w");
 		while ((fputs(command_answer.c_str(), fp)) != EOF);
+		check_cache();
 		return pclose(fp);
 	}
 }
