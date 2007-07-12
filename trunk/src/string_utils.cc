@@ -105,7 +105,7 @@ char * word_at_point(char *text, int point)
  * where you are, the text will be transformed into names of these files.
  * This function prevents it, by adding a \ character before every character
  * which may be treated specially.
- * Processing is stopped when found a > or | char.
+ * Processing is stopped when found > or | char.
  */
 char *escape_params(const char *text)
 {
