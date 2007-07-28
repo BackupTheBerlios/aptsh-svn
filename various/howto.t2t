@@ -157,7 +157,7 @@ aptsh> install xterm
 The last one type of completion in Aptsh is very unique and (currently) is available only for ``dpkg`` command. It handles all Dpkg's options (long, with ``--`` and short, with ``-``).
 
 ++Commands history++
-A list of commands that you have typed in is stored in Aptsh. You can access them with ``Up`` button. The list may be also kept in file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
+A list of commands that you have typed in is stored in Aptsh. You can browse it with ``Up`` and ``Down`` button. The list also may be kept in a file, so it will be accessible even after Aptsh restart. If you want to disable the history, set ``use_history`` variable in ``aptsh.conf`` to 0. Other variables connected with history are ``history_file`` - it's a file where the commands list is saved (please do not use the default one - it might be dangerous because the non-root users can read the file!), and ``history_count`` - it's the number of commands you want to save to a file (if it's 0, then history is not saved).
 
 ++Searching packages++
 +++Intro+++
